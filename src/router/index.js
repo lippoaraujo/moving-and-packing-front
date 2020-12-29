@@ -34,24 +34,28 @@ const routes = [
         components: {
           routeViewMoving: Customer,
         },
+        props: true,
       },
       {
         path: "rooms",
         components: {
           routeViewMoving: Room,
         },
+        props: true,
       },
       {
         path: "items",
         components: {
           routeViewMoving: Item,
         },
+        props: true,
       },
       {
         path: "orders",
         components: {
           routeViewMoving: Orders,
         },
+        props: true,
       },
     ],
   },
@@ -66,18 +70,21 @@ const routes = [
         components: {
           routeViewSystem: User,
         },
+        props: true,
       },
       {
         path: "usergroups",
         components: {
           routeViewSystem: UserGroup,
         },
+        props: true,
       },
       {
         path: "dashboard",
         components: {
           routeViewSystem: Permission,
         },
+        props: true,
       },
     ],
   },
@@ -94,6 +101,7 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/About.vue"),
+    props: true,
   },
   {
     path: "/login",
@@ -103,6 +111,7 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/Login.vue"),
+    props: true,
   },
 
 
@@ -114,6 +123,7 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/ErroDePermissao.vue"),
+    props: true,
   },
 
   
@@ -131,6 +141,7 @@ const routes = [
         components: {
           routeViewPrincipal: Modulos,
         },
+        props: true,
         //component: import("@/views/Modulos.vue"),
       },
       {
@@ -138,12 +149,13 @@ const routes = [
         components: {
           routeViewPrincipal: DashBoardSistema,
         },
+        props: true,
         //component: import("@/views/Modulos.vue"),
       },
     ],
   },
 
-  { path: "*", redirect: "/home" },
+  { path: "*", redirect: "/home", props: true, },
 ];
 
 const router = new VueRouter({
