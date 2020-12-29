@@ -36,7 +36,7 @@ export default new Vuex.Store({
       let objItemHome = {
         text: "home",
         disabled: false,
-        href: "/home",
+        href: "/#/home",
       };
       listReturn.push(objItemHome);
       
@@ -48,12 +48,12 @@ export default new Vuex.Store({
             objItem = {
               text: caminhosBreadcrumbs[i],
               disabled: true,
-              href: "/" + caminhosBreadcrumbs[i],
+              href: "/#/" + caminhosBreadcrumbs[i],
             };
           } else {
             objItem = {
               text: caminhosBreadcrumbs[i],
-              href: "/" + caminhosBreadcrumbs[i],
+              href: "/#/" + caminhosBreadcrumbs[i],
             };
           }
           //console.log(caminhosBreadcrumbs[i]);
