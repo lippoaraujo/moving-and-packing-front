@@ -61,10 +61,10 @@ export default {
   },
   created() {
     this.nomeApp = process.env.VUE_APP_NAME_APLICATION;
-    console.log(process.env);
-    console.log("aquiTopo");
-    console.log(this.nomeApp);
-    console.log("aquiTopo");
+    //console.log(process.env);
+    //console.log("aquiTopo");
+    //console.log(this.nomeApp);
+    //console.log("aquiTopo");
     //console.log("created");
     //console.log(this.$route.path);
     if (this.$route.path != "/home") {

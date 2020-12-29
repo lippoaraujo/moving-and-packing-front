@@ -3,15 +3,23 @@
     <v-main class="backGroundLogin">
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
-          <v-col cols="12" sm="8" md="8">
-            <v-card class="elevation-12 blue darken-4 accent-3">
+          <v-col cols="12" xs="8" sm="8" md="8" lg="8" xl="8">
+            <v-card class="elevation-12">
               <v-window v-model="step">
                 <v-window-item :value="1">
                   <v-row>
-                    <v-col cols="12" md="4" class="">
+                    <v-col
+                      cols="12"
+                      xs="12"
+                      sm="4"
+                      md="4"
+                      lg="4"
+                      xl="4"
+                      class="blue darken-4 rounded-l-lg"
+                    >
                       <v-card-text class="white--text mt-2">
                         <h1 class="text-center display-1">
-                          Moving and Packing
+                          {{ nomeApp }}
                         </h1>
                         <div class="text-center">
                           <v-avatar
@@ -44,7 +52,16 @@
                         </h5>
                       </div>
                     </v-col>
-                    <v-col cols="12" md="8" class="white rounded-r-lg">
+
+                    <v-col
+                      cols="12"
+                      xs="12"
+                      sm="8"
+                      md="8"
+                      lg="8"
+                      xl="8"
+                      class="white rounded-r-lg"
+                    >
                       <v-card-text class="text--white mt-2">
                         <h3 class="text-center Heading 4">
                           Acesso ao sistema.
@@ -96,7 +113,15 @@
 
                 <v-window-item :value="2">
                   <v-row>
-                    <v-col cols="12" md="8" class="white rounded-l-lg">
+                    <v-col
+                      cols="12"
+                      xs="12"
+                      sm="8"
+                      md="8"
+                      lg="8"
+                      xl="8"
+                      class="white rounded-l-lg"
+                    >
                       <v-card-text class="text--white mt-8">
                         <h3 class="text-center Heading 4">Recuperar senha</h3>
                         <p class="text-center Heading 6">
@@ -104,6 +129,7 @@
                           recuperação de senha
                         </p>
                         <v-form>
+                          <br />
                           <v-text-field
                             prepend-inner-icon="mdi-email-plus-outline"
                             label="Informe seu e-mail"
@@ -112,6 +138,7 @@
                             :rules="emailRules"
                             required
                           />
+                          <br />
                         </v-form>
                       </v-card-text>
                       <div class="text-center mt3">
@@ -121,9 +148,20 @@
                         </v-btn>
                       </div>
                     </v-col>
-                    <v-col cols="12" md="4" class="">
+
+                    <v-col
+                      cols="12"
+                      xs="12"
+                      sm="4"
+                      md="4"
+                      lg="4"
+                      xl="4"
+                      class="blue darken-4 rounded-r-lg"
+                    >
                       <v-card-text class="white--text mt-5">
-                        <h1 class="text-center display-1">Inventory System</h1>
+                        <h1 class="text-center display-1">
+                          {{ nomeApp }}
+                        </h1>
                         <div class="text-center">
                           <v-avatar
                             class="my-3 elevation-12"
@@ -177,6 +215,7 @@ import { execGet } from "@/helper/execRequests.js";
 export default {
   data: () => ({
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/auth/login",
+    nomeApp: "",
 
     step: 1,
     overlay: false,
@@ -206,8 +245,11 @@ export default {
     this.overlay = true;
     //this.$i18n.locale =
   },
+  mounted() {
+    this.nomeApp = process.env.VUE_APP_NAME_APLICATION;
+  },
 
-  Create: function () {
+  create: function () {
     sessionStorage.setItem("logado", false);
     // the data object is not yet created
     this.overlay = false;

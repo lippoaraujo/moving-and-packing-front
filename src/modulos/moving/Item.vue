@@ -113,15 +113,14 @@
                 <v-row>
                   <v-col>
                     <v-select
-                      :items="listapacking"
-                      v-model="objForm.packing_id"
+                      :items="listPacking"
+                      v-model="objForm.packing"
                       label="Embalagem"
-                      hide-details="true"
                       :item-text="(item) => item.name + ' - ' + item.unity"
                       item-value="id"
-                      return-object
                       outlined
-                      solo
+                      return-object
+                      :rules="packingRules"
                     >
                       <!--<template slot="selection" slot-scope="data">
                         {{ data.item.name }} {{ data.item.unity }}
@@ -130,9 +129,10 @@
                   </v-col>
                   <v-col>
                     <v-text-field
-                      v-model="objForm.packing_qtd"
+                      v-model="objForm.packing_qty"
                       label="Quantidade"
                       outlined
+                      type="number"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -169,6 +169,9 @@
         </v-tab-item>
       </v-tabs-items>
     </v-col>
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </v-row>
 </template>
 <script>
@@ -176,21 +179,26 @@ import { mask } from "vue-the-mask";
 
 import { getObjMenu } from "@/helper/getModulosRotasActionsUserLogado.js";
 
+import { execPost, execGet, execPut } from "@/helper/execRequests.js";
+
 export default {
   directives: { mask },
   name: "Customer",
 
   data: () => ({
+    overlay: false,
+    urlAPI: process.env.VUE_APP_URL_CONNECTION + "/moving/items",
+    urlAPIPacking: process.env.VUE_APP_URL_CONNECTION + "/moving/packings",
+
     money: {
       decimal: ".",
       thousands: "",
       precision: 2,
       masked: true /* doesn't work with directive */,
     },
-
+    listPacking: [],
     menu: "",
     headerRequest: "",
-    urlAPI: process.env.VUE_APP_URL_CONNECTION + "/moving/items",
 
     itensTituloTabs: [
       { id: 0, nome: "Dados", icon: "mdi-view-list" },
@@ -198,37 +206,14 @@ export default {
     ],
     search: "",
 
-    listapacking: [
-      {
-        id: 1,
-        name: "Caixa de papelão",
-        unity: "Unitário",
-      },
-      {
-        id: 2,
-        name: "Sacola",
-        unity: "Metro",
-      },
-      {
-        id: 3,
-        name: "Pacote",
-        unity: "Fardo",
-      },
-      {
-        id: 4,
-        name: "Caixa de madeira",
-        unity: "Unitario",
-      },
-    ],
-
     objForm: {
       id: "",
       name: "",
       description: "",
       cubic_feet: "",
       tag: "",
-      packing_id: "",
-      packing_qtd: "",
+      packing: "",
+      packing_qty: "",
     },
 
     drawer: null,
@@ -269,6 +254,8 @@ export default {
         (v && v.length <= 200) || "O Nome deve ter no máximo 200 caracteres",
     ],
 
+    packingRules: [(v) => !!v || "Embalagem é obrigatorio"],
+
     select: null,
   }),
 
@@ -283,13 +270,14 @@ export default {
     this.menu = getObjMenu(this.$route.path);
   },
 
-  mounted() {
-    this.listar();
+  async mounted() {
     this.getEstadoMenu = true;
     this.getCaminhoBreadCrumb = this.$route.path.split("/");
     window.onpopstate = () => {
       location.reload();
     };
+    this.getListPacking();
+    this.listar();
   },
 
   computed: {
@@ -314,6 +302,7 @@ export default {
 
   methods: {
     listar: function () {
+      this.overlay = true;
       this.objLoadingGrid = true;
 
       this.$axios.get(this.urlAPI, this.headerRequest).then(
@@ -330,9 +319,11 @@ export default {
             );
           }
           this.objLoadingGrid = false;
+          this.overlay = false;
         },
         (error) => {
           this.objLoadingGrid = false;
+          this.overlay = false;
           this.$dialog.message.error("Consultar dados: " + error, {
             position: "top-right",
             timeout: 5000,
@@ -353,86 +344,98 @@ export default {
       }
     },
 
-    salvar: function () {
-      if (this.$refs.form.validate()) {
-        if (this.objForm.id > 0) {
-          let objUpdate = {
-            id: this.objForm.id,
-            name: this.objForm.name,
-            description: this.objForm.description,
-            cubic_feet: this.objForm.cubic_feet,
-            tag: this.objForm.tag,
-            active: this.objForm.active,
-          };
-          let msgm = "Item " + this.objForm.name + " alterado com sucesso!";
-          let urlUpdate = this.urlAPI.concat("/" + this.objForm.id);
-          console.log(urlUpdate);
-          console.log(objUpdate);
-          console.log(this.headerRequest);
-          this.$axios.put(urlUpdate, objUpdate, this.headerRequest).then(
-            (response) => {
-              if (response.status == 200) {
-                this.$dialog.message.success(msgm, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-                this.reset();
-                this.listar();
-              } else {
-                this.$dialog.message.error(response.status, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-              }
-            },
-            (error) => {
-              this.$dialog.message.error(error, {
-                position: "top-right",
-                timeout: 5000,
-              });
-            }
-          );
-        } else {
-          let msgm =
-            "Costomer " + this.objForm.name + " cadastrado com sucesso!";
-          let objSalvar = {
-            name: this.objForm.name,
-            description: this.objForm.description,
-            cubic_feet: this.objForm.cubic_feet,
-            tag: this.objForm.tag,
-            active: this.objForm.active,
-          };
-          console.log(objSalvar);
+    execUpdate: async function () {
+      let urlPut = this.urlAPI.concat("/" + this.objForm.id);
+      let objPut = {
+        id: this.objForm.id,
+        name: this.objForm.name,
+        description: this.objForm.description,
+        cubic_feet: this.objForm.cubic_feet,
+        tag: this.objForm.tag,
+        packing_id: this.objForm.packing.id,
+        packing_qty: this.objForm.packing_qty,
+      };
+      let msgm = "Item " + this.objForm.name + " alterado com sucesso!";
 
-          this.$axios.post(this.urlAPI, objSalvar, this.headerRequest).then(
-            (response) => {
-              if (response.status == 201) {
-                this.$dialog.message.success(msgm, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-                this.reset();
-                this.listar();
-              } else {
-                this.$dialog.message.error(response.status, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-              }
-            },
-            (error) => {
-              this.$dialog.message.error(error, {
-                position: "top-right",
-                timeout: 5000,
-              });
+      //console.log(JSON.stringify(objSalvar));
+      let retornoExecPost = await execPut.call(
+        this,
+        urlPut,
+        objPut,
+        this.headerRequest
+      );
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    execSalvar: async function () {
+      let msgm = "Item " + this.objForm.name + " cadastrado com sucesso!";
+      let objSalvar = {
+        name: this.objForm.name,
+        description: this.objForm.description,
+        cubic_feet: this.objForm.cubic_feet,
+        tag: this.objForm.tag,
+        packing_id: this.objForm.packing.id,
+        packing_qty: this.objForm.packing_qty,
+      };
+
+      //console.log(JSON.stringify(objSalvar));
+      let retornoExecPost = await execPost.call(
+        this,
+        this.urlAPI,
+        objSalvar,
+        this.headerRequest
+      );
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    salvar: async function () {
+      try {
+        this.objLoadingGrid = true;
+
+        if (this.validate()) {
+          if (this.objForm.id > 0) {
+            let retornoAlterar = await this.execUpdate();
+            if (retornoAlterar) {
+              this.reset();
+              this.listar();
             }
-          );
+          } else {
+            let retornoSalvar = await this.execSalvar();
+            if (retornoSalvar) {
+              this.reset();
+              this.listar();
+            }
+          }
         }
+      } catch (e) {
+        this.objLoadingGrid = false;
+        this.$dialog.message.error("Executa salvar: " + e.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      } finally {
+        this.objLoadingGrid = false;
       }
     },
 
     validate: function () {
-      alert(this.$refs.form.validate());
+      return this.$refs.form.validate();
     },
 
     reset: function () {
@@ -444,40 +447,39 @@ export default {
       this.$refs.form.resetValidation();
     },
 
-    alterar: function (item) {
-      let urlGet = this.urlAPI.concat("/" + item.id);
-      this.$axios.get(urlGet, this.headerRequest).then(
-        (response) => {
-          if (response.status === 200) {
-            let objEdicao = response.data.data;
+    alterar: async function (item) {
+      this.overlay = true;
+      //?id=7&get_data=true
+      //orders/2?get_data=true
 
-            this.objForm.id = objEdicao.id;
-            this.objForm.name = objEdicao.name;
-            this.objForm.description = objEdicao.description;
-            this.objForm.cubic_feet = objEdicao.cubic_feet;
-            this.objForm.tag = objEdicao.tag;
+      let urlGet = this.urlAPI.concat("/" + item.id + "?get_data=true");
 
-            this.tab = 1;
-          } else {
-            this.$dialog.message.error(
-              "Erro alterar dados: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
+      try {
+        let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
+        this.objForm.id = objEdicao.id;
+        this.objForm.name = objEdicao.name;
+        this.objForm.description = objEdicao.description;
+        this.objForm.cubic_feet = objEdicao.cubic_feet;
+        this.objForm.tag = objEdicao.tag;
+        let b = 0;
+        for (b; b < this.listPacking.length; b++) {
+          if (this.listPacking[b].id == objEdicao.packing_id) {
+            this.objForm.packing = this.listPacking[b];
           }
-        },
-        (error) => {
-          this.$dialog.message.error("Erro alterar dados: " + error, {
+        }
+        this.objForm.packing_qty = objEdicao.packing_qty;
+        this.tab = 1;
+      } catch (e) {
+        this.$dialog.message.error(
+          "Erro consultar dados alterar mudança: " + e.message,
+          {
             position: "top-right",
             timeout: 5000,
-          });
-        }
-      );
-      //this.editedIndex = this.desserts.indexOf(item);
-      //this.editedItem = Object.assign({}, item);
-      //this.dialog = true;
+          }
+        );
+      } finally {
+        this.overlay = false;
+      }
     },
 
     excluir: function (item) {
@@ -512,6 +514,24 @@ export default {
         }
       );
       this.listar();
+    },
+
+    getListPacking: async function () {
+      try {
+        this.objLoadingGrid = true;
+        this.listPacking = await execGet.call(
+          this,
+          this.urlAPIPacking,
+          this.headerRequest
+        );
+      } catch (e) {
+        this.$dialog.message.error("search data packing: " + e.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      } finally {
+        this.objLoadingGrid = false;
+      }
     },
   },
 };
