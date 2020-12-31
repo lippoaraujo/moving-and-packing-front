@@ -240,11 +240,16 @@ export default {
         //console.log(objItem[0]);
         //console.log(this.objForm.itemObs);
 
+        let obsItem = "";
+        if (this.objForm.itemObs != undefined) {
+          obsItem = this.objForm.itemObs;
+        }
+
         setItemStorageSessionNovo(
           this.getValorVariavelIdMudanca,
           this.getValorvariavelIdComodo,
           this.objForm.item,
-          this.objForm.itemObs
+          obsItem
         );
         this.preencherItensAbrirJanela();
         this.reset();

@@ -66,9 +66,8 @@
           <v-card flat class="elevation-5">
             <v-card-text>
               <v-form
-                v-on:submit.prevent="salvar(objForm)"
+                v-on:submit.prevent="salvarMudanca(objForm)"
                 ref="objForm"
-                v-model="valid"
                 lazy-validation
               >
                 <v-row>
@@ -716,7 +715,7 @@ export default {
     window.onpopstate = () => {
       location.reload();
     };
-    this.cancelarMudanca();
+    this.limparItensSessaoMudanca();
     await this.getListaClienteAdd();
     await this.getListaComodosAdd();
     await this.identificaUsuarioLogado();
@@ -726,10 +725,14 @@ export default {
   },
 
   computed: {
-    dateFormated() {
-      //return this.date;
-      //return this.date | moment('DD/MM/YYYY');
-      return moment(this.objForm.dateMudanca).format("DD/MM/YYYY");
+    dateFormated: {
+      get() {
+        return moment(this.objForm.dateMudanca).format("DD/MM/YYYY");
+      },
+      set() {
+        let dt = new Date().toISOString().substr(0, 10);
+        return moment(dt).format("DD/MM/YYYY");
+      },
     },
 
     getEstadoMenu: {
@@ -774,7 +777,7 @@ export default {
         );
       } else {
         this.variavelIdComodo = this.objForm.comodo.id;
-        alert(this.variavelIdComodo);
+
         if (this.variavelIdComodo <= 0) {
           this.$dialog.message.error(
             "Escolha um cômodo para adicionar seu itens",
@@ -900,17 +903,19 @@ export default {
       }
     },
 
-    salvarMudanca: function () {
+    salvarMudanca: async function () {
       try {
-        this.objLoadingGrid = true;
+        this.overlay = true;
         if (this.validate()) {
           if (this.objForm.id > 0) {
-            if (this.execUpdate()) {
+            let retornoUpdate = await this.execUpdate();
+            if (retornoUpdate) {
               this.cancelarMudanca();
               this.listar(false);
             }
           } else {
-            if (this.execSalvar()) {
+            let retornoSalvar = await this.execSalvar();
+            if (retornoSalvar) {
               this.cancelarMudanca();
               this.listar(false);
             }
@@ -923,7 +928,7 @@ export default {
           timeout: 5000,
         });
       } finally {
-        this.objLoadingGrid = false;
+        this.overlay = false;
       }
     },
 
@@ -1054,26 +1059,18 @@ export default {
 
     cancelarMudanca: function () {
       this.limparItensSessaoMudanca();
-      this.objForm.id = "";
-      this.objForm.vendedor = "";
-      this.objForm.cliente = "";
-      this.objForm.checkedEndereco = false;
-      this.objForm.address = "";
-      this.objForm.postcode = "";
-      this.objForm.city = "";
-      this.objForm.locality = "";
-      this.objForm.country = "";
-      this.objForm.country = new Date().toISOString().substr(0, 10);
-      //this.$refs.objForm.reset();
+      //console.log(this.$refs.objForm);
+      this.$refs.objForm.reset();
+      let dt = moment(this.objForm.dateMudanca).format("DD/MM/YYYY");
 
+      this.menuDataMudanca = true;
+      this.$refs.menuDataMudanca.save(dt);
+      this.dateFormated = dt;
       this.listaComodoExibir = null;
-      this.objForm.comodo = "";
-      this.objForm.obsComodo = "";
       this.alterandoComodoPosicaoArray = null;
       this.objComodoOriginarioEdit = null;
       this.variavelIdMudanca = 0;
       this.variavelIdComodo = 0;
-
       this.tab = 0;
     },
 
@@ -1183,37 +1180,6 @@ export default {
       } finally {
         this.objLoadingGrid = false;
       }
-
-      //urlAPICustomers: process.env.VUE_APP_URL_CONNECTION + "/moving/customers",
-      //urlAPIItems: process.env.VUE_APP_URL_CONNECTION + "/moving/items",
-      //urlAPIRooms: process.env.VUE_APP_URL_CONNECTION + "/moving/rooms",
-
-      //listaVendedorAdd:null, listaClienteAdd:null,
-      /*this.objLoadingGrid = true;
-
-      this.$axios.get(this.urlAPIGetVendedores, this.headerRequest).then(
-        (response) => {
-          if (response.status == 200) {
-            this.listaVendedorAdd = response.data.data;
-          } else {
-            this.$dialog.message.error(
-              "Erro consultar dados vendedores: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-          this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.objLoadingGrid = false;
-          this.$dialog.message.error("Consultar dados vendedores: " + error, {
-            position: "top-right",
-            timeout: 5000,
-          });
-        }
-      );*/
     },
 
     getListaClienteAdd: async function () {
@@ -1234,30 +1200,6 @@ export default {
       } finally {
         this.objLoadingGrid = false;
       }
-
-      /*this.$axios.get(this.urlAPICustomers, this.headerRequest).then(
-        (response) => {
-          if (response.status == 200) {
-            this.listaClienteAdd = response.data.data;
-          } else {
-            this.$dialog.message.error(
-              "Erro consultar dados clientes: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-          this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.objLoadingGrid = false;
-          this.$dialog.message.error("Consultar dados clientes: " + error, {
-            position: "top-right",
-            timeout: 5000,
-          });
-        }
-      );*/
     },
 
     getListaComodosAdd: async function () {
@@ -1288,27 +1230,39 @@ export default {
           timeout: 5000,
         });
       } else {
-        //VERIFICAR SE JA TEM ITEM ADICIONADO SE NAO TIVER NAO PERMITE
-        if (this.alterandoComodoPosicaoArray != null) {
-          setComodoStorageSession(
-            this.variavelIdMudanca,
-            this.objForm.comodo,
-            this.objForm.obsComodo,
-            this.alterandoComodoPosicaoArray,
-            this.objComodoOriginarioEdit
+        let storageListItem = JSON.parse(
+          sessionStorage.getItem("storageListaItemComodo")
+        );
+        if (storageListItem == null || storageListItem.length == 0) {
+          this.$dialog.message.error(
+            "É necessario que exista ao menos um item para poder adicionar o comodo",
+            {
+              position: "top-right",
+              timeout: 5000,
+            }
           );
         } else {
-          setComodoStorageSession(
-            this.variavelIdMudanca,
-            this.objForm.comodo,
-            this.objForm.obsComodo,
-            null,
-            null
-          );
-        }
+          if (this.alterandoComodoPosicaoArray != null) {
+            setComodoStorageSession(
+              this.variavelIdMudanca,
+              this.objForm.comodo,
+              this.objForm.obsComodo,
+              this.alterandoComodoPosicaoArray,
+              this.objComodoOriginarioEdit
+            );
+          } else {
+            setComodoStorageSession(
+              this.variavelIdMudanca,
+              this.objForm.comodo,
+              this.objForm.obsComodo,
+              null,
+              null
+            );
+          }
 
-        this.preencherComodoListaStorage();
-        this.resetComodo();
+          this.preencherComodoListaStorage();
+          this.resetComodo();
+        }
       }
     },
 
