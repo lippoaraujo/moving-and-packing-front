@@ -31,164 +31,146 @@
             <v-card-text>
               <v-row>
                 <v-col>
-                  <span class="subtitle-2">Grupo de usuários</span>
-                  <v-autocomplete
+                  <v-select
                     v-model="selectGrupoUsuario"
-                    :items="itemsSelect"
-                    dense
-                    filled
-                    label="Grupo de usuario"
-                    solo
-                    background-color="white--text"
-                  ></v-autocomplete>
+                    :items="listaGrupoPermissao"
+                    label="Grupo do usuario"
+                    item-text="name"
+                    item-value="id"
+                    return-object
+                    outlined
+                  ></v-select>
                 </v-col>
                 <v-col>
-                  <span class="subtitle-2">Módulos</span>
-                  <v-autocomplete
+                  <v-select
                     v-model="selectModulosGrupoUsuario"
                     :items="listaModulos"
-                    dense
                     label="Modulos"
-                    solo
-                    background-color="white--text"
-                  ></v-autocomplete>
+                    item-text="name"
+                    item-value="id"
+                    return-object
+                    outlined
+                    @change="preencherPermissaoPorModulos"
+                  ></v-select>
                 </v-col>
               </v-row>
-              <v-simple-table dense>
-                <template v-slot:default>
-                  <thead>
-                    <tr>
-                      <th class="text-left subtitle-1">Menu</th>
-                      <th colspan="4" class="text-left subtitle-1">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      {{
-                        listaMenucheked
-                      }}
-                    </tr>
-                    <tr>
-                      {{
-                        listaActioncheked
-                      }}
-                    </tr>
-                    <tr v-for="(itemMenu, key) in listaMenus" :key="key">
-                      <td>
-                        <v-checkbox
-                          :label="itemMenu.name"
-                          v-model="listaMenucheked"
-                          :value="itemMenu.name"
-                          color="blue darken-4"
-                          @click="preencherTodasAcoesMenu(itemMenu)"
-                        ></v-checkbox>
-                      </td>
-
-                      <td>
-                        <v-simple-table>
-                          <tbody>
-                            <tr>
-                              <td
-                                v-for="(actions,
-                                keyy,
-                                index) in itemMenu.actions"
-                                :key="index"
-                              >
-                                <v-checkbox
-                                  :label="actions.nameAction"
-                                  v-model="listaActioncheked"
-                                  :value="actions.nameAction + itemMenu.id"
-                                  color="blue darken-4"
-                                ></v-checkbox>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </v-simple-table>
-                      </td>
-                    </tr>
-                  </tbody>
-                </template>
-              </v-simple-table>
-              <v-btn
-                dark
-                tile
-                color="blue darken-2"
-                class="mr-4 white--text"
-                @click="salvar"
-              >
-                Salvar
-                <v-icon right dark>mdi-content-save</v-icon>
-              </v-btn>
-              <v-btn
-                dark
-                tile
-                color="blue darken-2"
-                class="mr-4 white--text"
-                @click="reset"
-              >
-                Cancelar
-                <v-icon right dark>mdi-cancel</v-icon>
-              </v-btn>
-            </v-card-text>
-          </v-card>
-        </v-tab-item>
-
-        <v-tab-item>
-          <v-card flat class="elevation-5">
-            <v-card-text>
-              <!--<v-form
-                    v-on:submit.prevent="salvar(objForm)"
-                    ref="form"
-                    v-model="valid"
-                    lazy-validation
+              <v-row>
+                <v-col>
+                  <v-expansion-panels
+                    class="elevation-5 rounded-lg"
+                    accordion
+                    multiple
+                    v-model="panelList"
                   >
-                    <v-row>
-                      <v-col>
-                        <v-text-field
-                          v-model="objForm.name"
-                          :counter="200"
-                          :rules="nameRules"
-                          label="Name"
-                          required
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
+                    <v-expansion-panel
+                      v-for="(modulo, key) in listaModule"
+                      :key="key"
+                    >
+                      <v-expansion-panel-header>
+                        {{ modulo.name }}
+                      </v-expansion-panel-header>
 
-                    <v-row>
-                      <v-col>
-                        <v-checkbox
-                          v-model="objForm.active"
-                          label="Active"
-                        ></v-checkbox>
-                      </v-col>
-                    </v-row>
+                      <v-expansion-panel-content>
+                        <v-simple-table dense>
+                          <template v-slot:default>
+                            <thead>
+                              <tr>
+                                <th class="text-left subtitle-1">Menu</th>
+                                <th colspan="4" class="text-left subtitle-1">
+                                  Ações
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                {{
+                                  listaMenucheked
+                                }}
+                              </tr>
+                              <tr>
+                                {{
+                                  listaActioncheked
+                                }}
+                              </tr>
+                              <tr
+                                v-for="(
+                                  itemMenu, key
+                                ) in modulo.routes_permissions"
+                                :key="key"
+                              >
+                                <td>
+                                  <v-checkbox
+                                    :label="itemMenu.name"
+                                    v-model="listaMenucheked"
+                                    :value="itemMenu.name"
+                                    color="blue darken-4"
+                                    @click="preencherTodasAcoesMenu(itemMenu)"
+                                  ></v-checkbox>
+                                </td>
 
-                    <v-row>
-                      <v-col>
-                        <v-btn
-                          dark
-                          tile
-                          color="blue darken-2"
-                          class="mr-4 white--text"
-                          @click="salvar"
-                        >
-                          Salvar
-                          <v-icon right dark>mdi-content-save</v-icon>
-                        </v-btn>
-                        <v-btn
-                          dark
-                          tile
-                          color="blue darken-2"
-                          class="mr-4 white--text"
-                          @click="reset"
-                        >
-                          Cancelar
-                          <v-icon right dark>mdi-cancel</v-icon>
-                        </v-btn>
-                      </v-col>
-                    </v-row>
+                                <td>
+                                  <v-simple-table>
+                                    <tbody>
+                                      <tr>
+                                        <td
+                                          v-for="(
+                                            actions, keyy, index
+                                          ) in itemMenu.actions"
+                                          :key="index"
+                                        >
+                                          <v-checkbox
+                                            :label="actions.name"
+                                            v-model="listaActioncheked"
+                                            :value="
+                                              actions.name +
+                                              '_' +
+                                              itemMenu.id +
+                                              '_' +
+                                              itemMenu.id
+                                            "
+                                            color="blue darken-4"
+                                          ></v-checkbox>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </v-simple-table>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </template>
+                        </v-simple-table>
+                      </v-expansion-panel-content>
+                    </v-expansion-panel>
+                  </v-expansion-panels>
+                </v-col>
+              </v-row>
 
-                  </v-form> -->
+              <center>
+                <v-row>
+                  <v-col>
+                    <v-btn
+                      dark
+                      tile
+                      color="blue darken-2"
+                      class="mr-4 white--text"
+                      @click="salvar"
+                    >
+                      Salvar
+                      <v-icon right dark>mdi-content-save</v-icon>
+                    </v-btn>
+                    <v-btn
+                      dark
+                      tile
+                      color="blue darken-2"
+                      class="mr-4 white--text"
+                      @click="reset"
+                    >
+                      Cancelar
+                      <v-icon right dark>mdi-cancel</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </center>
             </v-card-text>
           </v-card>
         </v-tab-item>
@@ -204,14 +186,25 @@ import {
   getModulosUser,
 } from "@/helper/getModulosRotasActionsUserLogado.js";
 
+import {
+  //execPost,
+  execGet,
+} from "@/helper/execRequests.js";
+
+import { getListPermissionStorageSession } from "@/modulos/system/helper/getSetPermissionStorageSession.js";
+
 export default {
   directives: { mask },
   name: "User",
 
   data: () => ({
-    selectGrupoUsuario: "",
-    selectModulosGrupoUsuario: "",
-    listaModulos: "",
+    panelList: [],
+    urlAPIGrupoUser: process.env.VUE_APP_URL_CONNECTION + "/system/usergroups",
+    urlAPIRoutes: process.env.VUE_APP_URL_CONNECTION + "system/routes",
+
+    selectGrupoUsuario: null,
+    selectModulosGrupoUsuario: null,
+    listaModulos: [],
     menu: "",
     //headerRequest: "",
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/system/dashboard",
@@ -220,83 +213,167 @@ export default {
       { id: 0, nome: "Permissão por grupo", icon: "mdi-account-group" },
       { id: 1, nome: "Permissão por usuario", icon: "mdi-account-tie" },
     ],
-    itemsSelect: ["foo", "bar", "fizz", "buzz"],
+    listaGrupoPermissao: [],
 
     listaMenucheked: [],
     listaActioncheked: [],
 
-    listaMenus: [
+    listaModule: [],
+    /*
+    listaModule: [
       {
         id: 1,
-        name: "User",
-        actions: [
+        name: "System",
+        routes_permissions: [
           {
             id: 1,
-            nameAction: "salvar",
+            name: "User",
+            actions: [
+              {
+                id: 1,
+                name: "salvar",
+              },
+              {
+                id: 2,
+                name: "alterar",
+              },
+              {
+                id: 3,
+                name: "excluir",
+              },
+              {
+                id: 3,
+                name: "deletar",
+              },
+            ],
           },
           {
             id: 2,
-            nameAction: "alterar",
+            name: "User Group",
+
+            actions: [
+              {
+                id: 1,
+                name: "salvar",
+              },
+              {
+                id: 2,
+                name: "alterar",
+              },
+              {
+                id: 3,
+                name: "excluir",
+              },
+              {
+                id: 3,
+                name: "deletar",
+              },
+            ],
           },
+
           {
             id: 3,
-            nameAction: "excluir",
-          },
-          {
-            id: 3,
-            nameAction: "deletar",
+            name: "Permission",
+
+            actions: [
+              {
+                id: 1,
+                name: "salvar",
+              },
+              {
+                id: 2,
+                name: "alterar",
+              },
+              {
+                id: 3,
+                name: "excluir",
+              },
+              {
+                id: 3,
+                name: "deletar",
+              },
+            ],
           },
         ],
       },
+
       {
         id: 2,
-        name: "User Group",
-
-        actions: [
+        name: "Moving",
+        routes_permissions: [
           {
             id: 1,
-            nameAction: "salvar",
+            name: "User",
+            actions: [
+              {
+                id: 1,
+                name: "salvar",
+              },
+              {
+                id: 2,
+                name: "alterar",
+              },
+              {
+                id: 3,
+                name: "excluir",
+              },
+              {
+                id: 3,
+                name: "deletar",
+              },
+            ],
           },
           {
             id: 2,
-            nameAction: "alterar",
-          },
-          {
-            id: 3,
-            nameAction: "excluir",
-          },
-          {
-            id: 3,
-            nameAction: "deletar",
-          },
-        ],
-      },
+            name: "User Group",
 
-      {
-        id: 3,
-        name: "Permission",
+            actions: [
+              {
+                id: 1,
+                name: "salvar",
+              },
+              {
+                id: 2,
+                name: "alterar",
+              },
+              {
+                id: 3,
+                name: "excluir",
+              },
+              {
+                id: 3,
+                name: "deletar",
+              },
+            ],
+          },
 
-        actions: [
-          {
-            id: 1,
-            nameAction: "salvar",
-          },
-          {
-            id: 2,
-            nameAction: "alterar",
-          },
           {
             id: 3,
-            nameAction: "excluir",
-          },
-          {
-            id: 3,
-            nameAction: "deletar",
+            name: "Permission",
+
+            actions: [
+              {
+                id: 1,
+                name: "salvar",
+              },
+              {
+                id: 2,
+                name: "alterar",
+              },
+              {
+                id: 3,
+                name: "excluir",
+              },
+              {
+                id: 3,
+                name: "deletar",
+              },
+            ],
           },
         ],
       },
     ],
-
+    */
     //search: "",
     objFormGroup: {},
     objFormUser: {},
@@ -326,15 +403,15 @@ export default {
     this.menu = getObjMenu(this.$route.path);
   },
 
-  mounted() {
-    this.listaModulos = this.getNomeModuloLista();
-    //this.listar();
+  async mounted() {
     this.getEstadoMenu = true;
     this.getCaminhoBreadCrumb = this.$route.path.split("/");
     window.onpopstate = () => {
       location.reload();
     };
-    //this.limparCheckMenu();
+    await this.getListaGrupoPermissao();
+    this.listaModulos = this.preencherSelectModulo();
+    //this.listaModule = getListPermissionStorageSession();
   },
 
   computed: {
@@ -358,22 +435,66 @@ export default {
   },
 
   methods: {
-    getNomeModuloLista: function () {
+    preencherPermissaoPorModulos: function () {
+      let modulo = this.selectModulosGrupoUsuario;
+      this.listaModule = getListPermissionStorageSession(modulo, null);
+      this.panelList = [];
+      this.listaMenucheked = [];
+      let i = 0;
+      for (i; i < this.listaModule.length; i++) {
+        let modulo = this.listaModule[i];
+        let men = 0;
+        for (men; men < modulo.routes_permissions.length; men++) {
+          let menu = modulo.routes_permissions[men];
+          console.log(menu);
+          if (menu.is_menu) {
+            this.listaMenucheked.push(menu.name);
+            //console.log(menu);
+            let act = 0;
+            for (act; act < menu.actions.length; act++) {
+              let action = menu.actions[act];
+              //:value="actions.name + '_' + itemMenu.id + '_' + itemMenu.id"
+              this.listaActioncheked.push(
+                action.name + "_" + menu.id + "_" + action.id
+              );
+              //console.log(action);
+            }
+          }
+        }
+        this.panelList.push(i);
+      }
+      console.log(this.listaMenucheked);
+      console.log(this.listaActioncheked);
+    },
+
+    preencherSelectModulo: function () {
       let list = getModulosUser();
       let i;
       let lisRetorno = [];
+      let obj = new Object();
+      obj.id = 0;
+      obj.name = " ";
+      this.panelList = [];
+      lisRetorno.push(obj);
       for (i = 0; i < list.length; i++) {
         let objModulo = list[i];
-        lisRetorno[i] = objModulo.name;
+        this.panelList.push(i);
+        lisRetorno[i + 1] = objModulo;
       }
       return lisRetorno;
     },
 
     preencherTodasAcoesMenu: function (itemMenu) {
+      console.log("aq");
+      console.log(this.listaMenucheked);
+      console.log(this.listaActioncheked);
+      console.log(itemMenu);
+      console.log("aq");
+
       for (let i = 0; i < itemMenu.actions.length; i++) {
         let action = itemMenu.actions[i];
-        let itemChecked = action.nameAction + itemMenu.id;
-        console.log(itemChecked);
+        let itemChecked = action.name + itemMenu.id;
+        //console.log(itemChecked);
         if (this.listaActioncheked.indexOf(itemChecked) === -1) {
           // Insere o número pois ele não existe
           this.listaActioncheked.push(itemChecked);
@@ -387,207 +508,39 @@ export default {
     reset: function () {},
     salvar: function () {},
 
-    /*
-    listar: function () {
-      this.objLoadingGrid = true;
+    //urlAPIRoutes
 
-      this.$axios.get(this.urlAPI, this.headerRequest).then(
-        (response) => {
-          if (response.status == 200) {
-            this.repassarListaObjetoArrayGrid(response.data);
-          } else {
-            this.$dialog.message.error(
-              "Erro consultar dados: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-          this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.objLoadingGrid = false;
-          this.$dialog.message.error("Consultar dados: " + error, {
+    getListaGrupoPermissao: async function () {
+      try {
+        this.objLoadingGrid = true;
+
+        let list = await execGet.call(
+          this,
+          this.urlAPIGrupoUser,
+          this.headerRequest
+        );
+
+        let obj = new Object();
+        obj.id = 0;
+        obj.name = " ";
+        let i = 0;
+        this.listaGrupoPermissao = [];
+        this.listaGrupoPermissao.push(obj);
+        for (i; i < list.length; i++) {
+          this.listaGrupoPermissao.push(list[i]);
+        }
+      } catch (e) {
+        this.$dialog.message.error(
+          "Erro consultar dados Grupo Permissao: " + e.message,
+          {
             position: "top-right",
             timeout: 5000,
-          });
-        }
-      );
-    },
-
-    repassarListaObjetoArrayGrid: function (list) {
-      this.desserts = [];
-      //console.log(list.data);
-      if (list.data.length > 0) {
-        let a = 0;
-        for (a; a < list.data.length; a++) {
-          this.desserts.push(list.data[a]);
-        }
+          }
+        );
+      } finally {
+        this.objLoadingGrid = false;
       }
     },
-
-    salvar: function () {
-      if (this.$refs.form.validate()) {
-        if (this.objForm.id > 0) {
-          let objUpdate = {
-            id: this.objForm.id,
-            tenant_id: 1,
-            name: this.objForm.name,
-            active: this.objForm.active,
-          };
-          let msgm =
-            "User groups " + this.objForm.name + " alterado com sucesso!";
-          let urlUpdate = this.urlAPI.concat("/" + this.objForm.id);
-          //console.log(urlUpdate);
-          //console.log(objUpdate);
-          //console.log(this.headerRequest);
-          this.$axios.put(urlUpdate, objUpdate, this.headerRequest).then(
-            (response) => {
-              if (response.status == 200) {
-                this.$dialog.message.success(msgm, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-                this.reset();
-                this.listar();
-              } else {
-                this.$dialog.message.error(response.status, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-              }
-            },
-            (error) => {
-              this.$dialog.message.error(error, {
-                position: "top-right",
-                timeout: 5000,
-              });
-            }
-          );
-        } else {
-          let msgm =
-            "User groups " + this.objForm.name + " cadastrado com sucesso!";
-          let objSalvar = {
-            name: this.objForm.name,
-            tenant_id: 1,
-            active: this.objForm.active,
-          };
-          this.$axios.post(this.urlAPI, objSalvar, this.headerRequest).then(
-            (response) => {
-              if (response.status == 201) {
-                this.$dialog.message.success(msgm, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-                this.reset();
-                this.listar();
-              } else {
-                this.$dialog.message.error(response.status, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-              }
-            },
-            (error) => {
-              this.$dialog.message.error(error, {
-                position: "top-right",
-                timeout: 5000,
-              });
-            }
-          );
-        }
-      }
-    },
-
-    validate: function () {
-      alert(this.$refs.form.validate());
-    },
-
-    reset: function () {
-      this.$refs.form.reset();
-      this.id = "";
-      this.name = "";
-      this.active = "";
-      this.tab = 0;
-    },
-
-    resetValidation: function () {
-      this.$refs.form.resetValidation();
-    },
-
-    alterar: function (item) {
-      let urlGet = this.urlAPI.concat("/" + item.id);
-      this.$axios.get(urlGet, this.headerRequest).then(
-        (response) => {
-          //console.log(response);
-          //console.log(response.data.data);
-
-          if (response.status === 200) {
-            let objEdicao = response.data.data;
-            //console.log(response.data.dados.obj[0]);
-
-            this.objForm.id = objEdicao.id;
-            this.objForm.name = objEdicao.name;
-            this.objForm.active = objEdicao.active;
-            this.tab = 1;
-            //this.headers = response.data.dados.obj;
-          } else {
-            this.$dialog.message.error(
-              "Erro alterar dados: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-        },
-        (error) => {
-          this.$dialog.message.error("Erro alterar dados: " + error, {
-            position: "top-right",
-            timeout: 5000,
-          });
-        }
-      );
-      //this.editedIndex = this.desserts.indexOf(item);
-      //this.editedItem = Object.assign({}, item);
-      //this.dialog = true;
-    },
-
-    excluir: function (item) {
-      let urlDelete = this.urlAPI.concat("/" + item.id);
-      //var myJSON = JSON.stringify(objPost);
-
-      this.$axios.delete(urlDelete, this.headerRequest).then(
-        (response) => {
-          //console.log(response);
-          if (response.status == 200) {
-            this.$dialog.message.success(item.name + " excluido com sucesso!", {
-              position: "top-right",
-              timeout: 5000,
-            });
-          } else {
-            this.$dialog.message.error(
-              "Excluir dados: " + response.data.mensagem,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-          this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.$dialog.message.error("Delete: " + error, {
-            position: "top-right",
-            timeout: 5000,
-          });
-          this.objLoadingGrid = false;
-        }
-      );
-      this.listar();
-    },
-    */
   },
 };
 </script>

@@ -11,6 +11,7 @@ import Customer from "@/modulos/moving/Customer.vue";
 import Room from "@/modulos/moving/Room.vue";
 import Item from "@/modulos/moving/Item.vue";
 import Orders from "@/modulos/moving/Orders.vue";
+import Packing from "@/modulos/moving/Packing.vue";
 
 import DashboardSystem from "@/modulos/system/DashboardSystem.vue";
 import User from "@/modulos/system/User.vue";
@@ -54,6 +55,13 @@ const routes = [
         path: "orders",
         components: {
           routeViewMoving: Orders,
+        },
+        props: true,
+      },
+      {
+        path: "packing",
+        components: {
+          routeViewMoving: Packing,
         },
         props: true,
       },
