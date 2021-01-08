@@ -59,7 +59,7 @@ const routes = [
         props: true,
       },
       {
-        path: "packing",
+        path: "packings",
         components: {
           routeViewMoving: Packing,
         },
