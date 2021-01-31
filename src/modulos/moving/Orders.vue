@@ -47,6 +47,18 @@
               :search="search"
             >
               <template v-slot:[`item.actions`]="{ item }">
+                <v-icon small class="mr-2" title="Resumo" @click="resumo(item)"
+                  >mdi-layers-outline</v-icon
+                >
+
+                <v-icon
+                  small
+                  class="mr-2"
+                  title="Relatorio"
+                  @click="relatorio(item)"
+                  >mdi-layers-triple-outline</v-icon
+                >
+
                 <v-icon
                   small
                   class="mr-2"
@@ -567,6 +579,7 @@ import { mask } from "vue-the-mask";
 import { getObjMenu } from "@/helper/getModulosRotasActionsUserLogado.js";
 import PoupUpAddItemComodo from "@/modulos/moving/components/PoupUpAddItemComodo.vue";
 import PoupUpAddImagemComodo from "@/modulos/moving/components/PoupUpAddImagemComodo.vue";
+
 import moment from "moment";
 
 import { execPost, execGet, execPut } from "@/helper/execRequests.js";
@@ -961,7 +974,9 @@ export default {
         address_data: address_data_obj,
         rooms: roomsListObj,
       };
-      //console.log(JSON.stringify(objSalvar));
+      //console.log("aqui");
+      //console.log(JSON.stringify(objPut));
+      //console.log("aqui2");
       let retornoExecPost = await execPut.call(
         this,
         urlPut,
@@ -1076,6 +1091,128 @@ export default {
 
     resetValidation: function () {
       this.$refs.objForm.resetValidation();
+    },
+
+    relatorio: async function (item) {
+      const res = await this.$dialog.confirm({
+        text: "Do you really want to exit?",
+        title: "Warning",
+      });
+      console.log(res);
+      console.log(item);
+    },
+
+    resumo: async function (item) {
+      this.overlay = true;
+      //?id=7&get_data=true
+      //orders/2?get_data=true
+
+      let urlGet = this.urlAPIOrders.concat("/" + item.id + "?get_data=true");
+
+      try {
+        let address = null;
+        let postcode = null;
+        let city = null;
+        let locality = null;
+        let country = null;
+
+        let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
+
+        //console.log(objEdicao);
+        //let idCliente = objEdicao.order_rooms;
+
+        if (objEdicao.address_id == objEdicao.customer.primary_address_id) {
+          //o endereco e o mesmo do cliente
+          //buscar endereco do cliente
+          let urlGetCustomer = this.urlAPICustomers.concat(
+            "/" + objEdicao.customer.id
+          );
+          let objCliente = await execGet.call(
+            this,
+            urlGetCustomer,
+            this.headerRequest
+          );
+          address = objCliente.primary_address.address;
+          postcode = objCliente.primary_address.postcode;
+          city = objCliente.primary_address.city;
+          locality = objCliente.primary_address.locality;
+          country = objCliente.primary_address.country;
+          //console.log(objCliente);
+        } else {
+          //e outro endereco
+          address = objEdicao.address.address;
+          postcode = objEdicao.address.postcode;
+          city = objEdicao.address.city;
+          locality = objEdicao.address.locality;
+          country = objEdicao.address.country;
+        }
+
+        let varText = "<div id='printMe'><h4>Cliente</h4>";
+        varText += "<h5>Nome: " + objEdicao.customer.name + "</h5>";
+        varText +=
+          "<h5>email: " +
+          objEdicao.customer.email +
+          " | telefone: " +
+          objEdicao.customer.phone +
+          "</h5>";
+        varText += "<hr>";
+        varText += "<br><h4>Vendedor</h4>";
+        varText +=
+          "<h5>nome: " +
+          objEdicao.user.name +
+          " | email: " +
+          objEdicao.user.email +
+          "</h5>";
+        varText += "<hr>";
+        varText += "<br><h4>Mudança</h4>";
+        varText += "<h5>Data: " + item.expected_date + "</h5>";
+        varText +=
+          "<h5>Endereco: " + address + ", " + city + " - " + postcode + "</h5>";
+        varText += "<h5>" + locality + ", " + country + "</h5>";
+        varText += "<br><h4>Comodos :" + objEdicao.order_rooms.length + "</h4>";
+        let a = 0;
+        for (a; a < objEdicao.order_rooms.length; a++) {
+          let objList = objEdicao.order_rooms[a];
+          //console.log(objList);
+          varText +=
+            "<h5>Room :" +
+            objList.room.name +
+            " - itens: " +
+            objList.items.length +
+            " - imagens: " +
+            objList.images.length +
+            "</h5>";
+        }
+        varText += "</div>";
+
+        const res = await this.$dialog.info({
+          title: "Resumo da order " + item.id,
+
+          text: varText,
+
+          actions: {
+            false: {
+              text: "Imprimir",
+              handle: () => {
+                this.$htmlToPaper("printMe");
+                return false;
+              },
+            },
+          },
+        });
+        console.log(res);
+        console.log(item);
+      } catch (e) {
+        this.$dialog.message.error(
+          "Erro consultar dados alterar mudança: " + e.message,
+          {
+            position: "top-right",
+            timeout: 5000,
+          }
+        );
+      } finally {
+        this.overlay = false;
+      }
     },
 
     alterar: async function (item) {
@@ -1339,5 +1476,21 @@ export default {
 <style >
 .v-input--selection-controls {
   margin-top: 3px !important;
+}
+
+.v-dialog.vuedl-layout.v-dialog--active {
+  max-width: 650px !important;
+  width: 650px !important;
+}
+
+.v-card.v-sheet.theme--light.rounded-0 > .v-card__actions {
+  background-color: #2196f3 !important;
+  border-color: #2196f3 !important;
+}
+
+.v-card__actions > .v-btn.v-btn--flat.v-btn--text.theme--light.v-size--default {
+  color: #ffffff !important;
+  background-color: #0d47a1 !important;
+  border-color: #0d47a1 !important;
 }
 </style>
