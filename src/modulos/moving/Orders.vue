@@ -974,7 +974,9 @@ export default {
         address_data: address_data_obj,
         rooms: roomsListObj,
       };
-      //console.log(JSON.stringify(objSalvar));
+      //console.log("aqui");
+      //console.log(JSON.stringify(objPut));
+      //console.log("aqui2");
       let retornoExecPost = await execPut.call(
         this,
         urlPut,
