@@ -10,28 +10,30 @@
               :elevation="hover ? 20 : 6"
               class="mx-auto"
               style="cursor: pointer"
-              :title="item.title"
+              :title="item.name"
               dark
-              @click="redirecionaTela(item.title)"
+              @click="redirecionaTela(item.name)"
             >
               <!-- <v-card-title class="headline" v-text="item.title"></v-card-title> -->
 
               <v-list-item>
                 <v-list-item-content>
                   <v-list-item-title class="title">{{
-                    item.title
+                    item.name
                   }}</v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-avatar>
                   <v-icon large>
-                    {{ item.icone }}
+                    {{ item.image }}
                   </v-icon>
                 </v-list-item-avatar>
               </v-list-item>
 
               <v-list-item>
                 <v-list-item-content>
-                  <v-list-item-subtitle>{{ item.artist }}</v-list-item-subtitle>
+                  <v-list-item-subtitle>{{
+                    item.description
+                  }}</v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
 
@@ -62,7 +64,9 @@
 </template>
 
 <script>
-import { getModulosUser } from "@/helper/getModulosRotasActionsUserLogado.js";
+//import { getModulosUser } from "@/helper/getModulosRotasActionsUserLogado.js";
+import { getListModules } from "@/helper/listRoutes.js";
+import { getPermissionModule } from "@/helper/getPermission.js";
 
 export default {
   name: "Modulos",
@@ -76,21 +80,21 @@ export default {
     /*items: [
       {
         color: "#1F7087",
-        title: "Sistema",
-        artist: "Descrição do módulo",
-        icone: "mdi-shield-home",
+        name: "Sistema",
+        description: "Descrição do módulo",
+        image: "mdi-shield-home",
       },
       {
         color: "#952175",
-        title: "Cadastros",
-        artist: "Descrição do módulo",
-        icone: "mdi-account-details",
+        name: "Cadastros",
+        description: "Descrição do módulo",
+        image: "mdi-account-details",
       },
       {
         color: "#3f6a4e",
-        title: "Mudança",
-        artist: "Descrição do módulo",
-        icone: "mdi-car-lifted-pickup",
+        name: "Mudança",
+        description: "Descrição do módulo",
+        image: "mdi-car-lifted-pickup",
       },
     ],*/
   }),
@@ -121,22 +125,24 @@ export default {
     },
 
     incializaTela: function () {
-      var listaDeModulos = getModulosUser();
-
-      if (listaDeModulos != null) {
-        var i;
-        for (i = 0; i < listaDeModulos.length; i++) {
-          var objModulo = listaDeModulos[i];
-          let objItem = {
-            color: objModulo.color,
-            title: objModulo.name,
-            artist: objModulo.description,
-            icone: objModulo.image,
-          };
-          this.items.push(objItem);
+      if (JSON.parse(sessionStorage.getItem("userAdmin"))) {
+        this.items = getListModules();
+      } else {
+        let listModuleFront = getListModules();
+        if (listModuleFront != null) {
+          let a = 0;
+          let listaInicialModulos = [];
+          for (a; a < listModuleFront.length; a++) {
+            let moduleFront = listModuleFront[a];
+            if (getPermissionModule(moduleFront.name)) {
+              listaInicialModulos.push(moduleFront);
+            }
+          }
+          this.items = listaInicialModulos.filter(function (elem, index, self) {
+            return index === self.indexOf(elem);
+          });
         }
       }
-      //console.log(this.items);
     },
   },
 };

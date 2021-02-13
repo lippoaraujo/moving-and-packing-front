@@ -11,7 +11,7 @@
     <v-list-item>
       <v-list-item-content>
         <v-list-item-title class="title">
-          {{ this.objModulo.name }}
+          {{ this.objModulo.nameExibicao }}
         </v-list-item-title>
         <v-list-item-subtitle>
           {{ this.objModulo.description }}
@@ -25,13 +25,13 @@
         :key="i"
         link
         style="cursor: pointer"
-        :to="item.caminhoLink"
+        :to="item.url"
       >
         <v-list-item-action>
           <v-icon>{{ item.icon }}</v-icon>
         </v-list-item-action>
         <v-list-item-content>
-          <v-list-item-title>{{ item.nomeMenu }}</v-list-item-title>
+          <v-list-item-title>{{ item.nameExibicao }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
@@ -56,18 +56,23 @@
   </v-navigation-drawer>
 </template>
 <script>
+/*
 import {
   getMenusModulo,
   getModulo,
-} from "@/helper/getModulosRotasActionsUserLogado.js";
+} from "@/helper/getModulosRotasActionsUserLogado.js";*/
+
+import { getListMenuModule, getListModules } from "@/helper/listRoutes.js";
+import { getPermissionMenu } from "@/helper/getPermission.js";
+
 export default {
   name: "Menu",
   data() {
     return {
-      objModulo: getModulo(this.$route.path),
+      objModulo: null,
       items: [
         /*{
-          name: "Sistema",
+          nameExibicao: "Sistema",
           icon: "mdi-shield-home",
         },*/
       ],
@@ -77,23 +82,43 @@ export default {
   mounted() {},
 
   created() {
+    this.getModuloDoMenu();
     this.incializaTela();
   },
 
   methods: {
+    getModuloDoMenu: function () {
+      let arrayNameModulo = this.$route.path.split("/");
+      let nameModuleRoute = arrayNameModulo[1];
+      let listModule = getListModules();
+
+      let a = 0;
+      for (a; a < listModule.length; a++) {
+        let objModu = listModule[a];
+        if (objModu.name === nameModuleRoute) {
+          this.objModulo = objModu;
+          break;
+        }
+      }
+    },
+
     incializaTela: function () {
-      let listaDeMenus = getMenusModulo(this.$route.path);
-      console.log("menu incializaTela: " + listaDeMenus.length);
-      if (listaDeMenus.length > 0) {
-        let i;
-        for (i = 0; i < listaDeMenus.length; i++) {
-          let objMenu = listaDeMenus[i];
-          let objItem = {
-            nomeMenu: objMenu.name,
-            icon: objMenu.image,
-            caminhoLink: "/" + this.objModulo.name + "/" + objMenu.name,
-          };
-          this.items.push(objItem);
+      if (JSON.parse(sessionStorage.getItem("userAdmin"))) {
+        this.items = getListMenuModule(this.$route.path);
+      } else {
+        let listMenuFront = getListMenuModule(this.$route.path);
+        if (listMenuFront != null) {
+          let a = 0;
+          let listaInicialMenu = [];
+          for (a; a < listMenuFront.length; a++) {
+            let menuFront = listMenuFront[a];
+            if (getPermissionMenu(menuFront.name)) {
+              listaInicialMenu.push(menuFront);
+            }
+          }
+          this.items = listaInicialMenu.filter(function (elem, index, self) {
+            return index === self.indexOf(elem);
+          });
         }
       }
     },

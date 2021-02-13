@@ -126,31 +126,89 @@ export default {
   },
 
   methods: {
-    onCapture() {
-      //https://www.npmjs.com/package/browser-image-compression
-      /*const options = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 1920,
-      };
-      let imgBase64 = imageCompression.getFilefromDataUrl(
-        this.$refs.webcam.capture(),
-        options
-      );*/
+    base64ToCanvas: async function (
+      base64Str,
+      IdMudanca,
+      IdComodo,
+      callback,
+      callback2
+    ) {
+      var img = new Image();
+      var canvas = document.createElement("canvas");
+      var ctx = canvas.getContext("2d");
+      ctx.imageSmoothingEnabled = true;
+      console.log("tamnho inicio");
+      console.log(base64Str.length);
 
-      /*alert(
-        "mudanca " +
-          this.getValorVariavelIdMudanca +
-          "comodo " +
-          this.getValorvariavelIdComodo
-      );*/
-      setImageStorageSession(
+      img.onload = function () {
+        /* 11111111
+        var scale = Math.max(
+          canvas.width / img.width,
+          canvas.height / img.height
+        );
+        // get the top left position of the image
+        var x = canvas.width / 2 - (img.width / 2) * scale;
+        var y = canvas.height / 2 - (img.height / 2) * scale;
+        ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+        111111111*/
+
+        // get the scale
+        var scale = Math.min(
+          canvas.width / img.width,
+          canvas.height / img.height
+        );
+        // get the top left position of the image
+        var x = canvas.width / 2 - (img.width / 2) * scale;
+        var y = canvas.height / 2 - (img.height / 2) * scale;
+
+        console.log(" x " + x);
+        console.log(" y " + y);
+
+        console.log(" img.width * scale " + img.width * scale);
+        console.log(" img.width * scale " + img.height * scale);
+
+        ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+
+        //ctx.drawImage(img, 0, 0, img.width * 0.5, img.height * 0.5);
+
+        //ctx.drawImage(img, 0, 0, 100, img.height * (100 / img.width));
+
+        console.log("tamnho fim");
+        console.log(canvas.toDataURL().length);
+
+        let objRetun = new Object();
+        objRetun.idMudanca = IdMudanca;
+        objRetun.idComodo = IdComodo;
+        objRetun.imgBase64 = canvas.toDataURL();
+
+        callback(objRetun);
+        callback2(false);
+      };
+      //console.log(base64Str);
+      img.src = base64Str;
+      //console.log(img.src);
+      //img.setAttribute("src", '"' + base64Str + '"');
+    },
+
+    onCapture: async function () {
+      let base64 = this.$refs.webcam.capture();
+      await this.base64ToCanvas(
+        base64,
         this.getValorVariavelIdMudanca,
         this.getValorvariavelIdComodo,
-        this.$refs.webcam.capture()
+        function (resultObject) {
+          setImageStorageSession(
+            resultObject.idMudanca,
+            resultObject.idComodo,
+            resultObject.imgBase64
+          );
+        },
+        this.closeModalImage
       );
-      //console.log(sessionStorage.getItem("storageListaImagensComodo"));
-      this.closeModalImage(false);
+
+      //console.log(sessionStorage.getItem("storageListaImagensComodoNovo"));
     },
+
     onStarted(stream) {
       console.log("On Started Event", stream);
     },
@@ -168,12 +226,12 @@ export default {
     },
     onCameras(cameras) {
       this.devices = cameras;
-      console.log("On Cameras Event", cameras);
+      //console.log("On Cameras Event", cameras);
     },
     onCameraChange(deviceId) {
       this.deviceId = deviceId;
       this.camera = deviceId;
-      console.log("On Camera Change Event", deviceId);
+      //console.log("On Camera Change Event", deviceId);
     },
 
     con: function () {
@@ -183,6 +241,7 @@ export default {
     },
 
     closeModalImage: function (value) {
+      console.log("FECHAR");
       this.$emit("closeModalImage", value);
     },
   },

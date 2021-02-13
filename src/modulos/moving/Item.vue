@@ -3,8 +3,8 @@
     <v-col>
       <v-row>
         <v-col>
-          <v-icon> {{ menu.image }}</v-icon
-          ><span class="subtitle-1">{{ menu.name }}</span>
+          <v-icon> {{ menu.icon }}</v-icon>
+          <span class="subtitle-1">{{ menu.nameExibicao }}</span>
         </v-col>
       </v-row>
       <v-tabs
@@ -177,7 +177,7 @@
 <script>
 import { mask } from "vue-the-mask";
 
-import { getObjMenu } from "@/helper/getModulosRotasActionsUserLogado.js";
+import { getObjMenu } from "@/helper/listRoutes.js";
 
 import { execPost, execGet, execPut } from "@/helper/execRequests.js";
 
