@@ -25,21 +25,32 @@
           <v-container fluid>
             <v-form ref="form" lazy-validation>
               <v-row>
-                <v-col>
+                <v-col xs="12" sm="12" md="10" lg="10" xl="10">
                   <v-autocomplete
                     :items="listaItem"
                     item-text="name"
                     item-value="id"
                     label="Item"
-                    outlined
                     solo
+                    outlined
                     return-object
                     background-color="white--text"
                     v-model="objForm.item"
                     :rules="regrasAddItem"
                   ></v-autocomplete>
                 </v-col>
+
+                <v-col xs="12" sm="12" md="2" lg="2" xl="2">
+                  <v-text-field
+                    v-model="objForm.quantity"
+                    label="Quantidade do item"
+                    outlined
+                    required="true"
+                    :rules="[(v) => !!v || 'Quantidade is required']"
+                  ></v-text-field>
+                </v-col>
               </v-row>
+
               <v-row>
                 <v-col>
                   <v-textarea
@@ -98,15 +109,16 @@
                   >
                     <v-list-item-content>
                       <v-list-item-title>
-                        {{ item.item.name }}
+                        {{ item.item.name }} - {{ item.item.cubic_feet }}
                       </v-list-item-title>
                       <v-list-item-subtitle>
                         <p>
-                          {{ "Obs: " + item.obs }}
+                          {{ "Quantidade: " + item.quantity }}-{{
+                            "Cubic total: " + item.cubicTotal
+                          }}
                         </p>
-
                         <p>
-                          {{ "Cubic: " + item.item.cubic_feet }}
+                          {{ "Obs: " + item.obs }}
                         </p>
                       </v-list-item-subtitle>
                     </v-list-item-content>
@@ -249,7 +261,8 @@ export default {
           this.getValorVariavelIdMudanca,
           this.getValorvariavelIdComodo,
           this.objForm.item,
-          obsItem
+          obsItem,
+          this.objForm.quantity
         );
         this.preencherItensAbrirJanela();
         this.reset();
@@ -272,7 +285,6 @@ export default {
     },
 
     closeModal: function (value) {
-      //atualiza listagem storage comodo
       setAllItensComodosByStorageSession(
         this.getValorVariavelIdMudanca,
         this.getValorvariavelIdComodo

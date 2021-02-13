@@ -416,7 +416,6 @@ export default {
     },
     closeDialogImageMetodo: function () {
       this.varOpenDialogImage = false;
-
       //listar as imagens que
       let exbicaoTela = true;
 

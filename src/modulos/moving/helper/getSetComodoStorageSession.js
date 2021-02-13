@@ -3,16 +3,21 @@ import { getListImageStorageSession, delImageComodoStorageSession, delAllImageSt
 
 export function setComodoStorageSession(idMudanca=null, comodo,  obs=null, posicaoArray=null, objComodoOriginarioEdit=null, idOrigemPivot=null )
 {
-
-  console.log("comodoEntrada");
-  console.log(comodo);
-  console.log("comodoEntrada");
-
   let storageList = JSON.parse(sessionStorage.getItem("storageListaComodo"));  
 
   let obj = new Object();
   obj.idMudanca = idMudanca;
-  obj.room_id = comodo.id;
+
+  if(comodo.id != undefined){
+    obj.room_id = comodo.id;
+  }
+  
+  if(comodo.room_id != undefined){
+    obj.room_id = comodo.room_id;
+  }
+  
+  console.log(idOrigemPivot);
+
   if(comodo.room!=undefined){
     obj.comodo = comodo.room;
   }else{
@@ -25,15 +30,25 @@ export function setComodoStorageSession(idMudanca=null, comodo,  obs=null, posic
   let listImage = null;
 
   if(posicaoArray!=null){
-    listItem = getListItemStorageSession(idMudanca, objComodoOriginarioEdit.id);
-    listImage = getListImageStorageSession(idMudanca, objComodoOriginarioEdit.id);
+    //console.log("aqui1");
 
-  }else{
+    //na adicao de mudanca quando editamos um comodo e clicamos em salvar comodo
+    // ele entra aqui so que as imagens e os itens ja foram repassados para
+    // o storageListaComodo... devemos verificar nele a imagem e os itens
+    let lista = getListImageItemFromStorageListaComodo(idMudanca, objComodoOriginarioEdit.id);
+    listItem = lista.items;//getListItemStorageSession(idMudanca, objComodoOriginarioEdit.id);
+    listImage = lista.images;// getListImageStorageSession(idMudanca, objComodoOriginarioEdit.id);
+
+  }else{    
+    //console.log("aqui2");
     listItem = getListItemStorageSession(idMudanca, comodo.id);
     listImage = getListImageStorageSession(idMudanca, comodo.id);
   }
 
-  if(listItem === null){
+
+  //console.log(listItem);
+
+  if(listItem === undefined || listItem === null){
     obj.totalItens = 0;
     obj.totalCubic = 0;
     obj.items = null;
@@ -43,14 +58,14 @@ export function setComodoStorageSession(idMudanca=null, comodo,  obs=null, posic
     for(a; a<listItem.length; a++){
       let obj = listItem[a];
       
-      totCubic= totCubic + Number(obj.item.cubic_feet);
+      totCubic= totCubic + Number(obj.cubicTotal);
     }
-    obj.totalCubic = totCubic;
+    obj.totalCubic = totCubic.toFixed(2);
     obj.totalItens = listItem.length;
     obj.items = listItem;
   }
   
-  if(listImage === null){
+  if( listImage === undefined || listImage === null){
     obj.totalImagens = 0;
     obj.images = null;
   }else{
@@ -58,44 +73,69 @@ export function setComodoStorageSession(idMudanca=null, comodo,  obs=null, posic
     obj.images = listImage;
   }  
 
+  //if(storageList==null){
+    //storageList = [];
+    //if(idOrigemPivot==null){
+      //obj.id = 0;
+    //}else{
+      //obj.id = idOrigemPivot;
+    //}
+  //}else{
+    //if( storageList!=null && storageList.length==0 ){
+      //if(idOrigemPivot==null){
+        //obj.id = 0;
+      //}else{
+        //obj.id = idOrigemPivot;
+      //}
+    //}else{
+      //pega o ultimo elemento, pega o id e incrementa
+      //let ultimoObj = storageList[storageList.length-1];
+      //obj.id = ultimoObj.id+1;
+    //}
+  //}
+
   if(storageList==null){
     storageList = [];
-    if(idOrigemPivot==null){
-      obj.id = 0;
-    }else{
-      obj.id = idOrigemPivot;
-    }
-    
-  }else{
-    if( storageList!=null && storageList.length==0 ){
-      if(idOrigemPivot==null){
-        obj.id = 0;
-      }else{
-        obj.id = idOrigemPivot;
-      }
-    }else{
-      //pega o ultimo elemento, pega o id e incrementa
-      let ultimoObj = storageList[storageList.length-1];
-      obj.id = ultimoObj.id+1;
-    }
   }
-
   if(posicaoArray!=null){
     storageList[posicaoArray] = obj;
   }else{
     storageList.push(obj);
   }
-  
-  //delAllItemStorageSession();
-  //delAllImageStorageSession();
-  return sessionStorage.setItem("storageListaComodo", JSON.stringify(storageList));
+  sessionStorage.setItem("storageListaComodo", JSON.stringify(storageList));
+  return true
 } 
+
+
+function getListImageItemFromStorageListaComodo(idMudanca, idComodo){
+
+  let storageListaComodo = JSON.parse(sessionStorage.getItem("storageListaComodo"));
+  let listaRetorno = new Object;
+  if(storageListaComodo!=null){
+    
+    let a = 0;
+    listaRetorno.images = [];
+    listaRetorno.items = [];
+    for(a; a<storageListaComodo.length; a++){
+      let comodo = storageListaComodo[a];
+      //console.log(comodo);
+      //console.log("comodo.idMudanca " + comodo.idMudanca);
+      if (comodo.idMudanca == idMudanca){
+        //console.log("comodo.room_id " + comodo.room_id);
+        if(comodo.room_id == idComodo){
+          
+          listaRetorno.images = comodo.images;
+          listaRetorno.items = comodo.items;
+          return listaRetorno;
+        }
+      }
+    }
+  }
+  return listaRetorno;
+}
 
 export function getListComodoStorageSession(idMudanca=null)
 {
-  console.log("getListComodoStorageSession");
-
-
   let storageListaComodo = JSON.parse(sessionStorage.getItem("storageListaComodo"));
   if(storageListaComodo!=null){
     let a = 0;
@@ -104,13 +144,8 @@ export function getListComodoStorageSession(idMudanca=null)
       let objectTest = storageListaComodo[a];
       if(objectTest.idMudanca===idMudanca){
         listaRetorno.push(objectTest);
-        console.log("ui");
-        console.log("mudanca: "+idMudanca);
-        console.log("comodo: "+objectTest.room_id);
-        console.log("ui");
-
-        delImageComodoStorageSession(idMudanca, objectTest.room_id);
-        delItemComodoStorageSession(idMudanca, objectTest.room_id);
+        delImageComodoStorageSession(idMudanca, objectTest.comodo.id);
+        delItemComodoStorageSession(idMudanca, objectTest.comodo.id);
       }
     }
     return listaRetorno;
@@ -135,7 +170,7 @@ export function delComodoStorageSession(idMudanca, idComodo )
         delImageComodoStorageSession(idMudanca, idComodo);
         //console.log("Posicao: " + a);  
         //console.log("objeto: " +objectTest);  
-        //console.log("tamamnho depois de excluir: " +storageListaImagensComodo.length);
+        //console.log("tamamnho depois de excluir: " +storageListaImagensComodoNovo.length);
         sessionStorage.setItem("storageListaComodo", JSON.stringify(storageListaComodo));  
         return true;
       }
@@ -173,12 +208,12 @@ export function cancelComodoStorageSession()
 export function setAllComodosByMudanca(idMudanca, listaComodosMudanca)
 {
   //cancelComodoStorageSession();
-  console.log("listaEntrada");
-  console.log(listaComodosMudanca);
-  console.log("listaEntrada");
+  //console.log("listaEntrada");
+  //console.log(listaComodosMudanca);
+  //console.log("listaEntrada");
   let a =0;
   for(a; a<listaComodosMudanca.length; a++){
-    let comodo = listaComodosMudanca[a];
+    let comodo = listaComodosMudanca[a];    
     setAllImageStorageSession(idMudanca, comodo.id, comodo.images);
     setAllItemStorageSession(idMudanca, comodo.id, comodo.items);
     setComodoStorageSession(idMudanca, comodo,  comodo.obs, null, null, comodo.id);
@@ -189,60 +224,97 @@ export function setAllComodosByMudanca(idMudanca, listaComodosMudanca)
 
 export function setAllItensComodosByStorageSession(idMudanca, idComodo)
 {
-  console.log("setAllItensComodosByStorageSession");
-  console.log("setAllMudancaEntrada: "+ idMudanca);
-  console.log("setAllComodoEntrada: "+ idComodo);
-  let listaItem = getListItemStorageSession(idMudanca, idComodo);  
-  let storageList = JSON.parse(sessionStorage.getItem("storageListaComodo"));  
-  if(storageList!= null){
+  console.log("setAllItens");
+  let listaItem = getListItemStorageSession(idMudanca, idComodo); 
+  let storageListComodo = JSON.parse(sessionStorage.getItem("storageListaComodo"));  
+  if(storageListComodo!= null){
     let b=0; 
-    for(b; b<storageList.length; b++){
-      let itemComodo = storageList[b];
-      if(itemComodo.idMudanca == idMudanca && itemComodo.room_id == idComodo){
+    for(b; b<storageListComodo.length; b++){
+      let itemComodo = storageListComodo[b];
+
+      //console.log("BUU");
+      //console.log(itemComodo);
+
+      let idComodoTeste=null;
+      if(itemComodo.comodo.room_id != undefined){
+        idComodoTeste = itemComodo.comodo.room_id;
+      }else{
+        idComodoTeste = itemComodo.comodo.id;
+      }
+
+      if(itemComodo.idMudanca == idMudanca && idComodoTeste == idComodo){
         delItemComodoStorageSession(idMudanca, idComodo );
         if(listaItem === null){
+
           itemComodo.totalItens = 0;
           itemComodo.totalCubic = 0;
           itemComodo.listaItem = null;
         }else{
+
           let a = 0;
           let totCubic=0;
           for(a; a<listaItem.length; a++){
             let obj = listaItem[a];
-            totCubic= totCubic + Number(obj.item.cubic_feet);
+            totCubic= totCubic + Number(obj.cubicTotal);
           }
           itemComodo.totalCubic = totCubic;
           itemComodo.totalItens = listaItem.length;
           itemComodo.items = listaItem;
         }
-        storageList[b] = itemComodo;
+        //console.log("ANTES ADD");
+        //console.log(itemComodo);
+        storageListComodo[b] = itemComodo;
+        //console.log("DPOIS ADD");
+        //console.log(storageListComodo[b]);
+        //console.log("DPOIS ADD");
+        //console.log("DPOIS ADD");
         break;
       }    
     }
-    sessionStorage.setItem("storageListaComodo", JSON.stringify(storageList));
+    console.log(storageListComodo);
+    sessionStorage.setItem("storageListaComodo", JSON.stringify(storageListComodo));
   }
   
 }
 
 export function setAllImageComodosByStorageSession(idMudanca, idComodo)
 {
+  //console.log("setAllImage");
+
+  //console.log("ID MUDANCA AQUi :" + idMudanca);
+  //console.log("ID COMODO AQUi :" + idComodo);
+
   let listaImage = getListImageStorageSession(idMudanca, idComodo);  
+
+  //console.log("LISTA IMAGEM AQUi :");
+  //console.log(listaImage);
+
   let storageList = JSON.parse(sessionStorage.getItem("storageListaComodo"));   
+
+  //console.log("LISTA comodo AQUi :");
+  //console.log(storageList);
+
   if(storageList!=null){
     let b=0; 
     for(b; b<storageList.length; b++){
       let itemComodo = storageList[b];
-      if(itemComodo.idMudanca == idMudanca && itemComodo.room_id == idComodo){
+
+      //console.log("TESTANDO COMOOOODO :");
+      //console.log(itemComodo.comodo.id);
+      //console.log("TESTANDO COMOOOODO :");
+
+
+      if(itemComodo.idMudanca == idMudanca && itemComodo.comodo.id == idComodo){
         delImageComodoStorageSession(idMudanca, idComodo );
         if(listaImage === null){
           itemComodo.totalImagens = 0;
           itemComodo.images = null;
         }else{
-          let j =0;
-          for(j; j<listaImage.length; j++){
-            let image = listaImage[j];
-            console.log(image);
-          }
+          //let j =0;
+          //for(j; j<listaImage.length; j++){
+            //let image = listaImage[j];
+            //console.log(image);
+          //}
           itemComodo.totalImagens = listaImage.length;
           itemComodo.images = listaImage;
         }  
@@ -255,3 +327,31 @@ export function setAllImageComodosByStorageSession(idMudanca, idComodo)
 
   
 }
+
+export function checkComodoAoMenosUmItem(idMudanca, objComodo)
+{
+  
+  let listComodo =  getListComodoStorageSession(idMudanca);
+  let retorno = false;
+  if (listComodo != null && listComodo.length > 0) {
+    let b = 0;
+    for(b; b<listComodo.length; b++){
+      let como = listComodo[b];
+      if(como.room_id == objComodo.id){
+        if(como.items.length > 0){
+          retorno = true;
+        }
+      }
+    }
+  }
+
+  if(!retorno){
+    let storageListItem = JSON.parse(
+      sessionStorage.getItem("storageListaItemComodo")
+    );
+    if (storageListItem != null && storageListItem.length > 0) {
+      retorno = true;
+    }
+  }
+  return retorno;
+} 

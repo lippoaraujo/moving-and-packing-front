@@ -18,7 +18,11 @@ import User from "@/modulos/system/User.vue";
 import UserGroup from "@/modulos/system/UserGroup.vue";
 import Permission from "@/modulos/system/Permission.vue";
 
-import { getRotasUser, getListaRotaValidacao } from "@/helper/getModulosRotasActionsUserLogado.js";
+//import { getRotasUser, getListaRotaValidacao } from "@/helper/getModulosRotasActionsUserLogado.js";
+
+//import { getPermissionRoute } from "@/helper/getPermission.js";
+
+import { getListaRotasUserLogado } from "@/helper/listRoutes.js";
 
 Vue.use(VueRouter);
 
@@ -195,42 +199,50 @@ router.beforeEach((to, from, next) => {
   // redirect to login page if not logged in and trying to access a restricted page
   /*const publicPages = ["login"];
   const authRequired = !publicPages.includes(to.path);
-
   const loggedIn = localStorage.getItem("logado");
   //const loggedIn = false;
-
   console.log("caminho livre");
   console.log(authRequired);
-
   console.log("status logado");
   console.log(loggedIn);
-
   if (authRequired && !loggedIn) {
     return next("/login");
   }*/
 
-  let publicPages = ["/login"];
-  let rotasUserLogado = getRotasUser();
+  //let publicPages = ["/login"];
+  //let publicPages = getListMenusPublic();
+  //let rotasUserLogado = getRotasUser();
 
-  if(rotasUserLogado.length>0){
-
-    var listaRota = getListaRotaValidacao(rotasUserLogado);
+  //if(rotasUserLogado.length>0){
 
     //console.log("aqui");
     //publicPages = rotasUserLogado;
     //console.log(rotasUserLogado);
+    //var z =0;
+    //for(z; z<rotasUserLogado.length; z++){
+      //publicPages.push(rotasUserLogado[z]);
+    //}
+
+    //publicPages.push("/login");
+    //publicPages.push("/home");
+    //publicPages.push("/acessonegado");
+  //}
+  let publicPages = [];
+  publicPages.push("/login");
+  publicPages.push("/acessonegado");
+
+  let listaRotasUserLogado = getListaRotasUserLogado();
+  
+  if(listaRotasUserLogado!=null){
+    //console.log(listaRotasUserLogado);
     var z =0;
-    for(z; z<listaRota.length; z++){
-      publicPages.push(listaRota[z]);
+    for(z; z<listaRotasUserLogado.length; z++){
+      publicPages.push(listaRotasUserLogado[z]);
     }
-
-    publicPages.push("/login");
-    publicPages.push("/home");
-    publicPages.push("/acessonegado");
   }
-
   const authRequired = !publicPages.includes(to.path);
-  const loggedIn = sessionStorage.getItem("logado");
+  const loggedIn = JSON.parse(sessionStorage.getItem("logado"));  
+
   if (authRequired && !loggedIn) {
     return next("login");
   }else{
@@ -241,8 +253,6 @@ router.beforeEach((to, from, next) => {
       next();
     }
   }
-  
-  
 });
 
 export default router;
