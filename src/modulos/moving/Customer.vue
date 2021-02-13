@@ -3,7 +3,8 @@
     <v-col>
       <v-row>
         <v-col>
-          {{ menu.name }}<v-icon> {{ menu.image }}</v-icon>
+          <v-icon> {{ menu.icon }}</v-icon>
+          <span class="subtitle-1">{{ menu.nameExibicao }}</span>
         </v-col>
       </v-row>
       <v-row>
@@ -101,9 +102,9 @@
                           :rules="foneRules"
                           label="Telefone"
                           required
-                          placeholder="(##) #####/####"
+                          placeholder="(###) ###-####"
                           type="text"
-                          v-mask="['(##) ####-####', '(##) #####-####']"
+                          v-mask="['(###) ###-####']"
                           outlined
                         ></v-text-field>
                       </v-col>
@@ -194,7 +195,7 @@
 <script>
 import { mask } from "vue-the-mask";
 
-import { getObjMenu } from "@/helper/getModulosRotasActionsUserLogado.js";
+import { getObjMenu } from "@/helper/listRoutes.js";
 
 export default {
   directives: { mask },

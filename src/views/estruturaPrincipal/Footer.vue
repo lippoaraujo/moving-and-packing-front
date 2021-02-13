@@ -13,14 +13,19 @@ export default {
   }),
 
   created() {
-    let userLoged = JSON.parse(sessionStorage.getItem("usuarioLogado"));
-    this.strUserLogado =
-      " - " +
-      userLoged.name +
-      " " +
-      userLoged.email +
-      " " +
-      userLoged.usergroup.name;
+    let userAdmin = JSON.parse(sessionStorage.getItem("userAdmin"));
+    if (userAdmin) {
+      this.strUserLogado = "Usuario superAdmin";
+    } else {
+      let userLoged = JSON.parse(sessionStorage.getItem("usuarioLogado"));
+      this.strUserLogado =
+        " - " +
+        userLoged.name +
+        " " +
+        userLoged.email +
+        " " +
+        userLoged.roles[0].name;
+    }
   },
 };
 </script>

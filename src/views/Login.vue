@@ -208,7 +208,7 @@
 </template>
 
 <script>
-import { Decrypt, Encrypt } from "@/plugins/minhacriptografia.js";
+//import { Decrypt, Encrypt } from "@/plugins/minhacriptografia.js";
 
 import { execGet } from "@/helper/execRequests.js";
 
@@ -261,14 +261,14 @@ export default {
     },*/
 
     logar: function () {
-      console.log(this.urlAPI);
+      //console.log(this.urlAPI);
 
-      let a = Encrypt("teste_da_goma");
-      console.log("criptografado: " + a);
+      //let a = Encrypt("teste_da_goma");
+      //console.log("criptografado: " + a);
 
       // Decrypt decryption
-      let b = Decrypt(a);
-      console.log("descriptografado: " + b);
+      //let b = Decrypt(a);
+      //console.log("descriptografado: " + b);
 
       this.overlay = true;
       //CryptoProvider.AES.encrypt('my message', 'secret key 123').toString();
@@ -294,12 +294,32 @@ export default {
             if (response.status == 200) {
               //console.log(response.data);
 
-              sessionStorage.setItem("logado", 1);
+              /*sessionStorage.setItem("logado", 1);
               sessionStorage.setItem("token", response.data.token);
               sessionStorage.setItem(
                 "permissoesExecucao",
                 JSON.stringify(response.data.dashboard.modules)
               );
+              this.identificaUsuarioLogado();*/
+
+              //sessionStorage.setItem("logado", 1);
+              sessionStorage.setItem("token", response.data.token);
+
+              sessionStorage.setItem(
+                "permissions",
+                JSON.stringify(response.data.permissions)
+              );
+
+              if (Array.isArray(response.data.permissions)) {
+                //logou
+                sessionStorage.setItem("userAdmin", false);
+              }
+
+              if (response.data.permissions === true) {
+                //logou como admin
+                sessionStorage.setItem("userAdmin", true);
+              }
+
               this.identificaUsuarioLogado();
 
               //olha o npm install idle-vue pra expirar sessao vue
@@ -384,6 +404,7 @@ export default {
           headerRequest
         );
         sessionStorage.setItem("usuarioLogado", JSON.stringify(userLoged));
+        sessionStorage.setItem("logado", true);
         this.$router.push("modulos");
       } catch (e) {
         this.$dialog.message.error(
