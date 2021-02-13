@@ -3,8 +3,8 @@
     <v-col>
       <v-row>
         <v-col>
-          <v-icon> {{ menu.image }}</v-icon>
-          <span class="subtitle-1">{{ menu.name }}</span>
+          <v-icon> {{ menu.icon }}</v-icon>
+          <span class="subtitle-1">{{ menu.nameExibicao }}</span>
         </v-col>
       </v-row>
       <v-tabs
@@ -236,6 +236,7 @@
                     <v-select
                       :items="listaComodoAdd"
                       v-model="objForm.comodo"
+                      ref="refComodo"
                       label="Cômodo"
                       hide-details="true"
                       item-text="name"
@@ -369,8 +370,8 @@
                         :key="index"
                       >
                         <v-expansion-panel-header>
-                          Comodo: {{ itemComodo.comodo.name }} ----- Total
-                          cubic:
+                          {{ itemComodo.comodo.id }} - Comodo:
+                          {{ itemComodo.comodo.name }} ----- Total cubic:
                           {{ itemComodo.totalCubic }}
                         </v-expansion-panel-header>
 
@@ -576,7 +577,7 @@
 //ALTERAR COMODO: 046-delivery.png
 
 import { mask } from "vue-the-mask";
-import { getObjMenu } from "@/helper/getModulosRotasActionsUserLogado.js";
+import { getObjMenu } from "@/helper/listRoutes.js";
 import PoupUpAddItemComodo from "@/modulos/moving/components/PoupUpAddItemComodo.vue";
 import PoupUpAddImagemComodo from "@/modulos/moving/components/PoupUpAddImagemComodo.vue";
 
@@ -590,6 +591,7 @@ import {
   delComodoStorageSession,
   updateComodoStorageSession,
   setAllComodosByMudanca,
+  checkComodoAoMenosUmItem,
 } from "@/modulos/moving/helper/getSetComodoStorageSession.js";
 
 export default {
@@ -921,12 +923,21 @@ export default {
         this.overlay = true;
         if (this.validate()) {
           if (this.objForm.id > 0) {
+            this.$dialog.message.error("ALTERAR: ", {
+              position: "top-right",
+              timeout: 5000,
+            });
+
             let retornoUpdate = await this.execUpdate();
             if (retornoUpdate) {
               this.cancelarMudanca();
               this.listar(false);
             }
           } else {
+            this.$dialog.message.error("SALVAR: ", {
+              position: "top-right",
+              timeout: 5000,
+            });
             let retornoSalvar = await this.execSalvar();
             if (retornoSalvar) {
               this.cancelarMudanca();
@@ -1068,7 +1079,7 @@ export default {
 
     limparItensSessaoMudanca: function () {
       sessionStorage.removeItem("storageListaItemComodo");
-      sessionStorage.removeItem("storageListaImagensComodo");
+      sessionStorage.removeItem("storageListaImagensComodoNovo");
       sessionStorage.removeItem("storageListaComodo");
     },
 
@@ -1171,17 +1182,34 @@ export default {
         varText += "<h5>" + locality + ", " + country + "</h5>";
         varText += "<br><h4>Comodos :" + objEdicao.order_rooms.length + "</h4>";
         let a = 0;
+
+        //totCubic= totCubic + Number(obj.item.cubic_feet);
+
         for (a; a < objEdicao.order_rooms.length; a++) {
           let objList = objEdicao.order_rooms[a];
+
+          //calcula o total metrocubico
+          let b = 0;
+          let totCubic = 0;
+          for (b; b < objList.items.length; b++) {
+            let item = objList.items[b];
+            totCubic = totCubic + Number(item.cubic_feet);
+          }
+          //let totCubicFim = totCubic.toLocaleString("pt-BR", {
+          //minimumFractionDigits: 2,
+          //});
+          //totCubicFim = totCubicFim.replace(",", ".");
           //console.log(objList);
           varText +=
-            "<h5>Room :" +
+            "<h5>" +
             objList.room.name +
-            " - itens: " +
+            "<br>Tot. itens: " +
             objList.items.length +
-            " - imagens: " +
+            " - Tot. cubic: " +
+            totCubic.toFixed(2) +
+            " - Tot. imagens: " +
             objList.images.length +
-            "</h5>";
+            "</h5><br>";
         }
         varText += "</div>";
 
@@ -1224,6 +1252,27 @@ export default {
 
       try {
         let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
+
+        /*console.log("DADOS EDICAO RECEBIDO MUDANCA");
+
+        let listItem = objEdicao.order_rooms[0].items;
+        console.log(listItem);
+        let b = 0;
+        for (b; b < listItem.length; b++) {
+          console.log(listItem[b]);
+        }
+        console.log("DADOS EDICAO RECEBIDO MUDANCA");
+        console.log("DADOS EDICAO RECEBIDO MUDANCA");
+
+        let listItem2 = objEdicao.order_rooms[1].items;
+        console.log(listItem2);
+        let c = 0;
+        for (c; c < listItem2.length; c++) {
+          console.log(listItem2[c]);
+        }
+        console.log(objEdicao.order_rooms[1]);
+        console.log("DADOS EDICAO RECEBIDO MUDANCA");*/
+
         this.objForm.id = objEdicao.id;
         this.variavelIdMudanca = objEdicao.id;
         this.objForm.vendedor = objEdicao.user;
@@ -1367,10 +1416,9 @@ export default {
           timeout: 5000,
         });
       } else {
-        let storageListItem = JSON.parse(
-          sessionStorage.getItem("storageListaItemComodo")
-        );
-        if (storageListItem == null || storageListItem.length == 0) {
+        if (
+          !checkComodoAoMenosUmItem(this.variavelIdMudanca, this.objForm.comodo)
+        ) {
           this.$dialog.message.error(
             "É necessario que exista ao menos um item para poder adicionar o comodo",
             {
@@ -1378,27 +1426,44 @@ export default {
               timeout: 5000,
             }
           );
+
+          /*this.$dialog.message.error(
+            "posicao array alteracao comodo " +
+              this.alterandoComodoPosicaoArray +
+              "     É necessario que exista ao menos um item para poder adicionar o comodo",
+            {
+              position: "top-right",
+              timeout: 5000,
+            }
+          );*/
         } else {
           if (this.alterandoComodoPosicaoArray != null) {
-            setComodoStorageSession(
-              this.variavelIdMudanca,
-              this.objForm.comodo,
-              this.objForm.obsComodo,
-              this.alterandoComodoPosicaoArray,
-              this.objComodoOriginarioEdit
-            );
+            if (
+              setComodoStorageSession(
+                this.variavelIdMudanca,
+                this.objForm.comodo,
+                this.objForm.obsComodo,
+                this.alterandoComodoPosicaoArray,
+                this.objComodoOriginarioEdit
+              )
+            ) {
+              this.preencherComodoListaStorage();
+              this.resetComodo();
+            }
           } else {
-            setComodoStorageSession(
-              this.variavelIdMudanca,
-              this.objForm.comodo,
-              this.objForm.obsComodo,
-              null,
-              null
-            );
+            if (
+              setComodoStorageSession(
+                this.variavelIdMudanca,
+                this.objForm.comodo,
+                this.objForm.obsComodo,
+                null,
+                null
+              )
+            ) {
+              this.preencherComodoListaStorage();
+              this.resetComodo();
+            }
           }
-
-          this.preencherComodoListaStorage();
-          this.resetComodo();
         }
       }
     },
@@ -1429,8 +1494,10 @@ export default {
     },
 
     editComodoStorage: function (comodoId) {
-      /*guardara o comodo que ta sendo alterado pra poder na alteração repassar 
+      /*guardara o comodo que ta sendo alterado pra poder 
+      na alteração repassar 
       as imagens e itens pra o novo objeto*/
+      //this.objForm.obsComodo = "teste " + comodoId;
       this.cancelarComodoStorage();
 
       let objetoComodo = updateComodoStorageSession(
@@ -1442,6 +1509,8 @@ export default {
       this.objForm.obsComodo = objetoComodo.obs;
       this.alterandoComodoPosicaoArray = objetoComodo.posicaoArray;
       this.objComodoOriginarioEdit = objetoComodo.comodo;
+      this.$refs.refComodo.focus();
+      this.$forceUpdate();
     },
 
     cancelarComodoStorage: function () {

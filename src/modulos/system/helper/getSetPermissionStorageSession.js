@@ -151,7 +151,7 @@ export function delComodoStorageSession(idMudanca, idComodo )
         delImageComodoStorageSession(idMudanca, idComodo);
         //console.log("Posicao: " + a);  
         //console.log("objeto: " +objectTest);  
-        //console.log("tamamnho depois de excluir: " +storageListaImagensComodo.length);
+        //console.log("tamamnho depois de excluir: " +storageListaImagensComodoNovo.length);
         sessionStorage.setItem("storageListaComodo", JSON.stringify(storageListaComodo));  
         return true;
       }

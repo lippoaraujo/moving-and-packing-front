@@ -9,7 +9,6 @@
     "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'"
   },
   "dependencies": {
-    "browser-image-compression": "^1.0.13",
     "core-js": "^3.6.5",
     "crypto-js": "^4.0.0",
     "v-money": "^0.8.1",
