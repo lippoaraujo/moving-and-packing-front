@@ -134,7 +134,7 @@ export function getListModules(){
       {
       "name": "role",
       "nameExibicao": "Roles",
-      "icon": "mdi-account-tie",
+      "icon": "mdi-account-group-outline",
       "url" : "/system/roles",
       "actions" : [
           {

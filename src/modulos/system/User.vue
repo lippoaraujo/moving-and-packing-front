@@ -3,7 +3,8 @@
     <v-col>
       <v-row>
         <v-col>
-          {{ menu.name }}<v-icon> {{ menu.image }}</v-icon>
+          <v-icon> {{ menu.icon }}</v-icon>
+          <span class="subtitle-1">{{ menu.nameExibicao }}</span>
         </v-col>
       </v-row>
       <v-row>
@@ -140,11 +141,12 @@
                         <v-select
                           :items="listaGrupoPermissao"
                           v-model="objForm.usergroup_id"
-                          label="Grupo do usuario"
+                          label="Roles"
                           item-text="name"
                           item-value="id"
                           return-object
                           outlined
+                          :rules="[(v) => !!v || 'Roles is required']"
                         ></v-select>
                       </v-col>
                     </v-row>
@@ -196,7 +198,7 @@ export default {
   name: "User",
 
   data: () => ({
-    urlAPIGrupoUser: process.env.VUE_APP_URL_CONNECTION + "/system/usergroups",
+    urlAPIGrupoUser: process.env.VUE_APP_URL_CONNECTION + "/system/roles",
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/system/users",
     menu: "",
     headerRequest: "",
@@ -235,8 +237,8 @@ export default {
         value: "email",
       },
       {
-        text: "User group",
-        value: "usergroup_id",
+        text: "Role",
+        value: "roleName",
       },
       {
         text: "Actions",
@@ -350,6 +352,9 @@ export default {
         let a = 0;
         for (a; a < list.data.length; a++) {
           let item = list.data[a];
+
+          console.log(item);
+
           let grp = 0;
           for (grp; grp < this.listaGrupoPermissao.length; grp++) {
             if (this.listaGrupoPermissao[grp].id == item.usergroup_id) {
@@ -365,6 +370,9 @@ export default {
     salvar: async function () {
       if (this.$refs.form.validate()) {
         if (this.objForm.id > 0) {
+          let arrayRole = [];
+          arrayRole.push(this.objForm.usergroup_id);
+
           let objUpdate = {
             id: this.objForm.id,
             tenant_id: 1,
@@ -373,7 +381,7 @@ export default {
             password: this.objForm.password,
             password_confirmation: this.objForm.confirmPassword,
             active: 1,
-            usergroup_id: this.objForm.usergroup_id.id,
+            roles: arrayRole,
           };
           let msgm = "User " + this.objForm.name + " alterado com sucesso!";
           let urlUpdate = this.urlAPI.concat("/" + this.objForm.id);

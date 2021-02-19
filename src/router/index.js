@@ -15,7 +15,7 @@ import Packing from "@/modulos/moving/Packing.vue";
 
 import DashboardSystem from "@/modulos/system/DashboardSystem.vue";
 import User from "@/modulos/system/User.vue";
-import UserGroup from "@/modulos/system/UserGroup.vue";
+import Role from "@/modulos/system/Role.vue";
 import Permission from "@/modulos/system/Permission.vue";
 
 //import { getRotasUser, getListaRotaValidacao } from "@/helper/getModulosRotasActionsUserLogado.js";
@@ -85,9 +85,9 @@ const routes = [
         props: true,
       },
       {
-        path: "usergroups",
+        path: "roles",
         components: {
-          routeViewSystem: UserGroup,
+          routeViewSystem: Role,
         },
         props: true,
       },
