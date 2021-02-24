@@ -1,6 +1,6 @@
 <template>
   <v-navigation-drawer
-    color="blue darken-4"
+    color="green darken-4"
     dark
     v-model="getEstadoMenu"
     app
