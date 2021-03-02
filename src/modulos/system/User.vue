@@ -139,15 +139,29 @@
                     <v-row>
                       <v-col>
                         <v-select
+                          v-model="objForm.listObjUserGroup"
                           :items="listaGrupoPermissao"
-                          v-model="objForm.usergroup_id"
+                          chips
+                          label="Roles"
+                          multiple
+                          outlined
+                          attach
+                          item-text="name"
+                          item-value="id"
+                          return-object
+                          :rules="[(v) => !!v || 'Roles is required']"
+                        ></v-select>
+
+                        <!--<v-select
+                          :items="listaGrupoPermissao"
+                          v-model="objForm.listObjUserGroup"
                           label="Roles"
                           item-text="name"
                           item-value="id"
                           return-object
                           outlined
                           :rules="[(v) => !!v || 'Roles is required']"
-                        ></v-select>
+                        ></v-select>-->
                       </v-col>
                     </v-row>
                     <center>
@@ -158,7 +172,7 @@
                             tile
                             color="blue darken-2"
                             class="mr-4 white--text"
-                            @click="salvar"
+                            @click="execSalvar"
                           >
                             Salvar
                             <v-icon right dark>mdi-content-save</v-icon>
@@ -184,12 +198,16 @@
         </v-col>
       </v-row>
     </v-col>
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </v-row>
 </template>
 <script>
 import { mask } from "vue-the-mask";
 
-import { getObjMenu } from "@/helper/getModulosRotasActionsUserLogado.js";
+//import { getObjMenu } from "@/helper/getModulosRotasActionsUserLogado.js";
+import { getObjMenu } from "@/helper/listRoutes.js";
 
 import { execPost, execGet } from "@/helper/execRequests.js";
 
@@ -198,6 +216,7 @@ export default {
   name: "User",
 
   data: () => ({
+    overlay: false,
     urlAPIGrupoUser: process.env.VUE_APP_URL_CONNECTION + "/system/roles",
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/system/users",
     menu: "",
@@ -218,7 +237,7 @@ export default {
       email: "",
       password: "",
       confirmPassword: "",
-      usergroup_id: "",
+      listObjUserGroup: "",
     },
     listaGrupoPermissao: [],
 
@@ -238,7 +257,7 @@ export default {
       },
       {
         text: "Role",
-        value: "roleName",
+        value: "roleNames",
       },
       {
         text: "Actions",
@@ -281,6 +300,7 @@ export default {
   },
 
   async mounted() {
+    this.overlay = true;
     this.getEstadoMenu = true;
     this.getCaminhoBreadCrumb = this.$route.path.split("/");
     window.onpopstate = () => {
@@ -288,6 +308,7 @@ export default {
     };
     await this.getListaGrupoPermissao();
     this.listar();
+    this.overlay = false;
   },
 
   computed: {
@@ -317,8 +338,12 @@ export default {
   },
 
   methods: {
-    listar: function () {
+    listar: function (exibeLoad = true) {
       this.objLoadingGrid = true;
+
+      if (exibeLoad) {
+        this.objLoadingGrid = true;
+      }
 
       this.$axios.get(this.urlAPI, this.headerRequest).then(
         (response) => {
@@ -353,25 +378,93 @@ export default {
         for (a; a < list.data.length; a++) {
           let item = list.data[a];
 
-          console.log(item);
-
-          let grp = 0;
-          for (grp; grp < this.listaGrupoPermissao.length; grp++) {
-            if (this.listaGrupoPermissao[grp].id == item.usergroup_id) {
-              item.usergroup_id = this.listaGrupoPermissao[grp].name;
-              break;
+          if (item.roles.length > 0) {
+            let b = 0;
+            let roleNames = "";
+            for (b; b < item.roles.length; b++) {
+              let role = item.roles[b];
+              roleNames += role.name + " ";
             }
+            item.roleNames = roleNames;
+
+            this.desserts.push(item);
           }
-          this.desserts.push(item);
         }
       }
     },
 
-    salvar: async function () {
+    salvarMudanca: async function () {
+      try {
+        this.overlay = true;
+        if (this.validate()) {
+          if (this.objForm.id > 0) {
+            let retornoUpdate = await this.execUpdate();
+            if (retornoUpdate) {
+              this.cancelar();
+              this.listar(false);
+            }
+          } else {
+            let retornoSalvar = await this.execSalvar();
+            if (retornoSalvar) {
+              this.cancelar();
+              this.listar(false);
+            }
+          }
+        }
+      } catch (e) {
+        this.objLoadingGrid = false;
+        this.$dialog.message.error("Executa salvar: " + e.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      } finally {
+        this.overlay = false;
+      }
+    },
+
+    execSalvar: async function () {
+      let msgm = "User  " + this.objForm.name + " cadastrado com sucesso!";
+
+      let arrayRole = [];
+      let u = 0;
+      for (u; u < this.objForm.listObjUserGroup.length; u++) {
+        let role = this.objForm.listObjUserGroup[u];
+        arrayRole.push(role);
+      }
+      //arrayRole.push(this.objForm.listObjUserGroup);
+
+      let objSalvar = {
+        name: this.objForm.name,
+        email: this.objForm.email,
+        password: this.objForm.password,
+        password_confirmation: this.objForm.confirmPassword,
+        roles: arrayRole,
+      };
+      console.log("AAAQ");
+      console.log(JSON.stringify(objSalvar));
+      console.log("AAAQ");
+      let retornoExecPost = await execPost.call(
+        this,
+        this.urlAPI,
+        objSalvar,
+        this.headerRequest
+      );
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    execSalvarAntigo: async function () {
       if (this.$refs.form.validate()) {
         if (this.objForm.id > 0) {
           let arrayRole = [];
-          arrayRole.push(this.objForm.usergroup_id);
+          arrayRole.push(this.objForm.listObjUserGroup);
 
           let objUpdate = {
             id: this.objForm.id,
@@ -420,7 +513,7 @@ export default {
             password: this.objForm.password,
             password_confirmation: this.objForm.confirmPassword,
             active: 1,
-            usergroup_id: this.objForm.usergroup_id.id,
+            listObjUserGroup: this.objForm.listObjUserGroup.id,
           };
           let retornoExecPost = await execPost.call(
             this,
@@ -502,13 +595,12 @@ export default {
         this.objForm.id = objEdicao.id;
         this.objForm.name = objEdicao.name;
         this.objForm.email = objEdicao.email;
-        let b = 0;
+        /*let b = 0;
         for (b; b < this.listaGrupoPermissao.length; b++) {
-          if (this.listaGrupoPermissao[b].id == objEdicao.usergroup_id) {
-            this.objForm.usergroup_id = this.listaGrupoPermissao[b];
+          if (this.listaGrupoPermissao[b].id == objEdicao.listObjUserGroup) {
+            this.objForm.listObjUserGroup = this.listaGrupoPermissao[b];
           }
-        }
-
+        }*/
         this.tab = 1;
       } catch (e) {
         this.$dialog.message.error(
