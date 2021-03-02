@@ -92,7 +92,7 @@ const routes = [
         props: true,
       },
       {
-        path: "dashboard",
+        path: "permissions",
         components: {
           routeViewSystem: Permission,
         },

@@ -133,7 +133,7 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
   let objUsuarioLogado = JSON.parse(sessionStorage.getItem("usuarioLogado"));
   
 
-  let varTextCustomer ="<table style='width:100%;' >"; 
+  let varTextCustomer ="<table id='wrapper' style=' border-spacing: inherit!important;  width:100%; ' >"; 
   varTextCustomer +="<thead>";
     varTextCustomer += "<tr>";
       varTextCustomer += "<th>Customer</th>";
@@ -153,7 +153,7 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
   varTextCustomer +="</table>";
   //console.log(varTextCustomer);
 
-  let varTextOrder ="<table style='width:100%;' >";
+  let varTextOrder ="<table id='wrapper' style=' border-spacing: inherit!important;  width:100%; ' >";
     
     varTextOrder +="<thead>";
       varTextOrder += "<tr>";
@@ -212,11 +212,13 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
   let duasColunas =false;
 
   let varTextItemComodoFim = "";
+  let listImgComodo=[];
+  let varTextPackage = getListPackage(objEdicao.order_rooms);
   for (a; a < objEdicao.order_rooms.length; a++) {    
     
     let objList = objEdicao.order_rooms[a];
     //console.log(objList);
-    //let objListImage = objEdicao.order_rooms[a].images;
+    listImgComodo.push(objEdicao.order_rooms[a].images);
 
     //calcula o total metrocubico
     let b = 0;
@@ -226,6 +228,8 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
       totCubic = totCubic + Number(item.cubic_feet);
     }
     
+    
+    
     let varTextItemComodo = "<table style='width:100%'>";
     varTextItemComodo +="<caption style='caption-side: top; text-align: left;'>";
     varTextItemComodo += objList.id + " - " + objList.room.name;
@@ -233,12 +237,13 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
     
     objList.items = getItensOrdenadosImpressao(objList.items, 3);
 
+    console.log(objList.items);
     
-    if(objList.items.length>1){
-      duasColunas = true;
-    }else{
-      duasColunas = false;
-    }
+    //if(objList.items.length>3){
+      //duasColunas = true;
+    //}else{
+      //duasColunas = false;
+    //}
     
     //varText += varTextThead;
 
@@ -258,29 +263,29 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
 
       let listItemDoComodo = objList.items[totItemm];
       
-      if((listItemDoComodo.length <= 3) && (a==0) ){
-        duasColunas = true;
-      }else{
-        duasColunas = false;
-      }
+      
 
       let totItem = 0;
       varTextBody +="<tr>";
+
       for(totItem; totItem<listItemDoComodo.length; totItem++){
+
+
+        if(totItem == 0){
+          
+          if(listItemDoComodo.length >= 2){
+            duasColunas = true;
+          }else{
+            duasColunas = false;
+          }
+        }
+
+
         let itemDoComodo = listItemDoComodo[totItem];
-
-
-
-        /*let itemCubict = (itemDoComodo.pivot.quantity * itemDoComodo.cubic_feet);
-        totalCubic = totalCubic + itemCubict;*/
 
         let itemPackage = (itemDoComodo.pivot.quantity * itemDoComodo.packing_qty );
         totalPackage = totalPackage + itemPackage;
 
-        //console.log("UUIUIUIUIUI");
-        //console.log(itemDoComodo);
-        //console.log("UUIUIUIUIUI");
-        //if(colunas === 1){
         if(duasColunas){
           let totalitem = itemDoComodo.pivot.quantity;
           totalItens = totalItens + totalitem;
@@ -307,58 +312,8 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
           } 
         }
       }
-      varTextBody +="</tr>";
 
-      
-      
-      
-      /*
-      let itemDoComodo = objList.items[totItem];
-      //console.log("AAAAAAAAAAQQQQQQQQUIIIIIIII");
-      //console.log(itemDoComodo[0].pivot);
-      //console.log("AAAAAAAAAAQQQQQQQQUIIIIIIII");
-
-      varText +="<tr>";
-        let totalitem = itemDoComodo.pivot.quantity;
-        totalItens = totalItens + totalitem;
-        varText += "<td colspan='2' class='subtitle-1' >Item "+itemDoComodo.id+" - " +itemDoComodo.name+ " | cubic feet:" + itemDoComodo.cubic_feet + " </td>";
-      varText +="</tr>";
-
-      varText +="<tr>";
-        varText += "<td colspan='2' class='subtitle-2' >Quantidade: "+totalitem+"</td>";        
-      varText +="</tr>";
-      varText +="<tr>";
-        varText += "<td colspan='2' class='subtitle-2' >Obs: "+itemDoComodo.pivot.obs+"</td>";        
-      varText +="</tr>";
-
-      varText +="<tr>";
-        
-        varText +="<td colspan='2' class='subtitle-2' >";
-          varText += "Packing: ";
-          varText += itemDoComodo.packing.name + " | Uni: " + itemDoComodo.packing.unity+ " | Qtd: " + itemDoComodo.packing_qty ;
-        varText +="</td>";
-      varText +="</tr>";       
-
-      varText +="<tr>";
-        varText +="<td colspan='2' class='subtitle-2' >";
-          varText += "Totais: ";
-          
-          let itemCubict = (itemDoComodo.pivot.quantity * itemDoComodo.cubic_feet);
-          totalCubic = totalCubic + itemCubict;
-
-          let itemPackage = (itemDoComodo.pivot.quantity * itemDoComodo.packing_qty );
-          totalPackage = totalPackage + itemPackage;
-          varText += "Cubbic feet: "+ itemCubict.toFixed(2) + " Packings: " + itemPackage ;
-          
-        varText +="</td>";
-
-      varText +="</tr>";
-
-      varText +="<tr>";
-      varText += "<td colspan='2'></br></td>";
-      varText +="</tr>";
-      */
-      
+      varTextBody +="</tr>";      
     }
     varTextBody +="</tbody>";
 
@@ -391,22 +346,6 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
     let varTextFooter = null;
       varTextFooter = "<tfoot>";
         varTextFooter +="<tr>";
-          if(!duasColunas){
-            //console.log("DATA1");
-            //varTextFooter +="<td></td>";
-            //varTextFooter +="<td></td>";
-            //varTextFooter +="<td colspan='3'> Total Cubic Feet: " + totCubic + " | Total Weight (lbs.): 2233.2 </td>";
-          }else{
-            //console.log("DATA2");
-            //varTextFooter +="<td> </td>";
-            //varTextFooter +="<td> </td>";
-            //varTextFooter +="<td> </td>";
-            //varTextFooter +="<td> </td>";
-            //varTextFooter +="<td></td>";
-            //varTextFooter +="<td colspan='6'>  </td>";
-          }
-
-          
         varTextFooter +="</tr>";
       varTextFooter +="</tfoot>";
 
@@ -441,9 +380,9 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
     varTextItemComodoFim += varTextItemComodo;
   }
 
+  
 
-
-  let varTextTotal ="<table style='width:100%'>";
+  let varTextTotal ="<table id='wrapper' style='width: 100%;' >";
   //varTextTotal +="<caption style='caption-side: top; text-align: left;'>";
     //varTextTotal += "Total Cube & Weight Summary";
   //varTextTotal +="</caption>";
@@ -470,29 +409,26 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
   varTextTotal += "</tr>";
   varTextTotal += "</tbody>";
 varTextTotal +="</table>";
-console.log(varTextTotal);
 
-  let varTotalCube ="<table style='width:100%; border: 0px!important; background:white;' >";
-    
-    //varTotalCube +="<tbody>";
 
+  let varTotalCube ="<table id='wrapper' style='border-spacing: inherit!important; table-layout:fixed; width:100%; border: 0px!important; background:white;' >";
+    varTotalCube += "<thead>";
     varTotalCube += "<tr style='border: 0px!important;' >";
-      varTotalCube += "<td style='border: 0px!important; text-align: center;' ><h3>Total Cube & Weight Summary</h3></td>";
-    
-      varTotalCube += "<td style='border: 0px!important;' >";
+      varTotalCube += "<th style=' max-width:50%; border: 0px!important; text-align: center; vertical-align: middle; '><h3>Total Cube & Weight Summary</h3></th>";
+      varTotalCube += "<th style=' max-width:50%; border: 0px!important; text-align: center; vertical-align: middle; '>";
         varTotalCube += "<img ";
-          varTotalCube += " width='100' ";
-          varTotalCube += " height='50' ";
+          varTotalCube += " width='20%' ";
           varTotalCube += " align='center' ";
           varTotalCube += " src='" + objUsuarioLogado.tenant.logo + "'";
         varTotalCube += "></img>";
-      varTotalCube += "</td>";
-    
+      varTotalCube += "</th>";
     varTotalCube += "</tr>";
-
+    varTotalCube += "</thead>";
+    varTotalCube += "<tbody>";
     varTotalCube += "<tr style='border: 0px!important;'>";
-        varTotalCube += "<td style='border: 0px!important;' colspan='2'>"+ varTextTotal +"</td>";
+        varTotalCube += "<td style='border: 0px!important;' colspan='2' >"+ varTextTotal +"</td>";
     varTotalCube += "<tr>";
+    varTotalCube += "</tbody>";
   varTotalCube +="</table>";
 
 //console.log(varTotalCube);
@@ -501,28 +437,26 @@ console.log(varTextTotal);
   
 
 
-  let varTotalComodos ="<table style='width:100%; border: 0px!important; background:white;' >";
+  let varTotalComodos ="<table id='wrapper' style='border-spacing: inherit!important; table-layout:fixed; width:100%; border: 0px!important; background:white;' >";
     
     //varTotalComodos +="<tbody>";
-
+    varTotalComodos +="<thead>";
     varTotalComodos += "<tr style='border: 0px!important;' >";
-      varTotalComodos += "<td style='border: 0px!important; text-align: center;' ><h3>Itemized Customer Survey/Inventory</h3></td>";
-    
-      varTotalComodos += "<td style='border: 0px!important;' >";
-        varTotalComodos += "<img ";
-          varTotalComodos += " width='100' ";
-          varTotalComodos += " height='50' ";
+      varTotalComodos += "<th style=' max-width:50%; border: 0px!important; text-align: center; vertical-align: middle; ' ><h3>Itemized Customer Survey/Inventory</h3></th>";
+      varTotalComodos += "<th style=' max-width:50%; border: 0px!important; text-align: center; vertical-align: middle; '  >";
+      varTotalComodos += "<img ";
+        varTotalComodos += " width='20%' ";
           varTotalComodos += " align='center' ";
-          //varTotalComodos += " style='margin-right: 9px; margin-top: 9px;' ";
           varTotalComodos += " src='" + objUsuarioLogado.tenant.logo + "'";
-        varTotalComodos += "></img>";
-      varTotalComodos += "</td>";
-    
+          varTotalComodos += "></img>";
+        varTotalComodos += "</th>";
     varTotalComodos += "</tr>";
-
+    varTotalComodos +="</thead>";
+    varTotalComodos +="<tbody>";
     varTotalComodos += "<tr style='border: 0px!important;'>";
         varTotalComodos += "<td style='border: 0px!important;' colspan='2'>"+ varTextItemComodoFim +"</td>";
     varTotalComodos += "<tr>";
+    varTotalComodos +="</tbody>";
   varTotalComodos +="</table>";
 
   let varAssinaturas ="<table style='width:100%; border: 0px!important; background:white; table-layout:fixed' >";
@@ -566,9 +500,13 @@ console.log(varTextTotal);
     
   varAssinaturas +="</table>";
 
+let varImage = generateHtmlListImg(listImgComodo);
+
 varText += "<br>" + varTextOrder;
 varText += "<br>" + varTotalCube;
 varText += "<br>" + varTotalComodos;
+varText += "<br>" + varTextPackage;
+varText += "<br>" + varImage;
 varText += "<br>" + varAssinaturas;
 //varText += "<br>" + ;
   
@@ -587,6 +525,7 @@ varText += "<style>";
   varText += "}";
   
   varText += "@media print {";
+    varText += ".pagebreak { page-break-before: always; } ";
     varText += ".page {";
       varText += "margin: 0;";
       varText += "border: initial;";
@@ -600,52 +539,54 @@ varText += "<style>";
   varText += "}";
 
 
-  varText += "table, th, td {";
-    varText += "border: 1px solid black;";
-  varText += "}";
+  
 
-  varText += "table {";
+  /*varText += "table {";
     varText += "width: 100%;";
     varText += "border-collapse: collapse;";
     varText += "text-align: left;";
-  varText += "}";
+  varText += "}";*/
 
 
 
 
 
-  varText += "thead,";
-  varText += "tfoot {";
+  varText += "#wrapper thead, #wrapper tfoot ";
+  varText += "{";
     varText += "background-color: #3f87a6;";
     varText += "color: #fff;";
   varText += "}";
 
-  varText += "tbody {";
+  varText += "#wrapper tbody {";
     varText += "background-color: #e4f0f5;";
   varText += "}";
 
-  varText += "caption {";
+  varText += "#wrapper caption {";
     varText += "padding: 10px;";
     varText += "caption-side: bottom;";
   varText += "}";
 
-  varText += "table {";
+  varText += "#wrapper table {";
     varText += "border-collapse: collapse;";
-    varText += "border: 2px solid rgb(200, 200, 200);";
-    varText += "letter-spacing: 1px;";
-    varText += "font-family: sans-serif;"
-    varText += "font-size: .8rem;";
+    varText += "border: 1px solid rgb(200, 200, 200);";
+
+    varText += "border-spacing: inherit!important;";
+    
+    //varText += "letter-spacing: 1px;";
+    //varText += "font-family: sans-serif;"
+    //varText += ""
+    //varText += "font-size: .8rem;";
   varText += "}";
 
-  varText += "td,";
-  varText += "th {";
-  varText += "border: 1px solid rgb(190, 190, 190);";
+  varText += "#wrapper th, #wrapper td";
+  varText += "{";
+    varText += "border: 1px solid rgb(190, 190, 190);";
     varText += "padding: 5px 10px;";
-    varText += ";}";
-
-  varText += "td {";
-    varText += "text-align: center;";
   varText += "}";
+
+  //varText += "#wrapper td {";
+    //varText += "text-align: center;";
+  //varText += "}";
 
   varText += "</style>";
 
@@ -663,34 +604,87 @@ function getItensOrdenadosImpressao(array, cols=3){
 		ret.push(array);
 	}else{
 		var size = Math.ceil(array.length / cols);
-    console.log("SIZE: "+size);
+    //console.log("SIZE: "+size);
 		for (var i = 0; i < cols; i++) {
 			var start = i*size;
 			ret.push(array.slice(start, start+size));
 		}
 	}
-  console.log("UUUUUUUUUUUUUUUUUUU");
-  console.log(ret);
-  console.log("UUUUUUUUUUUUUUUUUUU");
 	return ret;
 }
 
 
 
-/*
-function generateHtmlListImg(listImage, roomId)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//function generateHtmlListImg(listImage, roomId)
+function generateHtmlListImg(listImage)
 {
-  let html="";
-  //console.log(listImage);
-  let totImg=0;
-  //let tamanhoLista = listImage.length;
-  
-  for(totImg; totImg<listImage.length; totImg++){
-    if(totImg == 0 || totImg == 2){
-      html +="<tr>";
-    }
-    let objImg = listImage[totImg]; //order_room_id
-    if(objImg.order_room_id == roomId){              
+  let html = "<div class='pagebreak'> </div>";
+  html="<table id='wrapper' style='width:100%; border: 0px!important; background:white; table-layout:fixed' >";   
+  html +="<thead>";
+    html += "<tr>";
+      html += "<th colspan='2'>Imagens</th>";  
+    html += "</tr>";
+  html +="</thead>";
+  html +="<tbody>";
+
+
+  let totListImg=0;
+  for(totListImg; totListImg<listImage.length; totListImg++){
+    
+    let listIm = listImage[totListImg];
+    let a = 0;
+
+    for(a; a<listIm.length; a++){
+
+      if(a == 0 || a == 2){
+        html += "<tr style='border: 0px!important;' >";
+      }
+
+      let objImg = listIm[a]; 
       html +="<td >";
         html +="<img ";
           html +="max-height='150' ";
@@ -698,15 +692,186 @@ function generateHtmlListImg(listImage, roomId)
           html +="src='"+objImg.image+"' ";
           html +="class='rounded-lg' ";
         html +="></img> ";
-      //html += "<h5 class='subtitle-2' >"+objImg.image+"</h4>";
       html +="</td>";
-    } 
 
-    if(totImg == 2){
-      html +="</tr>";
+      if(a == 2){
+        html +="</tr>";
+      }
+
     }
-
+    //html += "</tr>";
   }
-  
+  html +="</tbody>";
+  html +="</table>"; 
   return html;
-}*/
+  
+}
+
+function  getListPackage(listOrderRooms)
+{
+  let html = "<div class='pagebreak'> </div>";
+  html="<table id='wrapper' style='width:100%; border: 0px!important; background:white; table-layout:fixed' >";   
+  html +="<thead>";
+    html += "<tr>";
+      html += "<th colspan='2'>Carrier Packing & Crating Summary</th>";  
+    html += "</tr>";
+  html +="</thead>";
+  html +="<tbody>";
+
+  html += "<tr style='border: 0px!important;'>";
+    html += "<td style='border: 0px!important;' colspan='2' >"+ tabelaConteudoPackage(listOrderRooms) +"</td>";
+  html += "<tr>";
+
+  html +="</tbody>";
+  html +="</table>"; 
+  return html;
+
+}
+
+function tabelaConteudoPackage(listOrderRooms){
+  let a=0;
+  let lista = [];
+  for(a; a<listOrderRooms.length; a++){
+    let room = listOrderRooms[a];
+    let items = room.items;
+    let countItem = 0
+    for(countItem; countItem<items.length; countItem++){
+      //html += "<tr>";
+      let item = items[countItem];
+      let packing = item.packing;
+      let obj = new Object();
+      obj.qtd = item.packing_qty;
+      obj.name = packing.name;
+
+      obj.nameRoom = room.room.name;
+      lista.push(obj);
+    }
+  }
+
+  console.log("AAA");
+  console.log(lista);
+  console.log("AAA");
+
+  let ll = getItensOrdenadosImpressao(lista, 3);
+  console.log("AA");
+  console.log(ll);
+  console.log("AA");
+
+  let html ="<table id='wrapper' style='width: 100%;' >";
+  html += "<thead>";
+    if(ll.length>=2){
+
+      html += "<tr>";
+        html += "<th> Qtd. </th>";
+        html += "<th> Package Description </th>";
+        html += "<th> Room  </th>";
+        html += "<th> Qtd. </th>";
+        html += "<th> Package Description </th>";
+        html += "<th> Room  </th>";
+      html += "</tr>";
+
+    } else {
+      html += "<tr>";
+        html += "<th> Qtd. </th>";
+        html += "<th> Package Description </th>";
+        html += "<th> Room  </th>";
+      html += "</tr>";
+    }
+  html += "</thead>";
+  html += "<tbody>";
+  
+
+
+
+  let b = 0;
+  for(b; b<ll.length; b++){
+
+    if(ll.length>=2){
+      
+
+      let obj = new Object();
+      obj = ll[b];
+
+      let a=0;
+      let cont = 0;
+      for(a; a<obj.length; a++){
+        if(cont==0){
+          html += "<tr>";
+        }
+        let ob = obj[a];
+        
+        html += "<td>" + ob.qtd + "</td>";
+        html += "<td>" + ob.name + "</td>";
+        html += "<td>" + ob.nameRoom + "</td>";
+
+          
+        if(ob[a+1]!=undefined){
+          a = a +1;  
+          let ob2 = ob[a];
+          html += "<td>" + ob2.qtd + "</td>";
+          html += "<td>" + ob2.name + "</td>";
+          html += "<td>" + ob2.nameRoom + "</td>";
+        }
+        cont = cont + 1;
+        if(cont==2){
+          cont = 0;
+          html += "</tr>";
+        }
+      }
+      //html += "<tr>";
+      
+      
+      if(ll[b+1]!=undefined){
+        b = b+1;
+        
+        let obj2 = new Object();
+        obj2 = ll[b];
+
+
+        let z=0;
+        let cont2 = 0;
+        
+        for(z; z<obj2.length; z++){
+
+          if(cont2==0){
+            html += "<tr>";
+          }
+
+          let ob = obj2[z];          
+          html += "<td>" + ob.qtd + "</td>";
+          html += "<td>" + ob.name + "</td>";
+          html += "<td>" + ob.nameRoom + "</td>";
+  
+          if(obj2[z + 1]!=undefined){
+            z = z +1;  
+            let ob2 = new Object();
+            ob2 = obj2[z];
+            html += "<td>" + ob2.qtd + "</td>";
+            html += "<td>" + ob2.name + "</td>";
+            html += "<td>" + ob2.nameRoom + "</td>";
+          }
+        }
+        cont2 = cont2 + 1;
+        if(cont2==2){
+          cont2 = 0;
+          html += "</tr>";
+        }
+      }
+      
+    } else {
+      let obj = new Object();
+      obj = ll[b];
+      html += "<tr>";
+        html += "<td>" + obj.qtd + "</td>";
+        html += "<td>" + obj.name + "</td>";
+        html += "<td>" + obj.nameRoom + "</td>";
+      html += "</tr>";
+    }
+  }
+  html += "</tbody>";
+  html += "</table>";
+  return html;
+}
+
+//getItensOrdenadosImpressao(objList.items, 3);
+
