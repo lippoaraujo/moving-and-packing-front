@@ -80,7 +80,7 @@ export function getListModules(){
     "menu": [
       {
       "name": "user",
-      "nameExibicao": "User",
+      "nameExibicao": "Users",
       "icon": "mdi-account-tie",
       "url" : "/system/users",
       "actions" : [
@@ -131,6 +131,7 @@ export function getListModules(){
           },
         ]
       },
+
       {
       "name": "role",
       "nameExibicao": "Roles",
@@ -183,7 +184,79 @@ export function getListModules(){
             updated_at: "2021-01-31T18:51:12.000000Z",
           },
         ]
-      }
+      },
+
+
+
+
+
+
+      {
+        "name": "permission",
+        "nameExibicao": "Permissions",
+        "icon": "mdi-account-details",
+        "url" : "/system/permissions",
+        "actions" : [
+            {
+              created_at: "2021-01-31T18:51:12.000000Z",
+              deleted_at: null,
+              guard_name: "api",
+              id: 1,
+              name: "permission-list",
+              pivot: {role_id: 1, permission_id: 1},
+              updated_at: "2021-01-31T18:51:12.000000Z",
+            },
+            {
+              created_at: "2021-01-31T18:51:12.000000Z",
+              deleted_at: null,
+              guard_name: "api",
+              id: 2,
+              name: "permission-create",
+              pivot: {role_id: 1, permission_id: 2},
+              updated_at: "2021-01-31T18:51:12.000000Z"
+            },
+            {
+              created_at: "2021-01-31T18:51:12.000000Z",
+              deleted_at: null,
+              guard_name: "api",
+              id: 3,
+              name: "permission-show",
+              pivot: {role_id: 1, permission_id: 3},
+              updated_at: "2021-01-31T18:51:12.000000Z",
+            },
+            {
+              created_at: "2021-01-31T18:51:12.000000Z",
+              deleted_at: null,
+              guard_name: "api",
+              id: 4,
+              name: "permission-edit",
+              pivot: {role_id: 1, permission_id: 4},
+              updated_at: "2021-01-31T18:51:12.000000Z",
+            },
+            {
+              created_at: "2021-01-31T18:51:12.000000Z",
+              deleted_at: null,
+              guard_name: "api",
+              id: 5,
+              name: "permission-delete",
+              pivot: {role_id: 1, permission_id: 5},
+              updated_at: "2021-01-31T18:51:12.000000Z",
+            },
+          ]
+        },
+
+
+
+
+
+
+
+
+
+
+
+
+
     ]
   };
   modulos.push(moduloSystem);
