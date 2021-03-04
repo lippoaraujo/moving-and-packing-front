@@ -584,6 +584,10 @@ import PoupUpAddImagemComodo from "@/modulos/moving/components/PoupUpAddImagemCo
 import moment from "moment";
 
 import { execPost, execGet, execPut } from "@/helper/execRequests.js";
+import {
+  exportResumoHtml,
+  exportRelatorioHtml,
+} from "@/modulos/moving/helper/getRlatoriosOrders.js";
 
 import {
   setComodoStorageSession,
@@ -1105,15 +1109,6 @@ export default {
     },
 
     relatorio: async function (item) {
-      const res = await this.$dialog.confirm({
-        text: "Do you really want to exit?",
-        title: "Warning",
-      });
-      console.log(res);
-      console.log(item);
-    },
-
-    resumo: async function (item) {
       this.overlay = true;
       //?id=7&get_data=true
       //orders/2?get_data=true
@@ -1121,103 +1116,21 @@ export default {
       let urlGet = this.urlAPIOrders.concat("/" + item.id + "?get_data=true");
 
       try {
-        let address = null;
-        let postcode = null;
-        let city = null;
-        let locality = null;
-        let country = null;
+        let objGetEdicao = await execGet.call(this, urlGet, this.headerRequest);
 
-        let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
+        //console.log(objGetEdicao);
 
-        //console.log(objEdicao);
-        //let idCliente = objEdicao.order_rooms;
+        let varText = await exportRelatorioHtml.call(
+          null,
+          this,
+          objGetEdicao,
+          this.urlAPICustomers,
+          this.headerRequest
+        );
 
-        if (objEdicao.address_id == objEdicao.customer.primary_address_id) {
-          //o endereco e o mesmo do cliente
-          //buscar endereco do cliente
-          let urlGetCustomer = this.urlAPICustomers.concat(
-            "/" + objEdicao.customer.id
-          );
-          let objCliente = await execGet.call(
-            this,
-            urlGetCustomer,
-            this.headerRequest
-          );
-          address = objCliente.primary_address.address;
-          postcode = objCliente.primary_address.postcode;
-          city = objCliente.primary_address.city;
-          locality = objCliente.primary_address.locality;
-          country = objCliente.primary_address.country;
-          //console.log(objCliente);
-        } else {
-          //e outro endereco
-          address = objEdicao.address.address;
-          postcode = objEdicao.address.postcode;
-          city = objEdicao.address.city;
-          locality = objEdicao.address.locality;
-          country = objEdicao.address.country;
-        }
-
-        let varText = "<div id='printMe'><h4>Cliente</h4>";
-        varText += "<h5>Nome: " + objEdicao.customer.name + "</h5>";
-        varText +=
-          "<h5>email: " +
-          objEdicao.customer.email +
-          " | telefone: " +
-          objEdicao.customer.phone +
-          "</h5>";
-        varText += "<hr>";
-        varText += "<br><h4>Vendedor</h4>";
-        varText +=
-          "<h5>nome: " +
-          objEdicao.user.name +
-          " | email: " +
-          objEdicao.user.email +
-          "</h5>";
-        varText += "<hr>";
-        varText += "<br><h4>Mudança</h4>";
-        varText += "<h5>Data: " + item.expected_date + "</h5>";
-        varText +=
-          "<h5>Endereco: " + address + ", " + city + " - " + postcode + "</h5>";
-        varText += "<h5>" + locality + ", " + country + "</h5>";
-        varText += "<br><h4>Comodos :" + objEdicao.order_rooms.length + "</h4>";
-        let a = 0;
-
-        //totCubic= totCubic + Number(obj.item.cubic_feet);
-
-        for (a; a < objEdicao.order_rooms.length; a++) {
-          let objList = objEdicao.order_rooms[a];
-
-          //calcula o total metrocubico
-          let b = 0;
-          let totCubic = 0;
-          for (b; b < objList.items.length; b++) {
-            let item = objList.items[b];
-            totCubic = totCubic + Number(item.cubic_feet);
-          }
-          //let totCubicFim = totCubic.toLocaleString("pt-BR", {
-          //minimumFractionDigits: 2,
-          //});
-          //totCubicFim = totCubicFim.replace(",", ".");
-          //console.log(objList);
-          varText +=
-            "<h5>" +
-            objList.room.name +
-            "<br>Tot. itens: " +
-            objList.items.length +
-            " - Tot. cubic: " +
-            totCubic.toFixed(2) +
-            " - Tot. imagens: " +
-            objList.images.length +
-            "</h5><br>";
-        }
-        varText += "</div>";
-
-        const res = await this.$dialog.info({
-          title: "Resumo da order " + item.id,
-
+        await this.$dialog.info({
+          title: "Order: " + item.id,
           text: varText,
-
           actions: {
             false: {
               text: "Imprimir",
@@ -1228,11 +1141,52 @@ export default {
             },
           },
         });
-        console.log(res);
-        console.log(item);
       } catch (e) {
         this.$dialog.message.error(
-          "Erro consultar dados alterar mudança: " + e.message,
+          "Erro consultar dados mudança: " + e.message,
+          {
+            position: "top-right",
+            timeout: 5000,
+          }
+        );
+      } finally {
+        this.overlay = false;
+      }
+    },
+
+    resumo: async function (item) {
+      this.overlay = true;
+      //?id=7&get_data=true
+      //orders/2?get_data=true
+
+      let urlGet = this.urlAPIOrders.concat("/" + item.id + "?get_data=true");
+
+      try {
+        let objGetEdicao = await execGet.call(this, urlGet, this.headerRequest);
+        let varText = await exportResumoHtml.call(
+          null,
+          this,
+          objGetEdicao,
+          this.urlAPICustomers,
+          this.headerRequest
+        );
+
+        await this.$dialog.info({
+          title: "Resumo da order " + item.id,
+          text: varText,
+          actions: {
+            false: {
+              text: "Imprimir",
+              handle: () => {
+                this.$htmlToPaper("printMe");
+                return false;
+              },
+            },
+          },
+        });
+      } catch (e) {
+        this.$dialog.message.error(
+          "Erro consultar dados mudança: " + e.message,
           {
             position: "top-right",
             timeout: 5000,
@@ -1548,8 +1502,8 @@ export default {
 }
 
 .v-dialog.vuedl-layout.v-dialog--active {
-  max-width: 650px !important;
-  width: 650px !important;
+  max-width: 750px !important;
+  width: 750px !important;
 }
 
 .v-card.v-sheet.theme--light.rounded-0 > .v-card__actions {
