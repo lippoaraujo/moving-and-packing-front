@@ -36,19 +36,22 @@ export async function  execGet(url, header){
         //console.log("UUU"); 
         //console.log(u); 
       } else {
-        this.$dialog.message.error("Get: " + url + "Status:"+ response.status, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: 'Erro',
+          text: "Get: " + url + "Status:"+ response.status
         });
         valueReturn = null;
       }
       
     },
     (error) => {
-      this.$dialog.message.error("Get: " + url + "Erro:"+ error, {
-        position: "top-right",
-        timeout: 5000,
+
+
+      this.$dialog.error({
+        title: 'Erro',
+        text: "Get: " + url + "Erro:"+ error
       });
+      
       valueReturn = null;
 
     }
@@ -76,10 +79,12 @@ export async function  execPost(url, data, header){
         //console.log(error.response.data.errors[obj][0]);
         msgmErro += msg;
       }
-      this.$dialog.message.error(msgmErro, {
-        position: "top-right",
-        timeout: 5000,
+      
+      this.$dialog.error({
+        title: 'Erro',
+        text: msgmErro        
       });
+
       valueReturn = false;
     }
   );
@@ -99,6 +104,9 @@ export async function  execPut(url, data, header){
     },
     (error) => {
       let msgmErro = error.response.data.message + ":<br>";
+
+      console.log(error.response.data);
+
       for (let obj in error.response.data.errors) {
         let msg = obj + ":";
         msg += error.response.data.errors[obj][0] + "<br>";
@@ -106,10 +114,17 @@ export async function  execPut(url, data, header){
         //console.log(error.response.data.errors[obj][0]);
         msgmErro += msg;
       }
-      this.$dialog.message.error(msgmErro, {
+
+
+      this.$dialog.error({
+        title: 'Erro',
+        text: msgmErro        
+      });
+
+      /*this.$dialog.message.error(msgmErro, {
         position: "top-right",
         timeout: 5000,
-      });
+      });*/
       valueReturn = false;
     }
   );

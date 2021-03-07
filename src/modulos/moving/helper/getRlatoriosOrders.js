@@ -874,4 +874,3 @@ function tabelaConteudoPackage(listOrderRooms){
 }
 
 //getItensOrdenadosImpressao(objList.items, 3);
-

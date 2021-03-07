@@ -76,6 +76,9 @@ export default {
     variavelIdComodo: {
       required: true,
     },
+    variavelIdArrayComodo: {
+      required: true,
+    },
   },
 
   data: () => ({
@@ -95,6 +98,9 @@ export default {
         return this.variavelShowModalCamera;
       },
       set(value) {
+        if (value) {
+          this.verificaOpenCamera();
+        }
         this.$emit("update:varOpenDialog", value);
       },
     },
@@ -109,6 +115,11 @@ export default {
         return this.variavelIdComodo;
       },
     },
+    getValorvariavelIdArrayComodo: {
+      get() {
+        return this.variavelIdArrayComodo;
+      },
+    },
   },
 
   watch: {
@@ -118,9 +129,11 @@ export default {
     devices: function () {
       // Once we have a list select the first one
       const [first] = this.devices;
+
       if (first) {
-        this.camera = first.deviceId;
-        this.deviceId = first.deviceId;
+        let first2 = this.devices[this.devices.length - 1];
+        this.camera = first2.deviceId;
+        this.deviceId = first2.deviceId;
       }
     },
   },
@@ -130,6 +143,7 @@ export default {
       base64Str,
       IdMudanca,
       IdComodo,
+      IdArrayComodo,
       callback,
       callback2
     ) {
@@ -180,7 +194,7 @@ export default {
         objRetun.idMudanca = IdMudanca;
         objRetun.idComodo = IdComodo;
         objRetun.imgBase64 = canvas.toDataURL();
-
+        objRetun.idArrayComodo = IdArrayComodo;
         callback(objRetun);
         callback2(false);
       };
@@ -196,11 +210,13 @@ export default {
         base64,
         this.getValorVariavelIdMudanca,
         this.getValorvariavelIdComodo,
+        this.getValorvariavelIdArrayComodo,
         function (resultObject) {
           setImageStorageSession(
             resultObject.idMudanca,
             resultObject.idComodo,
-            resultObject.imgBase64
+            resultObject.imgBase64,
+            resultObject.idArrayComodo
           );
         },
         this.closeModalImage
@@ -240,8 +256,13 @@ export default {
       }, 200);
     },
 
+    verificaOpenCamera: function () {
+      //this.onStop();
+      //this.onStart();
+    },
+
     closeModalImage: function (value) {
-      console.log("FECHAR");
+      //this.onStop();
       this.$emit("closeModalImage", value);
     },
   },
