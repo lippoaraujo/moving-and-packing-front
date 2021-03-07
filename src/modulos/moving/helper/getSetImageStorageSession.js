@@ -1,10 +1,12 @@
-export function setImageStorageSession(idMudanca=null, idComodo=null, imgBase64 )
+export function setImageStorageSession(idMudanca=null, idComodo=null, imgBase64, idArrayComodo )
 {
   let storageListaImagensComodoNovo = JSON.parse(sessionStorage.getItem("storageListaImagensComodoNovo"));
   
   let objImg = new Object();
   objImg.idMudanca = idMudanca;
   objImg.order_room_id = idComodo;
+
+  objImg.idArrayComodo = idArrayComodo;
   objImg.image = imgBase64;
   if((storageListaImagensComodoNovo==null) || (storageListaImagensComodoNovo.length==0)){
     storageListaImagensComodoNovo = [];
@@ -23,7 +25,7 @@ export function setImageStorageSession(idMudanca=null, idComodo=null, imgBase64 
   //return updateComodoStorageSession(idMudanca, idComodo);
 } 
 
-export function getListImageStorageSession(idMudanca=null, idComodo=null, exbicaoTela=false)
+export function getListImageStorageSession(idMudanca=null, idComodo=null, exbicaoTela=false, idArrayComodo)
 {
   let storageListaImagensComodoNovo = JSON.parse(sessionStorage.getItem("storageListaImagensComodoNovo"));
   if(storageListaImagensComodoNovo!=null){
@@ -31,7 +33,8 @@ export function getListImageStorageSession(idMudanca=null, idComodo=null, exbica
     let listaRetorno = [];
     for(a; a<storageListaImagensComodoNovo.length; a++){
       let objectTest = storageListaImagensComodoNovo[a];    
-      if( (objectTest.idMudanca===idMudanca) && (objectTest.order_room_id===idComodo) ){
+      
+      if( (objectTest.idMudanca===idMudanca) && (objectTest.order_room_id===idComodo) && (objectTest.idArrayComodo === idArrayComodo) ){
         listaRetorno.push(objectTest);
       }
     }
@@ -56,13 +59,24 @@ function separarArray(arr, tamanho)
   return novoArray;
 }
 
-export function delImageStorageSession(id, idMudanca=null, idComodo=null )
+export function delImageStorageSession(id, idMudanca, idComodo, idArrayComodo)
 {
+
+  
+  console.log("delImageStorageSession");
+  console.log("idMudanca "+idMudanca);
+  console.log("idComodo "+idComodo);
+  console.log("idArrayComodo "+idArrayComodo);
+
   let storageListaImagensComodoNovo = JSON.parse(sessionStorage.getItem("storageListaImagensComodoNovo"));
   let a = 0;
   for(a=0; a<storageListaImagensComodoNovo.length; a++){
     let objectTest = storageListaImagensComodoNovo[a];
-    if( (objectTest.id===id) && (objectTest.idMudanca===idMudanca) && (objectTest.order_room_id===idComodo) ){
+
+    console.log(objectTest);
+    console.log("delImageStorageSession");
+
+    if( (objectTest.id===id) && (objectTest.idMudanca===idMudanca) && (objectTest.order_room_id===idComodo) && (objectTest.idArrayComodo==idArrayComodo) ){
       // Começando na posição do índice 2, remova um elemento
       //list.splice(2, 1);
       storageListaImagensComodoNovo.splice(a, 1);
@@ -75,14 +89,14 @@ export function delImageStorageSession(id, idMudanca=null, idComodo=null )
   }
 }
 
-export function delImageComodoStorageSession(idMudanca, idComodo)
+export function delImageComodoStorageSession(idMudanca, idComodo, idArrayComodo)
 {
   let storageListaImagensComodoNovo = JSON.parse(sessionStorage.getItem("storageListaImagensComodoNovo"));
   if(storageListaImagensComodoNovo!=null){
     let a = 0;
     for(a; a<storageListaImagensComodoNovo.length; a++){
       let objectTest = storageListaImagensComodoNovo[a];      
-      if( (objectTest.idMudanca===idMudanca) && (objectTest.order_room_id===idComodo) ){
+      if( (objectTest.idMudanca===idMudanca) && (objectTest.order_room_id===idComodo) && (objectTest.idArrayComodo==idArrayComodo)){
         storageListaImagensComodoNovo.splice(a, 1);
         //GAMBIARRRAAAAA
         a--;
@@ -100,15 +114,15 @@ export function delAllImageStorageSession()
   sessionStorage.removeItem("storageListaImagensComodoNovo");
 }
 
-export function setAllImageStorageSession(idMudanca, idComodo, listImage)
+export function setAllImageStorageSession(idMudanca, idComodo, listImage, idArrayComodo)
 {
-  delImageComodoStorageSession(idMudanca, idComodo );
+  delImageComodoStorageSession(idMudanca, idComodo, idArrayComodo );
   if(listImage!=null){
     if(listImage.length > 0){
       let b = 0; 
       for(b; b<listImage.length; b++){
         let objImage = listImage[b];      
-        setImageStorageSession(idMudanca, idComodo, objImage.image );
+        setImageStorageSession(idMudanca, idComodo, objImage.image, idArrayComodo);
       }
     }
   }  

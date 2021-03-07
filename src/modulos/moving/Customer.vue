@@ -50,13 +50,13 @@
                 >
                   <template v-slot:[`item.actions`]="{ item }">
                     <v-icon
-                      small
+                      medium
                       class="mr-2"
                       title="Alterar"
                       @click="alterar(item)"
                       >mdi-pencil</v-icon
                     >
-                    <v-icon small title="Excluir" @click="excluir(item)"
+                    <v-icon medium title="Excluir" @click="excluir(item)"
                       >mdi-delete</v-icon
                     >
                   </template>
@@ -86,7 +86,7 @@
                       </v-col>
                     </v-row>
                     <v-row>
-                      <v-col cols="8">
+                      <v-col xs="12" sm="12" md="8" lg="8" xl="8">
                         <v-text-field
                           v-model="objForm.email"
                           :rules="emailRules"
@@ -95,7 +95,7 @@
                           required
                         ></v-text-field>
                       </v-col>
-                      <v-col cols="4">
+                      <v-col xs="12" sm="12" md="4" lg="4" xl="4">
                         <v-text-field
                           v-model="objForm.phone"
                           :counter="15"
@@ -110,7 +110,7 @@
                       </v-col>
                     </v-row>
                     <v-row>
-                      <v-col cols="10">
+                      <v-col xs="12" sm="12" md="10" lg="10" xl="10">
                         <v-text-field
                           v-model="objForm.address"
                           label="Endereco"
@@ -118,7 +118,7 @@
                           required
                         ></v-text-field>
                       </v-col>
-                      <v-col cols="2">
+                      <v-col xs="12" sm="12" md="2" lg="2" xl="2">
                         <v-text-field
                           v-model="objForm.postcode"
                           label="Cep"
@@ -129,7 +129,7 @@
                     </v-row>
 
                     <v-row>
-                      <v-col cols="6">
+                      <v-col xs="12" sm="12" md="6" lg="6" xl="6">
                         <v-text-field
                           v-model="objForm.city"
                           label="Cidade"
@@ -137,7 +137,7 @@
                           required
                         ></v-text-field>
                       </v-col>
-                      <v-col cols="6">
+                      <v-col xs="12" sm="12" md="6" lg="6" xl="6">
                         <v-text-field
                           v-model="objForm.locality"
                           label="Estado"
@@ -158,7 +158,7 @@
                     </v-row>
                     <center>
                       <v-row>
-                        <v-col>
+                        <v-col class="pt-3 mt-3">
                           <v-btn
                             dark
                             tile
@@ -169,6 +169,8 @@
                             Salvar
                             <v-icon right dark>mdi-content-save</v-icon>
                           </v-btn>
+                        </v-col>
+                        <v-col class="pt-3 mt-3">
                           <v-btn
                             dark
                             tile
@@ -190,10 +192,19 @@
         </v-col>
       </v-row>
     </v-col>
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </v-row>
 </template>
 <script>
 import { mask } from "vue-the-mask";
+
+import {
+  //execPost,
+  execGet,
+  //execPut
+} from "@/helper/execRequests.js";
 
 import { getObjMenu } from "@/helper/listRoutes.js";
 
@@ -202,6 +213,7 @@ export default {
   name: "Customer",
 
   data: () => ({
+    overlay: false,
     menu: "",
     headerRequest: "",
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/moving/customers",
@@ -307,41 +319,37 @@ export default {
   },
 
   methods: {
-    listar: function () {
-      this.objLoadingGrid = true;
-
-      this.$axios.get(this.urlAPI, this.headerRequest).then(
-        (response) => {
-          if (response.status == 200) {
-            this.repassarListaObjetoArrayGrid(response.data);
-          } else {
-            this.$dialog.message.error(
-              "Erro consultar dados: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-          this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.objLoadingGrid = false;
-          this.$dialog.message.error("Consultar dados: " + error, {
+    listar: async function () {
+      try {
+        this.overlay = true;
+        this.objLoadingGrid = true;
+        let listData = await execGet.call(
+          this,
+          this.urlAPI,
+          this.headerRequest
+        );
+        this.repassarListaObjetoArrayGrid(listData);
+      } catch (e) {
+        this.$dialog.message.error(
+          "Erro consultar dados Customer: " + e.message,
+          {
             position: "top-right",
             timeout: 5000,
-          });
-        }
-      );
+          }
+        );
+      } finally {
+        this.overlay = false;
+        this.objLoadingGrid = false;
+      }
     },
 
     repassarListaObjetoArrayGrid: function (list) {
       this.desserts = [];
       //console.log(list.data);
-      if (list.data.length > 0) {
+      if (list.length > 0) {
         let a = 0;
-        for (a; a < list.data.length; a++) {
-          this.desserts.push(list.data[a]);
+        for (a; a < list.length; a++) {
+          this.desserts.push(list[a]);
         }
       }
     },
@@ -497,7 +505,8 @@ export default {
       //this.dialog = true;
     },
 
-    excluir: function (item) {
+    execExcluir: async function (item) {
+      this.overlay = true;
       let urlDelete = this.urlAPI.concat("/" + item.id);
       //var myJSON = JSON.stringify(objPost);
 
@@ -510,25 +519,38 @@ export default {
               timeout: 5000,
             });
           } else {
-            this.$dialog.message.error(
-              "Excluir dados: " + response.data.mensagem,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
+            this.$dialog.error({
+              title: "Excluir dados ",
+              text: response.data.mensagem,
+            });
           }
           this.objLoadingGrid = false;
         },
         (error) => {
-          this.$dialog.message.error("Delete: " + error, {
-            position: "top-right",
-            timeout: 5000,
+          this.$dialog.error({
+            title: "Erro del",
+            text: error,
           });
-          this.objLoadingGrid = false;
         }
       );
       this.listar();
+      this.overlay = false;
+    },
+
+    excluir: async function (item) {
+      await this.$dialog.info({
+        title: "Delete Customers " + item.id,
+        text: "Delete Customers " + item.name + " ?",
+        actions: {
+          true: {
+            text: "OK",
+            handle: () => {
+              this.execExcluir(item);
+              return true;
+            },
+          },
+        },
+      });
     },
   },
 };
