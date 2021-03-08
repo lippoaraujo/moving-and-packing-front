@@ -2,7 +2,7 @@ export function setItemStorageSessionNovo(idMudanca=null, idComodo=null, idArray
 {
 //alert("idMudanca " + idMudanca);
 
-  let storageList = JSON.parse(sessionStorage.getItem("storageListaItemComodo"));
+  let storageList = JSON.parse(localStorage.getItem("storageListaItemComodo"));
   if((storageList==null) || (storageList.length==0) ){
     storageList = [];
     let objComoItem = new Object();
@@ -55,12 +55,12 @@ export function setItemStorageSessionNovo(idMudanca=null, idComodo=null, idArray
       }
     }    
   }
-  return sessionStorage.setItem("storageListaItemComodo", JSON.stringify(storageList));
+  return localStorage.setItem("storageListaItemComodo", JSON.stringify(storageList));
 }
 
 export function getListItemStorageSession(idMudanca=null, idComodo=null, idArrayComodo=null)
 {  
-  let storageListaItemComodo = JSON.parse(sessionStorage.getItem("storageListaItemComodo"));
+  let storageListaItemComodo = JSON.parse(localStorage.getItem("storageListaItemComodo"));
   if(storageListaItemComodo!=null){
     let a = 0;
     let listaRetorno = [];
@@ -83,7 +83,7 @@ export function getListItemStorageSession(idMudanca=null, idComodo=null, idArray
 
 export function delItemStorageSession(idItem, idMudanca=null, idComodo=null, idArrayComodo=null )
 {
-  let storageListaItemComodo = JSON.parse(sessionStorage.getItem("storageListaItemComodo"));
+  let storageListaItemComodo = JSON.parse(localStorage.getItem("storageListaItemComodo"));
   if(storageListaItemComodo!=null){
     let a = 0;
     for(a=0; a<storageListaItemComodo.length; a++){
@@ -95,7 +95,7 @@ export function delItemStorageSession(idItem, idMudanca=null, idComodo=null, idA
           if(itemTeste.id===idItem){
             objectTest.items.splice(b, 1);
             storageListaItemComodo[a] = objectTest;
-            sessionStorage.setItem("storageListaItemComodo", JSON.stringify(storageListaItemComodo));  
+            localStorage.setItem("storageListaItemComodo", JSON.stringify(storageListaItemComodo));  
           }
         }      
       }
@@ -113,7 +113,7 @@ export function delItemComodoStorageSession(idMudanca, idComodo, idArrayComodo)
   console.log("exclusao item entrada comodo: "+idComodo);
   console.log("exclusao item entrada idArrayComodo: "+idArrayComodo);
 
-  let storageListaItemComodo = JSON.parse(sessionStorage.getItem("storageListaItemComodo"));
+  let storageListaItemComodo = JSON.parse(localStorage.getItem("storageListaItemComodo"));
   if(storageListaItemComodo!=null){
     let a = 0;
 
@@ -141,7 +141,7 @@ export function delItemComodoStorageSession(idMudanca, idComodo, idArrayComodo)
     //console.log("lista depois de excluir ");
     //console.log(storageListaItemComodo);
     //console.log("lista depois de excluir ");
-    sessionStorage.setItem("storageListaItemComodo", JSON.stringify(storageListaItemComodo));  
+    localStorage.setItem("storageListaItemComodo", JSON.stringify(storageListaItemComodo));  
     return true;
   }
   
@@ -149,7 +149,7 @@ export function delItemComodoStorageSession(idMudanca, idComodo, idArrayComodo)
 
 export function delAllItemStorageSession()
 {
-  sessionStorage.removeItem("storageListaItemComodo");
+  localStorage.removeItem("storageListaItemComodo");
 }
 
 export function setAllItemStorageSession(idMudanca, idComodo, listItem, idArrayComodo)

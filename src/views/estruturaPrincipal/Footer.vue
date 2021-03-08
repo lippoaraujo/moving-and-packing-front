@@ -13,11 +13,11 @@ export default {
   }),
 
   created() {
-    let userAdmin = JSON.parse(sessionStorage.getItem("userAdmin"));
+    let userAdmin = JSON.parse(localStorage.getItem("userAdmin"));
     if (userAdmin) {
       this.strUserLogado = "Usuario superAdmin";
     } else {
-      let userLoged = JSON.parse(sessionStorage.getItem("usuarioLogado"));
+      let userLoged = JSON.parse(localStorage.getItem("usuarioLogado"));
       this.strUserLogado =
         " - " +
         userLoged.name +

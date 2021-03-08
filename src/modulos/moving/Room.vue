@@ -200,7 +200,7 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(sessionStorage.getItem("token"));
+    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
     this.headerRequest = {
       headers: {
         "Content-Type": "application/json",

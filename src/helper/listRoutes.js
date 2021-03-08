@@ -4,11 +4,11 @@ export function getListaRotasUserLogado(){
   let listaRotaRetorno = [];
   let a = 0;
   let listModules = getListModules();
-  let temPermissao = false;
+  //let temPermissao = false;
   for(a; a<listModules.length; a++){
     let modulo = listModules[a];
     if(getPermissionModule(modulo.name)){
-      temPermissao = true;
+      //temPermissao = true;
       let b = 0;
       listaRotaRetorno.push("/" + modulo.name);    
       let listaMenuModulo = modulo.menu;
@@ -20,9 +20,9 @@ export function getListaRotasUserLogado(){
       }
     }
   }
-  if(temPermissao){
-    listaRotaRetorno.push("/home");
-  }
+  //if(temPermissao){
+    //listaRotaRetorno.push("/home");
+  //}
   return listaRotaRetorno;
 }
 
