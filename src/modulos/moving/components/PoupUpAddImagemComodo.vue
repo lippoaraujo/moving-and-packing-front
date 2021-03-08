@@ -105,8 +105,9 @@
                             @click.native="
                               excluirImagem(
                                 image.id,
-                                image.idMudanca,
-                                image.idComodo
+                                //image.idMudanca,
+                                //image.idComodo,
+                                image.idArrayComodo
                               )
                             "
                           >
@@ -118,257 +119,14 @@
                   </v-col>
                 </v-row>
               </div>
-              <!--<v-row>
-                <v-col>
-                  <div class="float-left">
-                    <v-img
-                      lazy-src="https://picsum.photos/id/11/10/6"
-                      max-height="150"
-                      max-width="250"
-                      src="https://picsum.photos/id/11/500/300"
-                      class="rounded-lg"
-                    ></v-img>
-                  </div>
-                  <div class="float-left">
-                    <v-tooltip>
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-badge
-                          slot="activator"
-                          v-bind="attrs"
-                          v-on="on"
-                          bordered
-                          color="error"
-                          style="cursor: pointer"
-                          icon="mdi-close-box"
-                          overlap
-                          @click.native="clicar"
-                        >
-                        </v-badge>
-                      </template>
-                      <span>Excluir imagem</span>
-                    </v-tooltip>
-                  </div>
-                </v-col>
-                <v-col>
-                  <div class="float-left">
-                    <v-img
-                      lazy-src="https://picsum.photos/id/11/10/6"
-                      max-height="150"
-                      max-width="250"
-                      src="https://picsum.photos/id/11/500/300"
-                      class="rounded-lg"
-                    ></v-img>
-                  </div>
-                  <div class="float-left">
-                    <v-tooltip>
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-badge
-                          slot="activator"
-                          v-bind="attrs"
-                          v-on="on"
-                          bordered
-                          color="error"
-                          style="cursor: pointer"
-                          icon="mdi-close-box"
-                          overlap
-                          @click.native="clicar"
-                        >
-                        </v-badge>
-                      </template>
-                      <span>Excluir imagem</span>
-                    </v-tooltip>
-                  </div>
-                </v-col>
-                <v-col>
-                  <div class="float-left">
-                    <v-img
-                      lazy-src="https://picsum.photos/id/11/10/6"
-                      max-height="150"
-                      max-width="250"
-                      src="https://picsum.photos/id/11/500/300"
-                      class="rounded-lg"
-                    ></v-img>
-                  </div>
-                  <div class="float-left">
-                    <v-tooltip>
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-badge
-                          slot="activator"
-                          v-bind="attrs"
-                          v-on="on"
-                          bordered
-                          color="error"
-                          style="cursor: pointer"
-                          icon="mdi-close-box"
-                          overlap
-                          @click.native="clicar"
-                        >
-                        </v-badge>
-                      </template>
-                      <span>Excluir imagem</span>
-                    </v-tooltip>
-                  </div>
-                </v-col>
-                <v-col>
-                  <div class="float-left">
-                    <v-img
-                      lazy-src="https://picsum.photos/id/11/10/6"
-                      max-height="150"
-                      max-width="250"
-                      src="https://picsum.photos/id/11/500/300"
-                      class="rounded-lg"
-                    ></v-img>
-                  </div>
-                  <div class="float-left">
-                    <v-tooltip>
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-badge
-                          slot="activator"
-                          v-bind="attrs"
-                          v-on="on"
-                          bordered
-                          color="error"
-                          style="cursor: pointer"
-                          icon="mdi-close-box"
-                          overlap
-                          @click.native="clicar"
-                        >
-                        </v-badge>
-                      </template>
-                      <span>Excluir imagem</span>
-                    </v-tooltip>
-                  </div>
-                </v-col>
-              </v-row>
-              <v-row text-xs-center>
-                <v-col>
-                  <div class="float-left">
-                    <v-img
-                      lazy-src="https://picsum.photos/id/11/10/6"
-                      max-height="150"
-                      max-width="250"
-                      src="https://picsum.photos/id/11/500/300"
-                      class="rounded-lg"
-                    ></v-img>
-                  </div>
-                  <div class="float-left">
-                    <v-tooltip>
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-badge
-                          slot="activator"
-                          v-bind="attrs"
-                          v-on="on"
-                          bordered
-                          color="error"
-                          style="cursor: pointer"
-                          icon="mdi-close-box"
-                          overlap
-                          @click.native="clicar"
-                        >
-                        </v-badge>
-                      </template>
-                      <span>Excluir imagem</span>
-                    </v-tooltip>
-                  </div>
-                </v-col>
-                <v-col>
-                  <div class="float-left">
-                    <v-img
-                      lazy-src="https://picsum.photos/id/11/10/6"
-                      max-height="150"
-                      max-width="250"
-                      src="https://picsum.photos/id/11/500/300"
-                      class="rounded-lg"
-                    ></v-img>
-                  </div>
-                  <div class="float-left">
-                    <v-tooltip>
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-badge
-                          slot="activator"
-                          v-bind="attrs"
-                          v-on="on"
-                          bordered
-                          color="error"
-                          style="cursor: pointer"
-                          icon="mdi-close-box"
-                          overlap
-                          @click.native="clicar"
-                        >
-                        </v-badge>
-                      </template>
-                      <span>Excluir imagem</span>
-                    </v-tooltip>
-                  </div>
-                </v-col>
-                <v-col>
-                  <div class="float-left">
-                    <v-img
-                      lazy-src="https://picsum.photos/id/11/10/6"
-                      max-height="150"
-                      max-width="250"
-                      src="https://picsum.photos/id/11/500/300"
-                      class="rounded-lg"
-                    ></v-img>
-                  </div>
-                  <div class="float-left">
-                    <v-tooltip>
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-badge
-                          slot="activator"
-                          v-bind="attrs"
-                          v-on="on"
-                          bordered
-                          color="error"
-                          style="cursor: pointer"
-                          icon="mdi-close-box"
-                          overlap
-                          @click.native="clicar"
-                        >
-                        </v-badge>
-                      </template>
-                      <span>Excluir imagem</span>
-                    </v-tooltip>
-                  </div>
-                </v-col>
-                <v-col>
-                  <div class="float-left">
-                    <v-img
-                      lazy-src="https://picsum.photos/id/11/10/6"
-                      max-height="150"
-                      max-width="250"
-                      src="https://picsum.photos/id/11/500/300"
-                      class="rounded-lg"
-                    ></v-img>
-                  </div>
-                  <div class="float-left">
-                    <v-tooltip>
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-badge
-                          slot="activator"
-                          v-bind="attrs"
-                          v-on="on"
-                          bordered
-                          color="error"
-                          style="cursor: pointer"
-                          icon="mdi-close-box"
-                          overlap
-                          @click.native="clicar"
-                        >
-                        </v-badge>
-                      </template>
-                      <span>Excluir imagem</span>
-                    </v-tooltip>
-                  </div>
-                </v-col>
-              </v-row> -->
             </center>
           </v-container>
         </v-card-text>
         <PoupUpCaptureImage
           v-bind:variavelShowModalCamera="varOpenDialogImage"
-          v-bind:variavelIdMudanca="getValorVariavelIdMudanca"
+          v-bind:variavelIdMudanca="getValorvariavelIdMudanca"
           v-bind:variavelIdComodo="getValorvariavelIdComodo"
+          v-bind:variavelIdArrayComodo="getValorvariavelIdArrayComodo"
           v-on:closeModalImage="closeDialogImageMetodo"
           @update:varOpenDialogImage="varOpenDialogImage = $event"
         />
@@ -401,6 +159,9 @@ export default {
     variavelIdComodo: {
       required: true,
     },
+    variavelIdArrayComodo: {
+      required: true,
+    },
   },
 
   data: () => ({
@@ -422,25 +183,33 @@ export default {
       this.listaImagensExibir = getListImageStorageSession(
         this.variavelIdMudanca,
         this.variavelIdComodo,
-        exbicaoTela
+        exbicaoTela,
+        this.variavelIdArrayComodo
       );
     },
 
     closeModal: function (value) {
       setAllImageComodosByStorageSession(
-        this.getValorVariavelIdMudanca,
-        this.getValorvariavelIdComodo
+        this.getValorvariavelIdMudanca,
+        this.getValorvariavelIdComodo,
+        this.getValorvariavelIdArrayComodo
       );
       this.$emit("closeModal", value);
     },
 
-    excluirImagem: function (id, idMudanca, idComodo) {
-      delImageStorageSession(id, idMudanca, idComodo);
+    excluirImagem: function (id, idArrayComodo) {
+      delImageStorageSession(
+        id,
+        this.getValorvariavelIdMudanca,
+        this.getValorvariavelIdComodo,
+        idArrayComodo
+      );
       let exbicaoTela = true;
       this.listaImagensExibir = getListImageStorageSession(
         this.variavelIdMudanca,
         this.variavelIdComodo,
-        exbicaoTela
+        exbicaoTela,
+        this.variavelIdArrayComodo
       );
       if (this.listaImagensExibir == undefined) {
         this.listaImagensExibir = null;
@@ -457,7 +226,8 @@ export default {
       this.listaImagensExibir = getListImageStorageSession(
         this.variavelIdMudanca,
         this.variavelIdComodo,
-        exbicaoTela
+        exbicaoTela,
+        this.variavelIdArrayComodo
       );
       if (this.listaImagensExibir == undefined) {
         this.listaImagensExibir = null;
@@ -481,7 +251,7 @@ export default {
         this.$emit("update:varOpenDialog", value);
       },
     },
-    getValorVariavelIdMudanca: {
+    getValorvariavelIdMudanca: {
       get() {
         return this.variavelIdMudanca;
       },
@@ -489,6 +259,11 @@ export default {
     getValorvariavelIdComodo: {
       get() {
         return this.variavelIdComodo;
+      },
+    },
+    getValorvariavelIdArrayComodo: {
+      get() {
+        return this.variavelIdArrayComodo;
       },
     },
   },

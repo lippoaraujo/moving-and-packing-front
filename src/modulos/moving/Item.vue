@@ -48,13 +48,13 @@
             >
               <template v-slot:[`item.actions`]="{ item }">
                 <v-icon
-                  small
+                  medium
                   class="mr-2"
                   title="Alterar"
                   @click="alterar(item)"
                   >mdi-pencil</v-icon
                 >
-                <v-icon small title="Excluir" @click="excluir(item)"
+                <v-icon medium title="Excluir" @click="excluir(item)"
                   >mdi-delete</v-icon
                 >
               </template>
@@ -136,10 +136,9 @@
                     ></v-text-field>
                   </v-col>
                 </v-row>
-
                 <center>
                   <v-row>
-                    <v-col>
+                    <v-col class="pt-3 mt-3">
                       <v-btn
                         dark
                         tile
@@ -150,6 +149,8 @@
                         Salvar
                         <v-icon right dark>mdi-content-save</v-icon>
                       </v-btn>
+                    </v-col>
+                    <v-col class="pt-3 mt-3">
                       <v-btn
                         dark
                         tile
@@ -271,13 +272,13 @@ export default {
   },
 
   async mounted() {
+    this.listar();
     this.getEstadoMenu = true;
     this.getCaminhoBreadCrumb = this.$route.path.split("/");
     window.onpopstate = () => {
       location.reload();
     };
     this.getListPacking();
-    this.listar();
   },
 
   computed: {
@@ -301,44 +302,34 @@ export default {
   },
 
   methods: {
-    listar: function () {
-      this.overlay = true;
-      this.objLoadingGrid = true;
-
-      this.$axios.get(this.urlAPI, this.headerRequest).then(
-        (response) => {
-          if (response.status == 200) {
-            this.repassarListaObjetoArrayGrid(response.data);
-          } else {
-            this.$dialog.message.error(
-              "Erro consultar dados: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-          this.objLoadingGrid = false;
-          this.overlay = false;
-        },
-        (error) => {
-          this.objLoadingGrid = false;
-          this.overlay = false;
-          this.$dialog.message.error("Consultar dados: " + error, {
-            position: "top-right",
-            timeout: 5000,
-          });
-        }
-      );
+    listar: async function () {
+      try {
+        this.overlay = true;
+        this.objLoadingGrid = true;
+        let listData = await execGet.call(
+          this,
+          this.urlAPI,
+          this.headerRequest
+        );
+        this.repassarListaObjetoArrayGrid(listData);
+      } catch (e) {
+        this.$dialog.message.error("Erro consultar dados Item: " + e.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      } finally {
+        this.overlay = false;
+        this.objLoadingGrid = false;
+      }
     },
 
     repassarListaObjetoArrayGrid: function (list) {
       this.desserts = [];
       //console.log(list.data);
-      if (list.data.length > 0) {
+      if (list.length > 0) {
         let a = 0;
-        for (a; a < list.data.length; a++) {
-          let item = list.data[a];
+        for (a; a < list.length; a++) {
+          let item = list[a];
           this.desserts.push(item);
         }
       }
@@ -482,40 +473,6 @@ export default {
       }
     },
 
-    excluir: function (item) {
-      let urlDelete = this.urlAPI.concat("/" + item.id);
-      //var myJSON = JSON.stringify(objPost);
-
-      this.$axios.delete(urlDelete, this.headerRequest).then(
-        (response) => {
-          //console.log(response);
-          if (response.status == 200) {
-            this.$dialog.message.success(item.name + " excluido com sucesso!", {
-              position: "top-right",
-              timeout: 5000,
-            });
-          } else {
-            this.$dialog.message.error(
-              "Excluir dados: " + response.data.mensagem,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-          this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.$dialog.message.error("Delete: " + error, {
-            position: "top-right",
-            timeout: 5000,
-          });
-          this.objLoadingGrid = false;
-        }
-      );
-      this.listar();
-    },
-
     getListPacking: async function () {
       try {
         this.objLoadingGrid = true;
@@ -532,6 +489,53 @@ export default {
       } finally {
         this.objLoadingGrid = false;
       }
+    },
+
+    execExcluir: async function (item) {
+      this.overlay = true;
+      let urlDelete = this.urlAPI.concat("/" + item.id);
+      //var myJSON = JSON.stringify(objPost);
+
+      this.$axios.delete(urlDelete, this.headerRequest).then(
+        (response) => {
+          //console.log(response);
+          if (response.status == 200) {
+            this.$dialog.message.success(item.name + " excluido com sucesso!", {
+              position: "top-right",
+              timeout: 5000,
+            });
+          } else {
+            this.$dialog.error({
+              title: "Erro del",
+              text: response.data.mensagem,
+            });
+          }
+        },
+        (error) => {
+          this.$dialog.error({
+            title: "Erro del",
+            text: error,
+          });
+        }
+      );
+      this.listar();
+      this.overlay = false;
+    },
+
+    excluir: async function (item) {
+      await this.$dialog.info({
+        title: "Delete Item " + item.id,
+        text: "Delete Item " + item.name + " ?",
+        actions: {
+          true: {
+            text: "OK",
+            handle: () => {
+              this.execExcluir(item);
+              return true;
+            },
+          },
+        },
+      });
     },
   },
 };
