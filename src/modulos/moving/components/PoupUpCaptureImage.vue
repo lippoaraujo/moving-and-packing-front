@@ -222,7 +222,7 @@ export default {
         this.closeModalImage
       );
 
-      //console.log(sessionStorage.getItem("storageListaImagensComodoNovo"));
+      //console.log(localStorage.getItem("storageListaImagensComodoNovo"));
     },
 
     onStarted(stream) {

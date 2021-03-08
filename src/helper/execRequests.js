@@ -1,3 +1,5 @@
+
+import "@/plugins/axios";
 /*export const execGet = function({ url, header }){
   this.$axios.get(url, header).then(
     (response) => {
