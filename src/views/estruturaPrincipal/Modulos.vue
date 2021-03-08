@@ -134,6 +134,10 @@ export default {
           let listaInicialModulos = [];
           for (a; a < listModuleFront.length; a++) {
             let moduleFront = listModuleFront[a];
+
+            console.log(moduleFront.name);
+            console.log(getPermissionModule(moduleFront.name));
+
             if (getPermissionModule(moduleFront.name)) {
               listaInicialModulos.push(moduleFront);
             }

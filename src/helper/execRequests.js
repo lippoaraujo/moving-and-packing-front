@@ -1,5 +1,5 @@
-
-import "@/plugins/axios";
+import Vue from "vue";
+//import "@/plugins/axios";
 /*export const execGet = function({ url, header }){
   this.$axios.get(url, header).then(
     (response) => {
@@ -26,7 +26,7 @@ import "@/plugins/axios";
 };*/
 export async function  execGet(url, header){
   let valueReturn = [];
-  await this.$axios.get(url, header).then(
+  await Vue.axios.get(url, header).then(
     (response) => {
       if (response.status == 200) {
         //return response.data.data;
@@ -38,7 +38,7 @@ export async function  execGet(url, header){
         //console.log("UUU"); 
         //console.log(u); 
       } else {
-        this.$dialog.error({
+        Vue.dialog.error({
           title: 'Erro',
           text: "Get: " + url + "Status:"+ response.status
         });
@@ -49,7 +49,7 @@ export async function  execGet(url, header){
     (error) => {
 
 
-      this.$dialog.error({
+      Vue.dialog.error({
         title: 'Erro',
         text: "Get: " + url + "Erro:"+ error
       });
@@ -64,7 +64,7 @@ return valueReturn;
 
 export async function  execPost(url, data, header){
   let valueReturn = false;
-  await this.$axios.post(url, data, header).then(
+  await Vue.axios.post(url, data, header).then(
     (response) => {
       if (response.status == 201) {
         valueReturn = true; 
@@ -96,7 +96,7 @@ return valueReturn;
 
 export async function  execPut(url, data, header){
   let valueReturn = false;
-  await this.$axios.put(url, data, header).then(
+  await Vue.axios.put(url, data, header).then(
     (response) => {
       if (response.status == 200) {
         valueReturn = true; 

@@ -1,12 +1,12 @@
 import { execGet } from "@/helper/execRequests.js";
-export function getPermissionModule(nameModule)
+export async function getPermissionModule(nameModule)
 {
   if (JSON.parse(localStorage.getItem("userAdmin"))) {
     return true;
   }
   let listaPermissao = JSON.parse(sessionStorage.getItem("permissions"));
   if(listaPermissao==null){
-    let objReturn = getPermissionPorToken();
+    let objReturn = await getPermissionPorToken();
     if(objReturn.status){
       let a;
       listaPermissao = objReturn.permission;
@@ -31,7 +31,7 @@ export function getPermissionModule(nameModule)
   return false;
 } 
 
-export function getPermissionMenu(nameMenu)
+export async function getPermissionMenu(nameMenu)
 {
   if (JSON.parse(localStorage.getItem("userAdmin"))) {
     return true;
@@ -42,7 +42,7 @@ export function getPermissionMenu(nameMenu)
     //listaPermissao = getPermissionPorToken();
 
 
-    let objReturn = getPermissionPorToken();
+    let objReturn = await getPermissionPorToken();
     if(objReturn.status){
       let a;
       listaPermissao = objReturn.permission;
@@ -91,24 +91,27 @@ async function  getPermissionPorToken()
         headerRequest
       );
 
-      if (permissions.data.permissions === true) {
+      console.log(permissions);
+
+      if (permissions === true) {
         //logou como admin
         localStorage.setItem("userAdmin", true);
       } else {
         localStorage.setItem("userAdmin", false);
         sessionStorage.setItem(
           "permissions",
-          JSON.stringify(permissions.data)
+          JSON.stringify(permissions)
         );
       }
       objReturn.status = true;
-      objReturn.permission = permissions.data;
+      objReturn.permission = permissions;
       
     }else{
       objReturn.status = false;
       objReturn.permission = null;
     }
 
+    console.log(objReturn);
     return objReturn;
 
   } catch (e) {
