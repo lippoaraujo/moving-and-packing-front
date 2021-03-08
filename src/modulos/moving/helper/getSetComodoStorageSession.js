@@ -3,7 +3,7 @@ import { getListImageStorageSession, delImageComodoStorageSession, delAllImageSt
 
 export function setComodoStorageSession(idMudanca=null, idArrayComodo, comodo,  obs=null, posicaoArray=null, objComodoOriginarioEdit=null, idOrigemPivot=null )
 {
-  let storageList = JSON.parse(sessionStorage.getItem("storageListaComodo"));  
+  let storageList = JSON.parse(localStorage.getItem("storageListaComodo"));  
 
   let obj = new Object();
   obj.idArrayComodo = idArrayComodo;
@@ -102,14 +102,14 @@ export function setComodoStorageSession(idMudanca=null, idArrayComodo, comodo,  
   }else{
     storageList.push(obj);
   }
-  sessionStorage.setItem("storageListaComodo", JSON.stringify(storageList));
+  localStorage.setItem("storageListaComodo", JSON.stringify(storageList));
   return true
 } 
 
 
 export function getNewIdArrayComodo()
 {
-  let storageList = JSON.parse(sessionStorage.getItem("storageListaComodo"));  
+  let storageList = JSON.parse(localStorage.getItem("storageListaComodo"));  
   if(storageList == null){
     return 1;
   }
@@ -119,7 +119,7 @@ export function getNewIdArrayComodo()
 
 function getListImageItemFromStorageListaComodo(idMudanca, idComodo){
 
-  let storageListaComodo = JSON.parse(sessionStorage.getItem("storageListaComodo"));
+  let storageListaComodo = JSON.parse(localStorage.getItem("storageListaComodo"));
   let listaRetorno = new Object;
   if(storageListaComodo!=null){
     
@@ -146,7 +146,7 @@ function getListImageItemFromStorageListaComodo(idMudanca, idComodo){
 
 export function getListComodoStorageSession(idMudanca=null)
 {
-  let storageListaComodo = JSON.parse(sessionStorage.getItem("storageListaComodo"));
+  let storageListaComodo = JSON.parse(localStorage.getItem("storageListaComodo"));
   if(storageListaComodo!=null){
     let a = 0;
     let listaRetorno = [];
@@ -167,7 +167,7 @@ export function getListComodoStorageSession(idMudanca=null)
 export function delComodoStorageSession(idMudanca, idComodo, idArrayComodo )
 {  
   
-  let storageListaComodo = JSON.parse(sessionStorage.getItem("storageListaComodo"));
+  let storageListaComodo = JSON.parse(localStorage.getItem("storageListaComodo"));
   if(storageListaComodo!=null){
     let a = 0;
     for(a=0; a<storageListaComodo.length; a++){
@@ -181,7 +181,7 @@ export function delComodoStorageSession(idMudanca, idComodo, idArrayComodo )
         //console.log("Posicao: " + a);  
         //console.log("objeto: " +objectTest);  
         //console.log("tamamnho depois de excluir: " +storageListaImagensComodoNovo.length);
-        sessionStorage.setItem("storageListaComodo", JSON.stringify(storageListaComodo));  
+        localStorage.setItem("storageListaComodo", JSON.stringify(storageListaComodo));  
         return true;
       }
     }
@@ -196,7 +196,7 @@ export function updateComodoStorageSession(idMudanca, idComodo, idArrayComodo)
   console.log(idMudanca);
   console.log(idComodo);
   console.log(idArrayComodo);
-  let storageListaComodo = JSON.parse(sessionStorage.getItem("storageListaComodo"));
+  let storageListaComodo = JSON.parse(localStorage.getItem("storageListaComodo"));
   
   if(storageListaComodo!=null){
     let a = 0;
@@ -244,7 +244,7 @@ export function setAllItensComodosByStorageSession(idMudanca, idComodo, idArrayC
 {
   //console.log("setAllItens");
   let listaItem = getListItemStorageSession(idMudanca, idComodo, idArrayComodo); 
-  let storageListComodo = JSON.parse(sessionStorage.getItem("storageListaComodo"));  
+  let storageListComodo = JSON.parse(localStorage.getItem("storageListaComodo"));  
   if(storageListComodo!= null){
     let b=0; 
     for(b; b<storageListComodo.length; b++){
@@ -290,7 +290,7 @@ export function setAllItensComodosByStorageSession(idMudanca, idComodo, idArrayC
       }    
     }
     //console.log(storageListComodo);
-    sessionStorage.setItem("storageListaComodo", JSON.stringify(storageListComodo));
+    localStorage.setItem("storageListaComodo", JSON.stringify(storageListComodo));
   }
   
 }
@@ -307,7 +307,7 @@ export function setAllImageComodosByStorageSession(idMudanca, idComodo, idArrayC
   //console.log("LISTA IMAGEM AQUi :");
   //console.log(listaImage);
 
-  let storageList = JSON.parse(sessionStorage.getItem("storageListaComodo"));   
+  let storageList = JSON.parse(localStorage.getItem("storageListaComodo"));   
 
   //console.log("LISTA comodo AQUi :");
   //console.log(storageList);
@@ -340,7 +340,7 @@ export function setAllImageComodosByStorageSession(idMudanca, idComodo, idArrayC
         break;
       }    
     }
-    sessionStorage.setItem("storageListaComodo", JSON.stringify(storageList));
+    localStorage.setItem("storageListaComodo", JSON.stringify(storageList));
   }
 
   
@@ -365,7 +365,7 @@ export function checkComodoAoMenosUmItem(idMudanca, objComodo)
 
   if(!retorno){
     let storageListItem = JSON.parse(
-      sessionStorage.getItem("storageListaItemComodo")
+      localStorage.getItem("storageListaItemComodo")
     );
     if (storageListItem != null && storageListItem.length > 0) {
       retorno = true;

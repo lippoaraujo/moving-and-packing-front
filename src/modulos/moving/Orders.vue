@@ -728,7 +728,7 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(sessionStorage.getItem("token"));
+    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
     this.headerRequest = {
       headers: {
         "Content-Type": "application/json",
@@ -1105,9 +1105,9 @@ export default {
     },
 
     limparItensSessaoMudanca: function () {
-      sessionStorage.removeItem("storageListaItemComodo");
-      sessionStorage.removeItem("storageListaImagensComodoNovo");
-      sessionStorage.removeItem("storageListaComodo");
+      localStorage.removeItem("storageListaItemComodo");
+      localStorage.removeItem("storageListaImagensComodoNovo");
+      localStorage.removeItem("storageListaComodo");
     },
 
     cancelarMudanca: function () {
@@ -1511,7 +1511,7 @@ export default {
     identificaUsuarioLogado: async function () {
       try {
         await this.getListaVendedorAdd();
-        let userLoged = JSON.parse(sessionStorage.getItem("usuarioLogado"));
+        let userLoged = JSON.parse(localStorage.getItem("usuarioLogado"));
         if (userLoged.usergroup_id == 2) {
           this.objForm.vendedor = userLoged;
           this.disabledSelectVendedor = 1;

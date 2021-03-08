@@ -1,6 +1,6 @@
 export function setImageStorageSession(idMudanca=null, idComodo=null, imgBase64, idArrayComodo )
 {
-  let storageListaImagensComodoNovo = JSON.parse(sessionStorage.getItem("storageListaImagensComodoNovo"));
+  let storageListaImagensComodoNovo = JSON.parse(localStorage.getItem("storageListaImagensComodoNovo"));
   
   let objImg = new Object();
   objImg.idMudanca = idMudanca;
@@ -21,13 +21,13 @@ export function setImageStorageSession(idMudanca=null, idComodo=null, imgBase64,
     }
   }  
   storageListaImagensComodoNovo.push(objImg);
-  return sessionStorage.setItem("storageListaImagensComodoNovo", JSON.stringify(storageListaImagensComodoNovo));
+  return localStorage.setItem("storageListaImagensComodoNovo", JSON.stringify(storageListaImagensComodoNovo));
   //return updateComodoStorageSession(idMudanca, idComodo);
 } 
 
 export function getListImageStorageSession(idMudanca=null, idComodo=null, exbicaoTela=false, idArrayComodo)
 {
-  let storageListaImagensComodoNovo = JSON.parse(sessionStorage.getItem("storageListaImagensComodoNovo"));
+  let storageListaImagensComodoNovo = JSON.parse(localStorage.getItem("storageListaImagensComodoNovo"));
   if(storageListaImagensComodoNovo!=null){
     let a = 0;
     let listaRetorno = [];
@@ -68,7 +68,7 @@ export function delImageStorageSession(id, idMudanca, idComodo, idArrayComodo)
   console.log("idComodo "+idComodo);
   console.log("idArrayComodo "+idArrayComodo);
 
-  let storageListaImagensComodoNovo = JSON.parse(sessionStorage.getItem("storageListaImagensComodoNovo"));
+  let storageListaImagensComodoNovo = JSON.parse(localStorage.getItem("storageListaImagensComodoNovo"));
   let a = 0;
   for(a=0; a<storageListaImagensComodoNovo.length; a++){
     let objectTest = storageListaImagensComodoNovo[a];
@@ -83,7 +83,7 @@ export function delImageStorageSession(id, idMudanca, idComodo, idArrayComodo)
       //console.log("Posicao: " + a);  
       //console.log("objeto: " +objectTest);  
       //console.log("tamamnho depois de excluir: " +storageListaImagensComodoNovo.length);
-      sessionStorage.setItem("storageListaImagensComodoNovo", JSON.stringify(storageListaImagensComodoNovo));  
+      localStorage.setItem("storageListaImagensComodoNovo", JSON.stringify(storageListaImagensComodoNovo));  
       return true;
     }
   }
@@ -91,7 +91,7 @@ export function delImageStorageSession(id, idMudanca, idComodo, idArrayComodo)
 
 export function delImageComodoStorageSession(idMudanca, idComodo, idArrayComodo)
 {
-  let storageListaImagensComodoNovo = JSON.parse(sessionStorage.getItem("storageListaImagensComodoNovo"));
+  let storageListaImagensComodoNovo = JSON.parse(localStorage.getItem("storageListaImagensComodoNovo"));
   if(storageListaImagensComodoNovo!=null){
     let a = 0;
     for(a; a<storageListaImagensComodoNovo.length; a++){
@@ -103,7 +103,7 @@ export function delImageComodoStorageSession(idMudanca, idComodo, idArrayComodo)
         //GAMBIARRRAAAAA
       }
     }    
-    sessionStorage.setItem("storageListaImagensComodoNovo", JSON.stringify(storageListaImagensComodoNovo));
+    localStorage.setItem("storageListaImagensComodoNovo", JSON.stringify(storageListaImagensComodoNovo));
   }
   return true;
   
@@ -111,7 +111,7 @@ export function delImageComodoStorageSession(idMudanca, idComodo, idArrayComodo)
 
 export function delAllImageStorageSession()
 {
-  sessionStorage.removeItem("storageListaImagensComodoNovo");
+  localStorage.removeItem("storageListaImagensComodoNovo");
 }
 
 export function setAllImageStorageSession(idMudanca, idComodo, listImage, idArrayComodo)

@@ -1,6 +1,6 @@
 export function getRotasUser(){
   let arrayRotasRetorno = [];
-  let permissaoACessoUser = JSON.parse(sessionStorage.getItem("permissoesExecucao"));
+  let permissaoACessoUser = JSON.parse(localStorage.getItem("permissoesExecucao"));
   if(permissaoACessoUser==null){
     return arrayRotasRetorno;
   }else{
@@ -38,7 +38,7 @@ export function getListaRotaValidacao(arrayDeRotas){
 
 export function getModulosUser(){
   let arrayRotasRetorno = [];
-  let permissaoACessoUser = JSON.parse(sessionStorage.getItem("permissoesExecucao"));
+  let permissaoACessoUser = JSON.parse(localStorage.getItem("permissoesExecucao"));
   if(permissaoACessoUser==null){
     return arrayRotasRetorno;
   }else{
@@ -55,7 +55,7 @@ export function getMenusModulo(pathDoModulo){
   let dados = pathDoModulo.split("/");
   let nomeDoModuloLimpo = dados[1];
   let menusRetorno = [];
-  let permissaoACessoUser = JSON.parse(sessionStorage.getItem("permissoesExecucao")); 
+  let permissaoACessoUser = JSON.parse(localStorage.getItem("permissoesExecucao")); 
   let a =0;
   for(a; a<permissaoACessoUser.length; a++){
     let modulo = permissaoACessoUser[a];
@@ -87,7 +87,7 @@ export function getMenusModulo(pathDoModulo){
 export function getModulo(pathDoModulo){
   let dados = pathDoModulo.split("/");
   let nomeDoModuloLimpo = dados[1];
-  let permissaoACessoUser = JSON.parse(sessionStorage.getItem("permissoesExecucao")); 
+  let permissaoACessoUser = JSON.parse(localStorage.getItem("permissoesExecucao")); 
   let a =0;
   for(a; a<permissaoACessoUser.length; a++){
     let modulo = permissaoACessoUser[a];
@@ -107,7 +107,7 @@ export function getObjMenu(pathDoModulo){
   console.log(nomeDoModuloLimpo);
   console.log(nomeDoMenuLimpo);
 
-  let permissaoACessoUser = JSON.parse(sessionStorage.getItem("permissoesExecucao")); 
+  let permissaoACessoUser = JSON.parse(localStorage.getItem("permissoesExecucao")); 
   let a =0;
 
   for(a; a<permissaoACessoUser.length; a++){

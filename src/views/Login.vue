@@ -99,8 +99,16 @@
                             prepend-inner-icon="mdi-form-textbox-password"
                             :rules="passwordRules"
                           />
+                          <v-checkbox
+                            v-model="objForm.checkContinuarConectado"
+                            label="continuar conectado?"
+                            color="primary"
+                            :value="true"
+                            hide-details
+                          ></v-checkbox>
                         </v-form>
                       </v-card-text>
+
                       <div class="text-center mt3">
                         <v-btn @click="logar" color="blue darken-3" dark>
                           <v-icon left> mdi-login-variant </v-icon>
@@ -224,6 +232,7 @@ export default {
     objForm: {
       email: "",
       senha: "",
+      checkContinuarConectado: false,
     },
 
     objFormRecuperaSenha: {
@@ -244,13 +253,33 @@ export default {
     // the data object is not yet created
     this.overlay = true;
     //this.$i18n.locale =
+
+    //localStorage.setItem("logado", false);
+    /*let log = localStorage.getItem("logado");
+    if (log == null) {
+      localStorage.setItem("logado", false);
+    }
+    let checkContinuarConectado = localStorage.getItem(
+      "checkContinuarConectado"
+    );
+    if (checkContinuarConectado === null) {
+      localStorage.setItem("checkContinuarConectado", false);
+      localStorage.setItem("logado", false);
+    }
+    if (!checkContinuarConectado) {
+      localStorage.setItem("logado", false);
+    }*/
+
+    localStorage.setItem("checkContinuarConectado", false);
+    sessionStorage.setItem("permissions", null);
+    localStorage.setItem("usuarioLogado", null);
   },
   mounted() {
     this.nomeApp = process.env.VUE_APP_NAME_APLICATION;
+    this.checkUserLogado();
   },
 
   create: function () {
-    sessionStorage.setItem("logado", false);
     // the data object is not yet created
     this.overlay = false;
   },
@@ -294,16 +323,15 @@ export default {
             if (response.status == 200) {
               //console.log(response.data);
 
-              /*sessionStorage.setItem("logado", 1);
-              sessionStorage.setItem("token", response.data.token);
-              sessionStorage.setItem(
-                "permissoesExecucao",
-                JSON.stringify(response.data.dashboard.modules)
-              );
-              this.identificaUsuarioLogado();*/
+              localStorage.setItem("token", response.data.token);
 
-              //sessionStorage.setItem("logado", 1);
-              sessionStorage.setItem("token", response.data.token);
+              if (this.objForm.checkContinuarConectado) {
+                localStorage.setItem("checkContinuarConectado", true);
+                localStorage.setItem("logado", true);
+              } else {
+                localStorage.setItem("checkContinuarConectado", false);
+                sessionStorage.setItem("logado", true);
+              }
 
               sessionStorage.setItem(
                 "permissions",
@@ -312,12 +340,12 @@ export default {
 
               if (Array.isArray(response.data.permissions)) {
                 //logou
-                sessionStorage.setItem("userAdmin", false);
+                localStorage.setItem("userAdmin", false);
               }
 
               if (response.data.permissions === true) {
                 //logou como admin
-                sessionStorage.setItem("userAdmin", true);
+                localStorage.setItem("userAdmin", true);
               }
 
               this.identificaUsuarioLogado();
@@ -387,7 +415,7 @@ export default {
 
     identificaUsuarioLogado: async function () {
       try {
-        const AuthStr = "Bearer ".concat(sessionStorage.getItem("token"));
+        const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
         let headerRequest = {
           headers: {
             "Content-Type": "application/json",
@@ -403,8 +431,8 @@ export default {
           process.env.VUE_APP_URL_CONNECTION + "/auth/user",
           headerRequest
         );
-        sessionStorage.setItem("usuarioLogado", JSON.stringify(userLoged));
-        sessionStorage.setItem("logado", true);
+        localStorage.setItem("usuarioLogado", JSON.stringify(userLoged));
+
         this.$router.push("modulos");
       } catch (e) {
         this.$dialog.message.error(
@@ -431,6 +459,69 @@ export default {
 
     resetValidation: function () {
       this.$refs.form.resetValidation();
+    },
+
+    checkUserLogado: function () {
+      let checkContinuarLogado = localStorage.getItem(
+        "checkContinuarConectado"
+      );
+      let logado = sessionStorage.getItem("logado");
+      if (logado === null) {
+        logado = localStorage.getItem("logado");
+      }
+
+      if (checkContinuarLogado === true) {
+        if (logado === true) {
+          //fazer requisição usando o token guardado
+          //fazer requisição pra identificar usuario
+          //redirecionar pra home
+
+          //this.getPermissaoPorToken();
+          alert("login automatico");
+        }
+      } /*else {
+        alert("fazer login");
+      }*/
+    },
+
+    getPermissaoPorToken: async function () {
+      try {
+        const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
+        let headerRequest = {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: AuthStr,
+          },
+        };
+
+        let permissions = await execGet.call(
+          this,
+          process.env.VUE_APP_URL_CONNECTION + "/system/permissions",
+          headerRequest
+        );
+
+        if (permissions.data.permissions === true) {
+          //logou como admin
+          localStorage.setItem("userAdmin", true);
+        } else {
+          sessionStorage.setItem(
+            "permissions",
+            JSON.stringify(permissions.data)
+          );
+        }
+
+        this.identificaUsuarioLogado();
+      } catch (e) {
+        this.$dialog.message.error(
+          "consultar dados usaurio logado: " + e.message,
+          {
+            position: "top-right",
+            timeout: 5000,
+          }
+        );
+      } finally {
+        this.objLoadingGrid = false;
+      }
     },
   },
 };
