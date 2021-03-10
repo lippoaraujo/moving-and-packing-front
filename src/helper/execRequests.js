@@ -132,3 +132,34 @@ export async function  execPut(url, data, header){
   );
 return valueReturn;
 }
+
+/*async function refreshToken(tokenAtual){
+  let url = process.env.VUE_APP_URL_CONNECTION + "auth/refresh";
+
+  await Vue.axios.post(url, data, header).then(
+    (response) => {
+      if (response.status == 201) {
+        valueReturn = true; 
+      } else {
+        valueReturn = false;
+      }
+    },
+    (error) => {
+      let msgmErro = error.response.data.message + ":<br>";
+      for (let obj in error.response.data.errors) {
+        let msg = obj + ":";
+        msg += error.response.data.errors[obj][0] + "<br>";
+        //console.log(obj);
+        //console.log(error.response.data.errors[obj][0]);
+        msgmErro += msg;
+      }
+      
+      this.$dialog.error({
+        title: 'Erro',
+        text: msgmErro        
+      });
+
+      
+    }
+  );
+}*/

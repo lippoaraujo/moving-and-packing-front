@@ -496,12 +496,11 @@ export default {
 
         let permissions = await execGet.call(
           this,
-          process.env.VUE_APP_URL_CONNECTION + "/system/permissions",
+          process.env.VUE_APP_URL_CONNECTION + "/system/users/permissions",
           headerRequest
         );
 
-        if (permissions.data.permissions === true) {
-          //logou como admin
+        if (typeof permissions.data.permissions === "boolean") {
           localStorage.setItem("userAdmin", true);
         } else {
           sessionStorage.setItem(
