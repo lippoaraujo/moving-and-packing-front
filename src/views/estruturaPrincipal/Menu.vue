@@ -103,7 +103,7 @@ export default {
     },
 
     incializaTela: function () {
-      if (JSON.parse(sessionStorage.getItem("userAdmin"))) {
+      if (JSON.parse(localStorage.getItem("userAdmin"))) {
         this.items = getListMenuModule(this.$route.path);
       } else {
         let listMenuFront = getListMenuModule(this.$route.path);

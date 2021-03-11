@@ -50,13 +50,13 @@
                 >
                   <template v-slot:[`item.actions`]="{ item }">
                     <v-icon
-                      small
+                      medium
                       class="mr-2"
                       title="Alterar"
                       @click="alterar(item)"
                       >mdi-pencil</v-icon
                     >
-                    <v-icon small title="Excluir" @click="excluir(item)"
+                    <v-icon medium title="Excluir" @click="excluir(item)"
                       >mdi-delete</v-icon
                     >
                   </template>
@@ -110,6 +110,8 @@
                             Salvar
                             <v-icon right dark>mdi-content-save</v-icon>
                           </v-btn>
+                        </v-col>
+                        <v-col class="pt-3 mt-3">
                           <v-btn
                             dark
                             tile
@@ -203,7 +205,7 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(sessionStorage.getItem("token"));
+    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
     this.headerRequest = {
       headers: {
         "Content-Type": "application/json",
@@ -252,7 +254,6 @@ export default {
           this.urlAPI,
           this.headerRequest
         );
-
         this.repassarListaObjetoArrayGrid(listData);
       } catch (e) {
         this.$dialog.message.error(
@@ -400,7 +401,8 @@ export default {
       }
     },
 
-    excluir: function (item) {
+    execExcluir: async function (item) {
+      this.overlay = true;
       let urlDelete = this.urlAPI.concat("/" + item.id);
       //var myJSON = JSON.stringify(objPost);
 
@@ -413,25 +415,37 @@ export default {
               timeout: 5000,
             });
           } else {
-            this.$dialog.message.error(
-              "Excluir dados: " + response.data.mensagem,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
+            this.$dialog.error({
+              title: "Erro del",
+              text: response.data.mensagem,
+            });
           }
-          this.objLoadingGrid = false;
         },
         (error) => {
-          this.$dialog.message.error("Delete: " + error, {
-            position: "top-right",
-            timeout: 5000,
+          this.$dialog.error({
+            title: "Erro del",
+            text: error,
           });
-          this.objLoadingGrid = false;
         }
       );
       this.listar();
+      this.overlay = false;
+    },
+
+    excluir: async function (item) {
+      await this.$dialog.info({
+        title: "Delete Room " + item.id,
+        text: "Delete Room " + item.name + " ?",
+        actions: {
+          true: {
+            text: "OK",
+            handle: () => {
+              this.execExcluir(item);
+              return true;
+            },
+          },
+        },
+      });
     },
   },
 };

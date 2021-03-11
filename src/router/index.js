@@ -2,7 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 
 import Modulos from "../views/estruturaPrincipal/Modulos.vue";
-import DashBoardSistema from "../components/sistema/DashboardSistema.vue";
+//import DashBoardSistema from "../components/sistema/DashboardSistema.vue";
 import store from "@/store/index.js";
 
 
@@ -156,14 +156,14 @@ const routes = [
         props: true,
         //component: import("@/views/Modulos.vue"),
       },
-      {
+      /*{
         path: "/sistema",
         components: {
           routeViewPrincipal: DashBoardSistema,
         },
         props: true,
         //component: import("@/views/Modulos.vue"),
-      },
+      },*/
     ],
   },
 
@@ -241,11 +241,35 @@ router.beforeEach((to, from, next) => {
     }
   }
   const authRequired = !publicPages.includes(to.path);
-  const loggedIn = JSON.parse(sessionStorage.getItem("logado"));  
+
+  let userLogado = JSON.parse(sessionStorage.getItem("logado"));
+  if( userLogado === null){
+    userLogado = JSON.parse(localStorage.getItem("logado"));
+    if(userLogado === null){
+      userLogado =false;
+    }
+  }
+
+
+
+  //const loggedIn = JSON.parse(localStorage.getItem("logado"));  
+  const loggedIn = userLogado;
+
+
+  //const checkContinuarConectado = JSON.parse(localStorage.getItem("checkContinuarConectado"));  
+  //console.log("AQUIoooo");
+  //console.log(to.path);
+  //console.log(publicPages);
+  //console.log(authRequired);
+  //console.log(loggedIn);
+  //console.log(checkContinuarConectado);
+  //console.log("AQUIooooo");
+  
 
   if (authRequired && !loggedIn) {
-    return next("login");
+      return next("login");    
   }else{
+    publicPages.push("/home");
     if(!publicPages.includes(to.path)){
       return next("acessonegado");
     }else{

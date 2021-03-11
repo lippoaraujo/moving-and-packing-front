@@ -105,10 +105,10 @@ export default {
 
   beforeCreate() {
     /*console.log("aqui1 beforeCreate");
-    //let permissoesExecucao = sessionStorage.getItem("permissoesExecucao");
-    console.log(JSON.parse(sessionStorage.getItem("permissoesExecucao")));
+    //let permissoesExecucao = localStorage.getItem("permissoesExecucao");
+    console.log(JSON.parse(localStorage.getItem("permissoesExecucao")));
 
-    let token = sessionStorage.getItem("token");
+    let token = localStorage.getItem("token");
     console.log(token);
 
     console.log("aqui2 beforeCreate");*/
@@ -125,7 +125,7 @@ export default {
     },
 
     incializaTela: function () {
-      if (JSON.parse(sessionStorage.getItem("userAdmin"))) {
+      if (JSON.parse(localStorage.getItem("userAdmin"))) {
         this.items = getListModules();
       } else {
         let listModuleFront = getListModules();
@@ -134,6 +134,10 @@ export default {
           let listaInicialModulos = [];
           for (a; a < listModuleFront.length; a++) {
             let moduleFront = listModuleFront[a];
+
+            console.log(moduleFront.name);
+            console.log(getPermissionModule(moduleFront.name));
+
             if (getPermissionModule(moduleFront.name)) {
               listaInicialModulos.push(moduleFront);
             }

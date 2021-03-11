@@ -130,7 +130,7 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
     locality = objEdicao.address.locality;
     country = objEdicao.address.country;
   }
-  let objUsuarioLogado = JSON.parse(sessionStorage.getItem("usuarioLogado"));
+  let objUsuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
   
 
   let varTextCustomer ="<table id='wrapper' style=' border-spacing: inherit!important;  width:100%; ' >"; 
@@ -874,4 +874,3 @@ function tabelaConteudoPackage(listOrderRooms){
 }
 
 //getItensOrdenadosImpressao(objList.items, 3);
-

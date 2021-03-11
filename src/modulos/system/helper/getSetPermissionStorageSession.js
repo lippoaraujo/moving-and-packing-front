@@ -6,7 +6,7 @@ export function setComodoStorageSession(idMudanca=null, comodo,  obs=null, posic
   console.log(comodo);
   console.log("comodoEntrada");
 
-  let storageList = JSON.parse(sessionStorage.getItem("storageListaComodo"));  
+  let storageList = JSON.parse(localStorage.getItem("storageListaComodo"));  
 
   let obj = new Object();
   obj.idMudanca = idMudanca;
@@ -86,7 +86,7 @@ export function setComodoStorageSession(idMudanca=null, comodo,  obs=null, posic
   
   //delAllItemStorageSession();
   //delAllImageStorageSession();
-  return sessionStorage.setItem("storageListaComodo", JSON.stringify(storageList));  
+  return localStorage.setItem("storageListaComodo", JSON.stringify(storageList));  
 } 
 */
 
@@ -94,7 +94,7 @@ export function getListPermissionStorageSession(modulo=null, grupoPermission=nul
 {
   console.log(grupoPermission);
   //console.log(modulo);
-  let listModulos = JSON.parse(sessionStorage.getItem("permissoesExecucao"));
+  let listModulos = JSON.parse(localStorage.getItem("permissoesExecucao"));
   //return listModulos;
   let retorno = [];
   if(listModulos != null){
@@ -138,7 +138,7 @@ export function getListPermissionStorageSession(modulo=null, grupoPermission=nul
 export function delComodoStorageSession(idMudanca, idComodo )
 {  
   console.log("delComodoStorageSession");
-  let storageListaComodo = JSON.parse(sessionStorage.getItem("storageListaComodo"));
+  let storageListaComodo = JSON.parse(localStorage.getItem("storageListaComodo"));
   if(storageListaComodo!=null){
     let a = 0;
     for(a=0; a<storageListaComodo.length; a++){
@@ -152,7 +152,7 @@ export function delComodoStorageSession(idMudanca, idComodo )
         //console.log("Posicao: " + a);  
         //console.log("objeto: " +objectTest);  
         //console.log("tamamnho depois de excluir: " +storageListaImagensComodoNovo.length);
-        sessionStorage.setItem("storageListaComodo", JSON.stringify(storageListaComodo));  
+        localStorage.setItem("storageListaComodo", JSON.stringify(storageListaComodo));  
         return true;
       }
     }
@@ -163,7 +163,7 @@ export function delComodoStorageSession(idMudanca, idComodo )
 export function updateComodoStorageSession(idMudanca=null, idComodo=null )
 {  
   //cancelComodoStorageSession();
-  let storageListaComodo = JSON.parse(sessionStorage.getItem("storageListaComodo"));
+  let storageListaComodo = JSON.parse(localStorage.getItem("storageListaComodo"));
   
   if(storageListaComodo!=null){
     let a = 0;
@@ -209,7 +209,7 @@ export function setAllItensComodosByStorageSession(idMudanca, idComodo)
   console.log("setAllMudancaEntrada: "+ idMudanca);
   console.log("setAllComodoEntrada: "+ idComodo);
   let listaItem = getListItemStorageSession(idMudanca, idComodo);  
-  let storageList = JSON.parse(sessionStorage.getItem("storageListaComodo"));  
+  let storageList = JSON.parse(localStorage.getItem("storageListaComodo"));  
   if(storageList!= null){
     let b=0; 
     for(b; b<storageList.length; b++){
@@ -235,7 +235,7 @@ export function setAllItensComodosByStorageSession(idMudanca, idComodo)
         break;
       }    
     }
-    sessionStorage.setItem("storageListaComodo", JSON.stringify(storageList));
+    localStorage.setItem("storageListaComodo", JSON.stringify(storageList));
   }
   
 }
@@ -243,7 +243,7 @@ export function setAllItensComodosByStorageSession(idMudanca, idComodo)
 export function setAllImageComodosByStorageSession(idMudanca, idComodo)
 {
   let listaImage = getListImageStorageSession(idMudanca, idComodo);  
-  let storageList = JSON.parse(sessionStorage.getItem("storageListaComodo"));   
+  let storageList = JSON.parse(localStorage.getItem("storageListaComodo"));   
   if(storageList!=null){
     let b=0; 
     for(b; b<storageList.length; b++){
@@ -266,7 +266,7 @@ export function setAllImageComodosByStorageSession(idMudanca, idComodo)
         break;
       }    
     }
-    sessionStorage.setItem("storageListaComodo", JSON.stringify(storageList));
+    localStorage.setItem("storageListaComodo", JSON.stringify(storageList));
   }
 
   

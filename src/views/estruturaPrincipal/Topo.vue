@@ -117,6 +117,7 @@ export default {
     },
 
     logout: function () {
+      localStorage.clear();
       sessionStorage.clear();
       this.$router.push("/login");
     },

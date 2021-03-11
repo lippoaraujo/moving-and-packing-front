@@ -50,13 +50,13 @@
                 >
                   <template v-slot:[`item.actions`]="{ item }">
                     <v-icon
-                      small
+                      medium
                       class="mr-2"
                       title="Alterar"
                       @click="alterar(item)"
                       >mdi-pencil</v-icon
                     >
-                    <v-icon small title="Excluir" @click="excluir(item)"
+                    <v-icon medium title="Excluir" @click="excluir(item)"
                       >mdi-delete</v-icon
                     >
                   </template>
@@ -69,8 +69,7 @@
                 <v-card-text>
                   <v-form
                     v-on:submit.prevent="salvar(objForm)"
-                    ref="form"
-                    v-model="valid"
+                    ref="objForm"
                     lazy-validation
                   >
                     <v-row>
@@ -151,32 +150,23 @@
                           return-object
                           :rules="[(v) => !!v || 'Roles is required']"
                         ></v-select>
-
-                        <!--<v-select
-                          :items="listaGrupoPermissao"
-                          v-model="objForm.listObjUserGroup"
-                          label="Roles"
-                          item-text="name"
-                          item-value="id"
-                          return-object
-                          outlined
-                          :rules="[(v) => !!v || 'Roles is required']"
-                        ></v-select>-->
                       </v-col>
                     </v-row>
                     <center>
                       <v-row>
-                        <v-col>
+                        <v-col class="pt-3 mt-3">
                           <v-btn
                             dark
                             tile
                             color="blue darken-2"
                             class="mr-4 white--text"
-                            @click="execSalvar"
+                            @click="salvar"
                           >
                             Salvar
                             <v-icon right dark>mdi-content-save</v-icon>
                           </v-btn>
+                        </v-col>
+                        <v-col class="pt-3 mt-3">
                           <v-btn
                             dark
                             tile
@@ -209,7 +199,7 @@ import { mask } from "vue-the-mask";
 //import { getObjMenu } from "@/helper/getModulosRotasActionsUserLogado.js";
 import { getObjMenu } from "@/helper/listRoutes.js";
 
-import { execPost, execGet } from "@/helper/execRequests.js";
+import { execPost, execGet, execPut } from "@/helper/execRequests.js";
 
 export default {
   directives: { mask },
@@ -289,7 +279,7 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(sessionStorage.getItem("token"));
+    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
     this.headerRequest = {
       headers: {
         "Content-Type": "application/json",
@@ -393,20 +383,20 @@ export default {
       }
     },
 
-    salvarMudanca: async function () {
+    salvar: async function () {
       try {
         this.overlay = true;
         if (this.validate()) {
           if (this.objForm.id > 0) {
             let retornoUpdate = await this.execUpdate();
             if (retornoUpdate) {
-              this.cancelar();
+              this.reset();
               this.listar(false);
             }
           } else {
             let retornoSalvar = await this.execSalvar();
             if (retornoSalvar) {
-              this.cancelar();
+              this.reset();
               this.listar(false);
             }
           }
@@ -429,7 +419,7 @@ export default {
       let u = 0;
       for (u; u < this.objForm.listObjUserGroup.length; u++) {
         let role = this.objForm.listObjUserGroup[u];
-        arrayRole.push(role);
+        arrayRole.push(role.id);
       }
       //arrayRole.push(this.objForm.listObjUserGroup);
 
@@ -440,9 +430,7 @@ export default {
         password_confirmation: this.objForm.confirmPassword,
         roles: arrayRole,
       };
-      console.log("AAAQ");
-      console.log(JSON.stringify(objSalvar));
-      console.log("AAAQ");
+
       let retornoExecPost = await execPost.call(
         this,
         this.urlAPI,
@@ -460,130 +448,64 @@ export default {
       }
     },
 
-    execSalvarAntigo: async function () {
-      if (this.$refs.form.validate()) {
-        if (this.objForm.id > 0) {
-          let arrayRole = [];
-          arrayRole.push(this.objForm.listObjUserGroup);
+    execUpdate: async function () {
+      let urlPut = this.urlAPI.concat("/" + this.objForm.id);
+      let msgm = "User  " + this.objForm.name + " alterado com sucesso!";
 
-          let objUpdate = {
-            id: this.objForm.id,
-            tenant_id: 1,
-            name: this.objForm.name,
-            email: this.objForm.email,
-            password: this.objForm.password,
-            password_confirmation: this.objForm.confirmPassword,
-            active: 1,
-            roles: arrayRole,
-          };
-          let msgm = "User " + this.objForm.name + " alterado com sucesso!";
-          let urlUpdate = this.urlAPI.concat("/" + this.objForm.id);
-          //console.log(urlUpdate);
-          //console.log(objUpdate);
-          //console.log(this.headerRequest);
-          this.$axios.put(urlUpdate, objUpdate, this.headerRequest).then(
-            (response) => {
-              if (response.status == 200) {
-                this.$dialog.message.success(msgm, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-                this.reset();
-                this.listar();
-              } else {
-                this.$dialog.message.error(response.status, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-              }
-            },
-            (error) => {
-              this.$dialog.message.error(error, {
-                position: "top-right",
-                timeout: 5000,
-              });
-            }
-          );
-        } else {
-          let msgm = "User  " + this.objForm.name + " cadastrado com sucesso!";
-          let objSalvar = {
-            tenant_id: 1,
-            name: this.objForm.name,
-            email: this.objForm.email,
-            password: this.objForm.password,
-            password_confirmation: this.objForm.confirmPassword,
-            active: 1,
-            listObjUserGroup: this.objForm.listObjUserGroup.id,
-          };
-          let retornoExecPost = await execPost.call(
-            this,
-            this.urlAPI,
-            objSalvar,
-            this.headerRequest
-          );
-          if (retornoExecPost) {
-            this.$dialog.message.success(msgm, {
-              position: "top-right",
-              timeout: 5000,
-            });
-            this.reset();
-            this.listar();
-          }
+      let arrayRole = [];
+      let u = 0;
+      for (u; u < this.objForm.listObjUserGroup.length; u++) {
+        let role = this.objForm.listObjUserGroup[u];
+        arrayRole.push(role.id);
+      }
 
-          /*this.$axios.post(this.urlAPI, objSalvar, this.headerRequest).then(
-            (response) => {
-              if (response.status == 201) {
-                this.$dialog.message.success(msgm, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-                this.reset();
-                this.listar();
-              } else {
-                this.$dialog.message.error(response.status, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-              }
-            },
-            (error) => {
-              let msgmErro = error.response.data.message + ":<br>";
-              for (let obj in error.response.data.errors) {
-                let msg = obj + ":";
-                msg += error.response.data.errors[obj][0] + "<br>";
-                //console.log(obj);
-                //console.log(error.response.data.errors[obj][0]);
-                msgmErro += msg;
-              }
-              this.$dialog.message.error(msgmErro, {
-                position: "top-right",
-                timeout: 5000,
-              });
-            }
-          );*/
-          /*.catch((error) => {
-            console.log(error.response);
-            //console.log(error);
-            this.$dialog.message.error(error, {
-              position: "top-right",
-              timeout: 5000,
-            });
-          });*/
-        }
+      let objPut = {
+        name: this.objForm.name,
+        email: this.objForm.email,
+        password: this.objForm.password,
+        password_confirmation: this.objForm.confirmPassword,
+        roles: arrayRole,
+      };
+
+      console.log("ALTERAR");
+      console.log(JSON.stringify(objPut));
+      console.log("ALTERAR");
+
+      let retornoExecPost = await execPut.call(
+        this,
+        urlPut,
+        objPut,
+        this.headerRequest
+      );
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return true;
+      } else {
+        return false;
       }
     },
 
     validate: function () {
-      alert(this.$refs.form.validate());
+      if (!this.$refs.objForm.validate()) {
+        this.$dialog.message.error(
+          "Observe o formulário, existe campos inválidos",
+          {
+            position: "top-right",
+            timeout: 5000,
+          }
+        );
+        return false;
+      }
+      return true;
     },
 
     reset: function () {
-      this.$refs.form.reset();
+      //this.resetValidation();
+      this.$refs.objForm.reset();
       this.tab = 0;
-    },
-
-    resetValidation: function () {
-      this.$refs.form.resetValidation();
     },
 
     alterar: async function (item) {
@@ -592,15 +514,19 @@ export default {
       try {
         this.objLoadingGrid = true;
         let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
+
+        console.log("carrega obj edicao");
+        console.log(objEdicao);
+        console.log("carrega obj edicao");
+        let a = 0;
+        this.objForm.listObjUserGroup = [];
+        console.log(this.objForm.listObjUserGroup);
+        for (a; a < objEdicao.roles.length; a++) {
+          this.objForm.listObjUserGroup.push(objEdicao.roles[a]);
+        }
         this.objForm.id = objEdicao.id;
         this.objForm.name = objEdicao.name;
         this.objForm.email = objEdicao.email;
-        /*let b = 0;
-        for (b; b < this.listaGrupoPermissao.length; b++) {
-          if (this.listaGrupoPermissao[b].id == objEdicao.listObjUserGroup) {
-            this.objForm.listObjUserGroup = this.listaGrupoPermissao[b];
-          }
-        }*/
         this.tab = 1;
       } catch (e) {
         this.$dialog.message.error(
@@ -613,42 +539,6 @@ export default {
       } finally {
         this.objLoadingGrid = false;
       }
-
-      /*let urlGet = this.urlAPI.concat("/" + item.id);
-      this.$axios.get(urlGet, this.headerRequest).then(
-        (response) => {
-          //console.log(response);
-          //console.log(response.data.data);
-
-          if (response.status === 200) {
-            let objEdicao = response.data.data;
-            //console.log(response.data.dados.obj[0]);
-
-            this.objForm.id = objEdicao.id;
-            this.objForm.name = objEdicao.name;
-            this.objForm.active = objEdicao.active;
-            this.tab = 1;
-            //this.headers = response.data.dados.obj;
-          } else {
-            this.$dialog.message.error(
-              "Erro alterar dados: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-        },
-        (error) => {
-          this.$dialog.message.error("Erro alterar dados: " + error, {
-            position: "top-right",
-            timeout: 5000,
-          });
-        }
-      );*/
-      //this.editedIndex = this.desserts.indexOf(item);
-      //this.editedItem = Object.assign({}, item);
-      //this.dialog = true;
     },
 
     excluir: function (item) {

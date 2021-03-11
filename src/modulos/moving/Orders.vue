@@ -47,12 +47,12 @@
               :search="search"
             >
               <template v-slot:[`item.actions`]="{ item }">
-                <v-icon small class="mr-2" title="Resumo" @click="resumo(item)"
+                <v-icon medium class="mr-2" title="Resumo" @click="resumo(item)"
                   >mdi-layers-outline</v-icon
                 >
 
                 <v-icon
-                  small
+                  medium
                   class="mr-2"
                   title="Relatorio"
                   @click="relatorio(item)"
@@ -60,13 +60,13 @@
                 >
 
                 <v-icon
-                  small
+                  medium
                   class="mr-2"
                   title="Alterar"
                   @click="alterar(item)"
                   >mdi-pencil</v-icon
                 >
-                <v-icon small title="Excluir" @click="excluir(item)"
+                <v-icon medium title="Excluir" @click="excluir(item)"
                   >mdi-delete</v-icon
                 >
               </template>
@@ -407,7 +407,8 @@
                                           v-on="on"
                                           @click="
                                             abrirlogAddItemComodo(
-                                              itemComodo.comodo
+                                              itemComodo.comodo,
+                                              itemComodo.idArrayComodo
                                             )
                                           "
                                           style="cursor: pointer"
@@ -442,7 +443,8 @@
                                           v-on="on"
                                           @click="
                                             abrirlogAddImagemComodo(
-                                              itemComodo.comodo
+                                              itemComodo.comodo,
+                                              itemComodo.idArrayComodo
                                             )
                                           "
                                           style="cursor: pointer"
@@ -470,7 +472,8 @@
                                         v-on="on"
                                         @click="
                                           editComodoStorage(
-                                            itemComodo.comodo.id
+                                            itemComodo.comodo.id,
+                                            itemComodo.idArrayComodo
                                           )
                                         "
                                         style="cursor: pointer"
@@ -495,7 +498,10 @@
                                         v-bind="attrs"
                                         v-on="on"
                                         @click="
-                                          delComodoStorage(itemComodo.comodo.id)
+                                          delComodoStorage(
+                                            itemComodo.comodo.id,
+                                            itemComodo.idArrayComodo
+                                          )
                                         "
                                         style="cursor: pointer"
                                       ></v-img>
@@ -553,6 +559,7 @@
         v-on:closeModal="closeDialogAddItemComodo"
         v-bind:variavelIdMudanca="variavelIdMudanca"
         v-bind:variavelIdComodo="variavelIdComodo"
+        v-bind:variavelIdArrayComodo="variavelIdArrayComodo"
         @update:varOpenDialogItemComodo="varOpenDialogItemComodo = $event"
       />
       <PoupUpAddImagemComodo
@@ -560,6 +567,7 @@
         v-on:closeModal="closeDialogImagensComodo"
         v-bind:variavelIdMudanca="variavelIdMudanca"
         v-bind:variavelIdComodo="variavelIdComodo"
+        v-bind:variavelIdArrayComodo="variavelIdArrayComodo"
         @update:varOpenDialogImagensComodo="varOpenDialogImagensComodo = $event"
       />
     </v-col>
@@ -584,6 +592,7 @@ import PoupUpAddImagemComodo from "@/modulos/moving/components/PoupUpAddImagemCo
 import moment from "moment";
 
 import { execPost, execGet, execPut } from "@/helper/execRequests.js";
+import { getNewIdArrayComodo } from "@/modulos/moving/helper/getSetComodoStorageSession.js";
 import {
   exportResumoHtml,
   exportRelatorioHtml,
@@ -596,6 +605,7 @@ import {
   updateComodoStorageSession,
   setAllComodosByMudanca,
   checkComodoAoMenosUmItem,
+  cancelComodoStorageSession,
 } from "@/modulos/moving/helper/getSetComodoStorageSession.js";
 
 export default {
@@ -639,6 +649,7 @@ export default {
 
     variavelIdMudanca: 0,
     variavelIdComodo: 0,
+    variavelIdArrayComodo: 0,
 
     /*DIALOGO ITENS COMODO*/
     varOpenDialogItemComodo: false,
@@ -717,7 +728,7 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(sessionStorage.getItem("token"));
+    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
     this.headerRequest = {
       headers: {
         "Content-Type": "application/json",
@@ -740,6 +751,7 @@ export default {
     await this.identificaUsuarioLogado();
     this.preencherComodoListaStorage();
     this.listar();
+    this.resetComodo();
     this.overlay = false;
   },
 
@@ -775,13 +787,18 @@ export default {
 
   methods: {
     /*DIALOGO ITENS COMODO*/
-    abrirlogAddItemComodo: function (objComodo) {
+    abrirlogAddItemComodo: function (objComodo, idArrayComodo) {
       this.cancelarComodoStorage();
       if (objComodo.order_id != undefined) {
         this.variavelIdMudanca = objComodo.order_id;
       }
       this.variavelIdComodo = objComodo.id;
-      updateComodoStorageSession(this.variavelIdMudanca, objComodo.id);
+      this.variavelIdArrayComodo = idArrayComodo;
+      updateComodoStorageSession(
+        this.variavelIdMudanca,
+        objComodo.id,
+        idArrayComodo
+      );
       this.varOpenDialogItemComodo = true;
     },
 
@@ -796,7 +813,6 @@ export default {
         );
       } else {
         this.variavelIdComodo = this.objForm.comodo.id;
-
         if (this.variavelIdComodo <= 0) {
           this.$dialog.message.error(
             "Escolha um cômodo para adicionar seu itens",
@@ -819,13 +835,18 @@ export default {
     /*DIALOGO ITENS COMODO*/
 
     /*DIALOGO IMAGENS COMODO*/
-    abrirlogAddImagemComodo: function (objComodo) {
+    abrirlogAddImagemComodo: function (objComodo, idArrayComodo) {
       this.cancelarComodoStorage();
       this.variavelIdComodo = objComodo.id;
       if (objComodo.order_id != undefined) {
         this.variavelIdMudanca = objComodo.order_id;
       }
-      updateComodoStorageSession(this.variavelIdMudanca, objComodo.id);
+      this.variavelIdArrayComodo = idArrayComodo;
+      updateComodoStorageSession(
+        this.variavelIdMudanca,
+        objComodo.id,
+        idArrayComodo
+      );
       this.varOpenDialogImagensComodo = true;
     },
 
@@ -989,9 +1010,9 @@ export default {
         address_data: address_data_obj,
         rooms: roomsListObj,
       };
-      //console.log("aqui");
-      //console.log(JSON.stringify(objPut));
-      //console.log("aqui2");
+      console.log("ALTERAR");
+      console.log(JSON.stringify(objPut));
+      console.log("ALTERAR");
       let retornoExecPost = await execPut.call(
         this,
         urlPut,
@@ -1036,7 +1057,9 @@ export default {
         address_data: address_data_obj,
         rooms: roomsListObj,
       };
-      //console.log(JSON.stringify(objSalvar));
+      console.log("SALVAR");
+      console.log(JSON.stringify(objSalvar));
+      console.log("SALVAR");
       let retornoExecPost = await execPost.call(
         this,
         this.urlAPIOrders,
@@ -1082,9 +1105,9 @@ export default {
     },
 
     limparItensSessaoMudanca: function () {
-      sessionStorage.removeItem("storageListaItemComodo");
-      sessionStorage.removeItem("storageListaImagensComodoNovo");
-      sessionStorage.removeItem("storageListaComodo");
+      localStorage.removeItem("storageListaItemComodo");
+      localStorage.removeItem("storageListaImagensComodoNovo");
+      localStorage.removeItem("storageListaComodo");
     },
 
     cancelarMudanca: function () {
@@ -1206,27 +1229,6 @@ export default {
 
       try {
         let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
-
-        /*console.log("DADOS EDICAO RECEBIDO MUDANCA");
-
-        let listItem = objEdicao.order_rooms[0].items;
-        console.log(listItem);
-        let b = 0;
-        for (b; b < listItem.length; b++) {
-          console.log(listItem[b]);
-        }
-        console.log("DADOS EDICAO RECEBIDO MUDANCA");
-        console.log("DADOS EDICAO RECEBIDO MUDANCA");
-
-        let listItem2 = objEdicao.order_rooms[1].items;
-        console.log(listItem2);
-        let c = 0;
-        for (c; c < listItem2.length; c++) {
-          console.log(listItem2[c]);
-        }
-        console.log(objEdicao.order_rooms[1]);
-        console.log("DADOS EDICAO RECEBIDO MUDANCA");*/
-
         this.objForm.id = objEdicao.id;
         this.variavelIdMudanca = objEdicao.id;
         this.objForm.vendedor = objEdicao.user;
@@ -1268,7 +1270,8 @@ export default {
       }
     },
 
-    excluir: function (item) {
+    execExcluir: async function (item) {
+      this.overlay = true;
       let urlDelete = this.urlAPIOrders.concat("/" + item.id);
       //var myJSON = JSON.stringify(objPost);
 
@@ -1283,25 +1286,44 @@ export default {
               }
             );
           } else {
-            this.$dialog.message.error(
-              "Excluir dados: " + response.data.mensagem,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
+            this.$dialog.error({
+              title: "Erro excluir dados",
+              text: response.data.mensagem,
+            });
           }
-          this.objLoadingGrid = false;
+          //this.objLoadingGrid = false;
         },
         (error) => {
-          this.$dialog.message.error("Delete: " + error, {
+          this.$dialog.error({
+            title: "Erro del",
+            text: error,
+          });
+          /*this.$dialog.message.error("Delete: " + error, {
             position: "top-right",
             timeout: 5000,
-          });
-          this.objLoadingGrid = false;
+          });*/
+          //this.objLoadingGrid = false;
         }
       );
       this.listar();
+      this.overlay = false;
+    },
+
+    excluir: async function (item) {
+      await this.$dialog.info({
+        title: "Delete order " + item.id,
+        text: "Delete order " + item.id + " ?",
+        actions: {
+          true: {
+            text: "OK",
+            flat: true,
+            handle: () => {
+              this.execExcluir(item);
+              return true;
+            },
+          },
+        },
+      });
     },
 
     getListaVendedorAdd: async function () {
@@ -1395,6 +1417,7 @@ export default {
             if (
               setComodoStorageSession(
                 this.variavelIdMudanca,
+                this.variavelIdArrayComodo,
                 this.objForm.comodo,
                 this.objForm.obsComodo,
                 this.alterandoComodoPosicaoArray,
@@ -1408,6 +1431,7 @@ export default {
             if (
               setComodoStorageSession(
                 this.variavelIdMudanca,
+                this.variavelIdArrayComodo,
                 this.objForm.comodo,
                 this.objForm.obsComodo,
                 null,
@@ -1427,6 +1451,15 @@ export default {
       this.objForm.obsComodo = "";
       this.alterandoComodoPosicaoArray = null;
       this.objComodoOriginarioEdit = null;
+      this.setNovoIdArrayComodo(null);
+    },
+
+    setNovoIdArrayComodo: function (idExistente = null) {
+      if (idExistente === null) {
+        this.variavelIdArrayComodo = getNewIdArrayComodo();
+      } else {
+        this.variavelIdArrayComodo = idExistente;
+      }
     },
 
     preencherComodoListaStorage: function () {
@@ -1442,21 +1475,23 @@ export default {
       }
     },
 
-    delComodoStorage: function (comodoId) {
-      delComodoStorageSession(this.variavelIdMudanca, comodoId);
+    delComodoStorage: function (comodoId, idArrayComodo) {
+      this.setNovoIdArrayComodo(idArrayComodo);
+      delComodoStorageSession(this.variavelIdMudanca, comodoId, idArrayComodo);
       this.preencherComodoListaStorage();
     },
 
-    editComodoStorage: function (comodoId) {
+    editComodoStorage: function (comodoId, idArrayComodo) {
       /*guardara o comodo que ta sendo alterado pra poder 
       na alteração repassar 
       as imagens e itens pra o novo objeto*/
       //this.objForm.obsComodo = "teste " + comodoId;
       this.cancelarComodoStorage();
-
+      this.setNovoIdArrayComodo(idArrayComodo);
       let objetoComodo = updateComodoStorageSession(
         this.variavelIdMudanca,
-        comodoId
+        comodoId,
+        idArrayComodo
       );
       //seta o objeto no select
       this.objForm.comodo = objetoComodo.comodo;
@@ -1468,7 +1503,7 @@ export default {
     },
 
     cancelarComodoStorage: function () {
-      //cancelComodoStorageSession();
+      cancelComodoStorageSession();
       this.resetComodo();
     },
     //GERENCIAR ADD COMODO STORAGE
@@ -1476,7 +1511,7 @@ export default {
     identificaUsuarioLogado: async function () {
       try {
         await this.getListaVendedorAdd();
-        let userLoged = JSON.parse(sessionStorage.getItem("usuarioLogado"));
+        let userLoged = JSON.parse(localStorage.getItem("usuarioLogado"));
         if (userLoged.usergroup_id == 2) {
           this.objForm.vendedor = userLoged;
           this.disabledSelectVendedor = 1;
@@ -1506,14 +1541,14 @@ export default {
   width: 750px !important;
 }
 
-.v-card.v-sheet.theme--light.rounded-0 > .v-card__actions {
+/*.v-card.v-sheet.theme--light.rounded-0 > .v-card__actions {
   background-color: #2196f3 !important;
   border-color: #2196f3 !important;
-}
+}*/
 
-.v-card__actions > .v-btn.v-btn--flat.v-btn--text.theme--light.v-size--default {
+/*.v-card__actions > .v-btn.v-btn--flat.v-btn--text.theme--light.v-size--default {
   color: #ffffff !important;
   background-color: #0d47a1 !important;
   border-color: #0d47a1 !important;
-}
+}*/
 </style>

@@ -44,6 +44,7 @@
                   <v-text-field
                     v-model="objForm.quantity"
                     label="Quantidade do item"
+                    type="number"
                     outlined
                     required="true"
                     :rules="[(v) => !!v || 'Quantidade is required']"
@@ -175,6 +176,9 @@ export default {
     variavelIdComodo: {
       required: true,
     },
+    variavelIdArrayComodo: {
+      required: true,
+    },
   },
 
   data: () => ({
@@ -195,29 +199,6 @@ export default {
 
     regrasAddItem: [(v) => !!v || "Escolha um item para adicionar"],
 
-    /*
-    folders: [
-      {
-        title: "Fogão",
-      },
-      {
-        title: "Geladeira",
-      },
-      {
-        title: "TV 29",
-      },
-      {
-        title: "Cama",
-      },
-      {
-        title: "Cama",
-      },
-      {
-        title: "Cama",
-      },
-    ], 
-    */
-
     objForm: {
       item: "",
       itemObs: "",
@@ -225,7 +206,7 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(sessionStorage.getItem("token"));
+    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
     this.headerRequest = {
       headers: {
         "Content-Type": "application/json",
@@ -239,7 +220,8 @@ export default {
       delItemStorageSession(
         id,
         this.getValorVariavelIdMudanca,
-        this.getValorvariavelIdComodo
+        this.getValorvariavelIdComodo,
+        this.getValorvariavelIdArrayComodo
       );
       this.preencherItensAbrirJanela();
     },
@@ -260,6 +242,7 @@ export default {
         setItemStorageSessionNovo(
           this.getValorVariavelIdMudanca,
           this.getValorvariavelIdComodo,
+          this.getValorvariavelIdArrayComodo,
           this.objForm.item,
           obsItem,
           this.objForm.quantity
@@ -287,7 +270,8 @@ export default {
     closeModal: function (value) {
       setAllItensComodosByStorageSession(
         this.getValorVariavelIdMudanca,
-        this.getValorvariavelIdComodo
+        this.getValorvariavelIdComodo,
+        this.getValorvariavelIdArrayComodo
       );
       this.$emit("closeModal", value);
     },
@@ -298,7 +282,8 @@ export default {
     preencherItensAbrirJanela: function () {
       this.listaItemExibir = getListItemStorageSession(
         this.getValorVariavelIdMudanca,
-        this.getValorvariavelIdComodo
+        this.getValorvariavelIdComodo,
+        this.getValorvariavelIdArrayComodo
       );
       if (this.listaItemExibir == undefined) {
         this.listaItemExibir = null;
@@ -360,6 +345,11 @@ export default {
     getValorvariavelIdComodo: {
       get() {
         return this.variavelIdComodo;
+      },
+    },
+    getValorvariavelIdArrayComodo: {
+      get() {
+        return this.variavelIdArrayComodo;
       },
     },
   },
