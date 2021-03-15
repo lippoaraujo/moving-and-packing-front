@@ -286,12 +286,12 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
         let itemPackage = (itemDoComodo.pivot.quantity * itemDoComodo.packing_qty );
         totalPackage = totalPackage + itemPackage;
 
-        if(duasColunas){
+        if(!duasColunas){
           let totalitem = itemDoComodo.pivot.quantity;
           totalItens = totalItens + totalitem;
           varTextBody += "<td>" + itemDoComodo.pivot.quantity + "</td>";
           varTextBody += "<td>" + itemDoComodo.name + "</td>";
-          varTextBody += "<td>" + itemDoComodo.cubic_feet + "</td>";
+          varTextBody += "<td>" + (itemDoComodo.cubic_feet * itemDoComodo.pivot.quantity) + "</td>";
           //varTextBody +="</tr>"
         }else{
           //varTextBody +="<tr>";
@@ -299,7 +299,7 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
           totalItens = totalItens + totalitem;
           varTextBody += "<td>" + itemDoComodo.pivot.quantity + "</td>";
           varTextBody += "<td>" + itemDoComodo.name + "</td>";
-          varTextBody += "<td>" + itemDoComodo.cubic_feet + "</td>";
+          varTextBody += "<td>" + (itemDoComodo.cubic_feet * itemDoComodo.pivot.quantity) + "</td>";
 
           if(listItemDoComodo[totItem+1]!=undefined){
             totItem = totItem + 1
@@ -308,7 +308,7 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
             totalItens = totalItens + totalitem;
             varTextBody += "<td>" + itemDoComodoNovo.pivot.quantity + "</td>";
             varTextBody += "<td>" + itemDoComodoNovo.name +"</td>";
-            varTextBody += "<td>" + itemDoComodoNovo.cubic_feet  + "</td>";
+            varTextBody += "<td>" + (itemDoComodo.cubic_feet * itemDoComodo.pivot.quantity)  + "</td>";
           } 
         }
       }
@@ -350,10 +350,10 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
       varTextFooter +="</tfoot>";
 
       varTextFooter +="<caption style='caption-side: button; text-align: right;'>";
-          let totCuMete = (totCubic/35.15).toFixed(2);
-          let totLb = (totCuMete*2.205).toFixed(2);
+          let totCuMete = (totCubic/35.15);
+          let totLb = (totCuMete*2.205);
         varTextFooter +="Total <br>";
-        varTextFooter +="Cubic Feet: " + totCubic + " | Cubic Meter " + totCuMete + " | Weight (lbs.) " + totLb;
+        varTextFooter +="Cubic Feet: " + totCubic.toFixed(2) + " | Cubic Meter " + totCuMete.toFixed(2) + " | Weight (lbs.) " + totLb.toFixed(2);
       varTextFooter +="</caption>";
 
       totalCubic = totalCubic + totCubic;
@@ -607,7 +607,10 @@ function getItensOrdenadosImpressao(array, cols=3){
     //console.log("SIZE: "+size);
 		for (var i = 0; i < cols; i++) {
 			var start = i*size;
-			ret.push(array.slice(start, start+size));
+      //console.log("aaaaa ", array.slice(start, start+size).length);
+      if(array.slice(start, start+size).length > 0){
+        ret.push(array.slice(start, start+size));
+      }
 		}
 	}
 	return ret;
@@ -759,8 +762,7 @@ function tabelaConteudoPackage(listOrderRooms){
 
   let html ="<table id='wrapper' style='width: 100%;' >";
   html += "<thead>";
-    if(ll.length>=2){
-
+    if(ll[0].length > 1){
       html += "<tr>";
         html += "<th> Qtd. </th>";
         html += "<th> Package Description </th>";
@@ -769,7 +771,6 @@ function tabelaConteudoPackage(listOrderRooms){
         html += "<th> Package Description </th>";
         html += "<th> Room  </th>";
       html += "</tr>";
-
     } else {
       html += "<tr>";
         html += "<th> Qtd. </th>";
@@ -779,14 +780,10 @@ function tabelaConteudoPackage(listOrderRooms){
     }
   html += "</thead>";
   html += "<tbody>";
-  
-
-
-
   let b = 0;
   for(b; b<ll.length; b++){
 
-    if(ll.length>=2){
+    //if(ll.length>2){
       
 
       let obj = new Object();
@@ -858,7 +855,7 @@ function tabelaConteudoPackage(listOrderRooms){
         }
       }
       
-    } else {
+    /*} else {
       let obj = new Object();
       obj = ll[b];
       html += "<tr>";
@@ -866,7 +863,7 @@ function tabelaConteudoPackage(listOrderRooms){
         html += "<td>" + obj.name + "</td>";
         html += "<td>" + obj.nameRoom + "</td>";
       html += "</tr>";
-    }
+    }*/
   }
   html += "</tbody>";
   html += "</table>";
