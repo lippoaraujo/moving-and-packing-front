@@ -225,7 +225,7 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
     let totCubic = 0;
     for (b; b < objList.items.length; b++) {
       let item = objList.items[b];
-      totCubic = totCubic + Number(item.cubic_feet);
+      totCubic = totCubic + Number( item.cubic_feet * item.pivot.quantity);
     }
     
     
@@ -274,23 +274,8 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
     for(totItemm; totItemm < objList.items.length; totItemm++){
 
       let listItemDoComodo = objList.items[totItemm];
-      
-      let totItem = 0;
-      //varTextBody +="<tr>";
-      
-      for(totItem; totItem<listItemDoComodo.length; totItem++){
 
-
-        /*if(totItem == 0){
-          if(listItemDoComodo.length >= 2){
-            duasColunas = true;
-          }else{
-            duasColunas = false;
-          }
-        }*/
-
-
-        let itemDoComodo = listItemDoComodo[totItem];
+      let itemDoComodo = listItemDoComodo[0];
 
         let itemPackage = (itemDoComodo.pivot.quantity * itemDoComodo.packing_qty );
         totalPackage = totalPackage + itemPackage;
@@ -300,34 +285,45 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
           varTextBody += "<tr>";
             let totalitem = itemDoComodo.pivot.quantity;
             totalItens = totalItens + totalitem;
-            varTextBody += "<td>" + itemDoComodo.pivot.quantity + "</td>";
-            varTextBody += "<td>" + itemDoComodo.name + "</td>";
-            varTextBody += "<td>" + (itemDoComodo.cubic_feet * itemDoComodo.pivot.quantity) + "</td>";
+            varTextBody += "<td>" + totalitem + "</td>";
+            varTextBody += "<td>" + itemDoComodo.name + "<br>cft. item: " +itemDoComodo.cubic_feet+ "</td>";
+            varTextBody += "<td>" +(itemDoComodo.cubic_feet * totalitem) + "</td>";
+            //varTextBody += "<td>"+ itemDoComodo.cubic_feet + " - "+ totalitem + " ----------  " +(itemDoComodo.cubic_feet * totalitem) + "</td>";
           varTextBody += "</tr>";
         }else{
-          //console.log("DUAS COLUNAS TRUE");
+          console.log("ITEM COLUNA 0");
+          console.log(itemDoComodo);
+          console.log("ITEM COLUNA 0");
           varTextBody +="<tr>";
           let totalitem = itemDoComodo.pivot.quantity;
           totalItens = totalItens + totalitem;
-          varTextBody += "<td>" + itemDoComodo.pivot.quantity + "</td>";
-          varTextBody += "<td>" + itemDoComodo.name + "</td>";
-          varTextBody += "<td>" + (itemDoComodo.cubic_feet * itemDoComodo.pivot.quantity) + "</td>";
+          varTextBody += "<td>" + totalitem + "</td>";
+          varTextBody += "<td>" + itemDoComodo.name + "<br>cft. item: " +itemDoComodo.cubic_feet+ "</td>";
+          varTextBody += "<td>" +(itemDoComodo.cubic_feet * totalitem) + "</td>";
+          //varTextBody += "<td>"+ itemDoComodo.cubic_feet + " - "+ totalitem + " ----------  " +(itemDoComodo.cubic_feet * totalitem) + "</td>";
 
-          if(listItemDoComodo[totItem+1]!=undefined){
-            totItem = totItem + 1
-            let itemDoComodoNovo = listItemDoComodo[totItem];
+          let itemDoComodoNovo = listItemDoComodo[1];
+          if(itemDoComodoNovo!=undefined){
+            //totItem = totItem + 1;
+            console.log("ITEM COLUNA 1");
+            console.log(itemDoComodoNovo);
+            console.log("ITEM COLUNA 1");
+
             let totalitem = itemDoComodoNovo.pivot.quantity;
             totalItens = totalItens + totalitem;
-            varTextBody += "<td>" + itemDoComodoNovo.pivot.quantity + "</td>";
-            varTextBody += "<td>" + itemDoComodoNovo.name +"</td>";
-            varTextBody += "<td>" + (itemDoComodo.cubic_feet * itemDoComodo.pivot.quantity)  + "</td>";
+            varTextBody += "<td>" + totalitem + "</td>";
+            varTextBody += "<td>" + itemDoComodoNovo.name + "<br>cft. item: " +itemDoComodoNovo.cubic_feet+ "</td>";
+            varTextBody += "<td>" +(itemDoComodoNovo.cubic_feet * totalitem) + "</td>";
+          //varTextBody += "<td>"+ itemDoComodo.cubic_feet + " - "+ totalitem + " ----------  " +(itemDoComodo.cubic_feet * totalitem) + "</td>";
           } 
           varTextBody +="</tr>";
         }
 
-      }
 
-      //varTextBody +="</tr>";      
+
+
+
+
     }
     varTextBody +="</tbody>";
 
