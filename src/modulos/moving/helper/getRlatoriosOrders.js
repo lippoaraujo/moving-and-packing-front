@@ -235,9 +235,15 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
     varTextItemComodo += objList.id + " - " + objList.room.name;
     varTextItemComodo +="</caption>";
     
-    objList.items = getItensOrdenadosImpressao(objList.items, 3);
 
+    console.log("LISTA DE ITENS ANTES");
     console.log(objList.items);
+
+    objList.items = getItensOrdenadosImpressao(objList.items, 2);
+
+    console.log("LISTA DE ITENS DEPOIS");
+    console.log(objList.items);
+    console.log("LISTA DE ITENS DEPOIS TAMANHO ", objList.items.length);
     
     //if(objList.items.length>3){
       //duasColunas = true;
@@ -259,42 +265,48 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
     let varTextBody ="<tbody>";
     let totItemm = 0;
 
+    duasColunas = false;
+    if(objList.items.length>1){
+      duasColunas = true;
+    }
+    
+
     for(totItemm; totItemm < objList.items.length; totItemm++){
 
       let listItemDoComodo = objList.items[totItemm];
       
-      
-
       let totItem = 0;
-      varTextBody +="<tr>";
-
+      //varTextBody +="<tr>";
+      
       for(totItem; totItem<listItemDoComodo.length; totItem++){
 
 
-        if(totItem == 0){
-          
+        /*if(totItem == 0){
           if(listItemDoComodo.length >= 2){
             duasColunas = true;
           }else{
             duasColunas = false;
           }
-        }
+        }*/
 
 
         let itemDoComodo = listItemDoComodo[totItem];
 
         let itemPackage = (itemDoComodo.pivot.quantity * itemDoComodo.packing_qty );
         totalPackage = totalPackage + itemPackage;
-
+        //console.log("DUAS COLUNAS ", duasColunas);
         if(!duasColunas){
-          let totalitem = itemDoComodo.pivot.quantity;
-          totalItens = totalItens + totalitem;
-          varTextBody += "<td>" + itemDoComodo.pivot.quantity + "</td>";
-          varTextBody += "<td>" + itemDoComodo.name + "</td>";
-          varTextBody += "<td>" + (itemDoComodo.cubic_feet * itemDoComodo.pivot.quantity) + "</td>";
-          //varTextBody +="</tr>"
+          //console.log("DUAS COLUNAS FALSE");
+          varTextBody += "<tr>";
+            let totalitem = itemDoComodo.pivot.quantity;
+            totalItens = totalItens + totalitem;
+            varTextBody += "<td>" + itemDoComodo.pivot.quantity + "</td>";
+            varTextBody += "<td>" + itemDoComodo.name + "</td>";
+            varTextBody += "<td>" + (itemDoComodo.cubic_feet * itemDoComodo.pivot.quantity) + "</td>";
+          varTextBody += "</tr>";
         }else{
-          //varTextBody +="<tr>";
+          //console.log("DUAS COLUNAS TRUE");
+          varTextBody +="<tr>";
           let totalitem = itemDoComodo.pivot.quantity;
           totalItens = totalItens + totalitem;
           varTextBody += "<td>" + itemDoComodo.pivot.quantity + "</td>";
@@ -310,10 +322,12 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
             varTextBody += "<td>" + itemDoComodoNovo.name +"</td>";
             varTextBody += "<td>" + (itemDoComodo.cubic_feet * itemDoComodo.pivot.quantity)  + "</td>";
           } 
+          varTextBody +="</tr>";
         }
+
       }
 
-      varTextBody +="</tr>";      
+      //varTextBody +="</tr>";      
     }
     varTextBody +="</tbody>";
 
@@ -356,11 +370,12 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
         varTextFooter +="Cubic Feet: " + totCubic.toFixed(2) + " | Cubic Meter " + totCuMete.toFixed(2) + " | Weight (lbs.) " + totLb.toFixed(2);
       varTextFooter +="</caption>";
 
+      
+
       totalCubic = totalCubic + totCubic;
             
-      //console.log(varTextFooter);
       varTextItemComodo += varTextFooter;
-    varTextItemComodo +="</tbody>";
+    //varTextItemComodo +="</tbody>";
 
     //varText +="<tr>";
         //varText += "<td colspan='2' ><hr></td>";
@@ -376,7 +391,7 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
     
   
     varTextItemComodo +="</table>";
-
+    //console.log("FOOTER" , varTextItemComodo);
     varTextItemComodoFim += varTextItemComodo;
   }
 
@@ -598,8 +613,20 @@ varText += "<style>";
 
 
 
-function getItensOrdenadosImpressao(array, cols=3){
+function getItensOrdenadosImpressao(array, cols=4){
+
   var ret = [];
+
+  for (var i = 0; i < array.length; i = i + cols) {
+    ret.push(array.slice(i, i + cols));
+  }
+
+
+
+
+
+
+  /*var ret = [];
 	if (cols==1 || array.length === 1){
 		ret.push(array);
 	}else{
@@ -608,11 +635,11 @@ function getItensOrdenadosImpressao(array, cols=3){
 		for (var i = 0; i < cols; i++) {
 			var start = i*size;
       //console.log("aaaaa ", array.slice(start, start+size).length);
-      if(array.slice(start, start+size).length > 0){
+      //if(array.slice(start, start+size).length > 0){
         ret.push(array.slice(start, start+size));
-      }
+      //}
 		}
-	}
+	}*/
 	return ret;
 }
 
@@ -755,7 +782,7 @@ function tabelaConteudoPackage(listOrderRooms){
   console.log(lista);
   console.log("AAA");
 
-  let ll = getItensOrdenadosImpressao(lista, 3);
+  let ll = getItensOrdenadosImpressao(lista, 2);
   console.log("AA");
   console.log(ll);
   console.log("AA");
