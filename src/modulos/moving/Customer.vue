@@ -69,7 +69,7 @@
                 <v-card-text>
                   <v-form
                     v-on:submit.prevent="salvar(objForm)"
-                    ref="form"
+                    ref="objForm"
                     v-model="valid"
                     lazy-validation
                   >
@@ -115,6 +115,7 @@
                           v-model="objForm.address"
                           label="Endereco"
                           outlined
+                          :rules="[(v) => !!v || 'Endereço is required']"
                           required
                         ></v-text-field>
                       </v-col>
@@ -123,6 +124,7 @@
                           v-model="objForm.postcode"
                           label="Cep"
                           outlined
+                          :rules="[(v) => !!v || 'Cep is required']"
                           required
                         ></v-text-field>
                       </v-col>
@@ -134,6 +136,7 @@
                           v-model="objForm.city"
                           label="Cidade"
                           outlined
+                          :rules="[(v) => !!v || 'Cidade is required']"
                           required
                         ></v-text-field>
                       </v-col>
@@ -141,6 +144,7 @@
                         <v-text-field
                           v-model="objForm.locality"
                           label="Estado"
+                          :rules="[(v) => !!v || 'Estado is required']"
                           outlined
                           required
                         ></v-text-field>
@@ -151,6 +155,7 @@
                         <v-text-field
                           v-model="objForm.country"
                           label="País"
+                          :rules="[(v) => !!v || 'País is required']"
                           outlined
                           required
                         ></v-text-field>
@@ -200,11 +205,7 @@
 <script>
 import { mask } from "vue-the-mask";
 
-import {
-  //execPost,
-  execGet,
-  //execPut
-} from "@/helper/execRequests.js";
+import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 
 import { getObjMenu } from "@/helper/listRoutes.js";
 
@@ -264,15 +265,15 @@ export default {
     //form
     valid: true,
     nameRules: [
-      (v) => !!v || "Nome e obrigatório",
+      (v) => !!v || "Nome is required",
       (v) =>
         (v && v.length <= 200) || "O Nome deve ter no máximo 200 caracteres",
     ],
 
-    foneRules: [(v) => !!v || "Telefone é obrigatorio"],
+    foneRules: [(v) => !!v || "Telefone is required"],
 
     emailRules: [
-      (v) => !!v || "E-mail e obrigatório",
+      (v) => !!v || "E-mail is required",
       (v) => /.+@.+\..+/.test(v) || "E-mail inválido",
     ],
     select: null,
@@ -354,95 +355,112 @@ export default {
       }
     },
 
-    salvar: function () {
-      if (this.$refs.form.validate()) {
-        if (this.objForm.id > 0) {
-          let objUpdate = {
-            id: this.objForm.id,
-            primary_address_id: this.objForm.primary_address_id,
-            name: this.objForm.name,
-            email: this.objForm.email,
-            phone: this.objForm.phone,
-            address: this.objForm.address,
-            locality: this.objForm.locality,
-            city: this.objForm.city,
-            country: this.objForm.country,
-            postcode: this.objForm.postcode,
-          };
-          let msgm = "Costomer " + this.objForm.name + " alterado com sucesso!";
-          let urlUpdate = this.urlAPI.concat("/" + this.objForm.id);
-          console.log(urlUpdate);
-          console.log(objUpdate);
-          console.log(this.headerRequest);
-          this.$axios.put(urlUpdate, objUpdate, this.headerRequest).then(
-            (response) => {
-              if (response.status == 200) {
-                this.$dialog.message.success(msgm, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-                this.reset();
-                this.listar();
-              } else {
-                this.$dialog.message.error(response.status, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-              }
-            },
-            (error) => {
-              this.$dialog.message.error(error, {
-                position: "top-right",
-                timeout: 5000,
-              });
+    salvar: async function () {
+      try {
+        this.objLoadingGrid = true;
+        if (this.validate()) {
+          if (this.objForm.id > 0) {
+            let retornoAlterar = await this.execUpdate();
+            if (retornoAlterar) {
+              this.reset();
+              this.listar();
             }
-          );
-        } else {
-          let msgm =
-            "Costomer " + this.objForm.name + " cadastrado com sucesso!";
-          let objSalvar = {
-            name: this.objForm.name,
-            email: this.objForm.email,
-            phone: this.objForm.phone,
-            address: this.objForm.address,
-            locality: this.objForm.locality,
-            city: this.objForm.city,
-            country: this.objForm.country,
-            postcode: this.objForm.postcode,
-          };
-          this.$axios.post(this.urlAPI, objSalvar, this.headerRequest).then(
-            (response) => {
-              if (response.status == 201) {
-                this.$dialog.message.success(msgm, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-                this.reset();
-                this.listar();
-              } else {
-                this.$dialog.message.error(response.status, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-              }
-            },
-            (error) => {
-              this.$dialog.message.error(error, {
-                position: "top-right",
-                timeout: 5000,
-              });
+          } else {
+            let retornoSalvar = await this.execSalvar();
+            if (retornoSalvar) {
+              this.reset();
+              this.listar();
             }
-          );
+          }
         }
+      } catch (e) {
+        this.objLoadingGrid = false;
+        this.$dialog.message.error("Executa salvar: " + e.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      } finally {
+        this.objLoadingGrid = false;
+      }
+    },
+
+    execUpdate: async function () {
+      let msgm = "Costomer " + this.objForm.name + " alterado com sucesso!";
+      let urlPut = this.urlAPI.concat("/" + this.objForm.id);
+      let objPut = {
+        id: this.objForm.id,
+        primary_address_id: this.objForm.primary_address_id,
+        name: this.objForm.name,
+        email: this.objForm.email,
+        phone: this.objForm.phone,
+        address: this.objForm.address,
+        locality: this.objForm.locality,
+        city: this.objForm.city,
+        country: this.objForm.country,
+        postcode: this.objForm.postcode,
+      };
+      let retornoExecPost = await execPut.call(
+        this,
+        urlPut,
+        objPut,
+        this.headerRequest
+      );
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    execSalvar: async function () {
+      let msgm = "Costomer " + this.objForm.name + " cadastrado com sucesso!";
+      let objSalvar = {
+        name: this.objForm.name,
+        email: this.objForm.email,
+        phone: this.objForm.phone,
+        address: this.objForm.address,
+        locality: this.objForm.locality,
+        city: this.objForm.city,
+        country: this.objForm.country,
+        postcode: this.objForm.postcode,
+      };
+      let retornoExecPost = await execPost.call(
+        this,
+        this.urlAPI,
+        objSalvar,
+        this.headerRequest
+      );
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return true;
+      } else {
+        return false;
       }
     },
 
     validate: function () {
-      alert(this.$refs.form.validate());
+      if (!this.$refs.objForm.validate()) {
+        this.$dialog.message.error(
+          "Observe o formulário, existe campos inválidos",
+          {
+            position: "top-right",
+            timeout: 5000,
+          }
+        );
+        return false;
+      }
+      return true;
     },
 
     reset: function () {
-      this.$refs.form.reset();
+      this.$refs.objForm.reset();
       this.id = "";
       this.nome = "";
       this.tel1 = "";
@@ -459,82 +477,60 @@ export default {
       this.$refs.form.resetValidation();
     },
 
-    alterar: function (item) {
-      let urlGet = this.urlAPI.concat("/" + item.id);
-      this.$axios.get(urlGet, this.headerRequest).then(
-        (response) => {
-          console.log(response);
-          console.log(response.data.data);
+    alterar: async function (item) {
+      try {
+        this.overlay = true;
+        let urlGet = this.urlAPI.concat("/" + item.id);
+        let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
+        this.objForm.id = objEdicao.id;
+        this.objForm.primary_address_id = objEdicao.primary_address_id;
+        this.objForm.name = objEdicao.name;
+        this.objForm.email = objEdicao.email;
+        this.objForm.phone = objEdicao.phone;
 
-          if (response.status === 200) {
-            let objEdicao = response.data.data;
-            //console.log(response.data.dados.obj[0]);
-
-            this.objForm.id = objEdicao.id;
-            this.objForm.primary_address_id = objEdicao.primary_address_id;
-            this.objForm.name = objEdicao.name;
-            this.objForm.email = objEdicao.email;
-            this.objForm.phone = objEdicao.phone;
-
-            this.objForm.address = objEdicao.primary_address.address;
-            this.objForm.postcode = objEdicao.primary_address.postcode;
-            this.objForm.locality = objEdicao.primary_address.locality;
-            this.objForm.city = objEdicao.primary_address.city;
-            this.objForm.country = objEdicao.primary_address.country;
-            this.tab = 1;
-            //this.headers = response.data.dados.obj;
-          } else {
-            this.$dialog.message.error(
-              "Erro alterar dados: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-        },
-        (error) => {
-          this.$dialog.message.error("Erro alterar dados: " + error, {
+        this.objForm.address = objEdicao.primary_address.address;
+        this.objForm.postcode = objEdicao.primary_address.postcode;
+        this.objForm.locality = objEdicao.primary_address.locality;
+        this.objForm.city = objEdicao.primary_address.city;
+        this.objForm.country = objEdicao.primary_address.country;
+        this.tab = 1;
+      } catch (e) {
+        this.$dialog.message.error(
+          "Erro consultar dados alterar customer: " + e.message,
+          {
             position: "top-right",
             timeout: 5000,
-          });
-        }
-      );
-      //this.editedIndex = this.desserts.indexOf(item);
-      //this.editedItem = Object.assign({}, item);
-      //this.dialog = true;
+          }
+        );
+      } finally {
+        this.overlay = false;
+      }
     },
 
     execExcluir: async function (item) {
-      this.overlay = true;
-      let urlDelete = this.urlAPI.concat("/" + item.id);
-      //var myJSON = JSON.stringify(objPost);
-
-      this.$axios.delete(urlDelete, this.headerRequest).then(
-        (response) => {
-          //console.log(response);
-          if (response.status == 200) {
-            this.$dialog.message.success(item.name + " excluido com sucesso!", {
-              position: "top-right",
-              timeout: 5000,
-            });
-          } else {
-            this.$dialog.error({
-              title: "Excluir dados ",
-              text: response.data.mensagem,
-            });
-          }
-          this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.$dialog.error({
-            title: "Erro del",
-            text: error,
+      try {
+        this.overlay = true;
+        let urlDelete = this.urlAPI.concat("/" + item.id);
+        let msgm = item.name + " excluido com sucesso!";
+        let returDell = await execDell.call(this, urlDelete);
+        if (returDell) {
+          this.$dialog.message.success(msgm, {
+            position: "top-right",
+            timeout: 5000,
           });
+          return true;
+        } else {
+          return false;
         }
-      );
-      this.listar();
-      this.overlay = false;
+      } catch (e) {
+        this.$dialog.message.error("Erro excluir dados: " + e.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      } finally {
+        this.listar();
+        this.overlay = false;
+      }
     },
 
     excluir: async function (item) {
