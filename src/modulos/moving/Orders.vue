@@ -163,7 +163,7 @@
                 <v-row>
                   <v-col>
                     <v-checkbox
-                      label="Utilizar endereço do cliente para relaizar a mudança?"
+                      label="Utilizar endereço do cliente para realizar a mudança?"
                       hide-details="true"
                       v-model="objForm.checkedEndereco"
                     ></v-checkbox>
@@ -591,7 +591,7 @@ import PoupUpAddImagemComodo from "@/modulos/moving/components/PoupUpAddImagemCo
 
 import moment from "moment";
 
-import { execPost, execGet, execPut } from "@/helper/execRequests.js";
+import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 import { getNewIdArrayComodo } from "@/modulos/moving/helper/getSetComodoStorageSession.js";
 import {
   exportResumoHtml,
@@ -746,11 +746,17 @@ export default {
       location.reload();
     };
     this.limparItensSessaoMudanca();
+    console.log("primeiro");
     await this.getListaClienteAdd();
+    console.log("segundo");
     await this.getListaComodosAdd();
+    console.log("terceiro");
     await this.identificaUsuarioLogado();
-    this.preencherComodoListaStorage();
-    this.listar();
+    console.log("quarto");
+    await this.preencherComodoListaStorage();
+    console.log("quinto");
+    await this.listar();
+    console.log("sexto");
     this.resetComodo();
     this.overlay = false;
   },
@@ -882,44 +888,35 @@ export default {
     },
     /*DIALOGO IMAGENS COMODO*/
 
-    listar: function (exibeLoad = true) {
-      if (exibeLoad) {
-        this.objLoadingGrid = true;
-      }
-
-      this.$axios.get(this.urlAPIOrders, this.headerRequest).then(
-        (response) => {
-          if (response.status == 200) {
-            this.repassarListaObjetoArrayGrid(response.data);
-          } else {
-            this.$dialog.message.error(
-              "Erro consultar dados: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-          if (exibeLoad) {
-            this.objLoadingGrid = false;
-          }
-        },
-        (error) => {
-          this.objLoadingGrid = false;
-          this.$dialog.message.error("Consultar dados: " + error, {
-            position: "top-right",
-            timeout: 5000,
-          });
+    listar: async function (exibeLoad = true) {
+      try {
+        if (exibeLoad) {
+          this.objLoadingGrid = true;
         }
-      );
+        let dados = await execGet.call(
+          this,
+          this.urlAPIOrders,
+          this.headerRequest
+        );
+        this.repassarListaObjetoArrayGrid(dados);
+      } catch (e) {
+        this.$dialog.message.error("Consultar dados: " + e.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      } finally {
+        if (exibeLoad) {
+          this.objLoadingGrid = false;
+        }
+      }
     },
 
     repassarListaObjetoArrayGrid: function (list) {
       this.desserts = [];
-      if (list.data.length > 0) {
+      if (list.length > 0) {
         let a = 0;
-        for (a; a < list.data.length; a++) {
-          let item = list.data[a];
+        for (a; a < list.length; a++) {
+          let item = list[a];
           item.expected_date = moment(item.expected_date).format("DD/MM/YYYY");
           let cli = 0;
           for (cli; cli < this.listaClienteAdd.length; cli++) {
@@ -1221,13 +1218,12 @@ export default {
     },
 
     alterar: async function (item) {
-      this.overlay = true;
-      //?id=7&get_data=true
-      //orders/2?get_data=true
-
-      let urlGet = this.urlAPIOrders.concat("/" + item.id + "?get_data=true");
-
       try {
+        this.overlay = true;
+        //?id=7&get_data=true
+        //orders/2?get_data=true
+
+        let urlGet = this.urlAPIOrders.concat("/" + item.id + "?get_data=true");
         let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
         this.objForm.id = objEdicao.id;
         this.variavelIdMudanca = objEdicao.id;
@@ -1271,42 +1267,29 @@ export default {
     },
 
     execExcluir: async function (item) {
-      this.overlay = true;
-      let urlDelete = this.urlAPIOrders.concat("/" + item.id);
-      //var myJSON = JSON.stringify(objPost);
-
-      this.$axios.delete(urlDelete, this.headerRequest).then(
-        (response) => {
-          if (response.status == 200) {
-            this.$dialog.message.success(
-              "mudança de :" + item.customer_id + " excluida com sucesso!",
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          } else {
-            this.$dialog.error({
-              title: "Erro excluir dados",
-              text: response.data.mensagem,
-            });
-          }
-          //this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.$dialog.error({
-            title: "Erro del",
-            text: error,
-          });
-          /*this.$dialog.message.error("Delete: " + error, {
+      try {
+        this.overlay = true;
+        let urlDelete = this.urlAPIOrders.concat("/" + item.id);
+        let msgm = "mudança de :" + item.customer_id + " excluida com sucesso!";
+        let returDell = await execDell.call(this, urlDelete);
+        if (returDell) {
+          this.$dialog.message.success(msgm, {
             position: "top-right",
             timeout: 5000,
-          });*/
-          //this.objLoadingGrid = false;
+          });
+          return true;
+        } else {
+          return false;
         }
-      );
-      this.listar();
-      this.overlay = false;
+      } catch (e) {
+        this.$dialog.message.error("Erro excluir dados: " + e.message, {
+          position: "top-right",
+          timeout: 5000,
+        });
+      } finally {
+        this.listar();
+        this.overlay = false;
+      }
     },
 
     excluir: async function (item) {
@@ -1462,7 +1445,7 @@ export default {
       }
     },
 
-    preencherComodoListaStorage: function () {
+    preencherComodoListaStorage: async function () {
       this.listaComodoExibir = getListComodoStorageSession(
         this.variavelIdMudanca
       );
