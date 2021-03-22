@@ -69,7 +69,7 @@
                 <v-card-text>
                   <v-form
                     v-on:submit.prevent="salvar(objForm)"
-                    ref="form"
+                    ref="objForm"
                     v-model="valid"
                     lazy-validation
                   >
@@ -143,7 +143,7 @@ import { mask } from "vue-the-mask";
 
 import { getObjMenu } from "@/helper/listRoutes.js";
 
-import { execPost, execGet, execPut } from "@/helper/execRequests.js";
+import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 
 export default {
   directives: { mask },
@@ -152,9 +152,7 @@ export default {
   data: () => ({
     overlay: false,
     menu: "",
-    headerRequest: "",
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/moving/packings",
-
     itensTituloTabs: [
       { id: 0, nome: "Dados", icon: "mdi-view-list" },
       { id: 1, nome: "Cadastro", icon: "mdi-keyboard-variant" },
@@ -205,13 +203,6 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
-    this.headerRequest = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: AuthStr,
-      },
-    };
     this.menu = getObjMenu(this.$route.path);
   },
 
@@ -249,20 +240,13 @@ export default {
       try {
         this.overlay = true;
         this.objLoadingGrid = true;
-        let listData = await execGet.call(
-          this,
-          this.urlAPI,
-          this.headerRequest
-        );
+        let listData = await execGet(this.urlAPI);
         this.repassarListaObjetoArrayGrid(listData);
       } catch (e) {
-        this.$dialog.message.error(
-          "Erro consultar dados Packing: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.error({
+          title: "Erro list",
+          text: e,
+        });
       } finally {
         this.objLoadingGrid = false;
         this.overlay = false;
@@ -271,7 +255,6 @@ export default {
 
     repassarListaObjetoArrayGrid: function (list) {
       this.desserts = [];
-      //console.log(list.data);
       if (list.length > 0) {
         let a = 0;
         for (a; a < list.length; a++) {
@@ -280,62 +263,9 @@ export default {
       }
     },
 
-    execUpdate: async function () {
-      let urlPut = this.urlAPI.concat("/" + this.objForm.id);
-      let objPut = {
-        id: this.objForm.id,
-        name: this.objForm.name,
-        unity: this.objForm.unity,
-      };
-      let msgm = "Packing " + this.objForm.name + " alterado com sucesso!";
-
-      //console.log(JSON.stringify(objSalvar));
-      let retornoExecPost = await execPut.call(
-        this,
-        urlPut,
-        objPut,
-        this.headerRequest
-      );
-      if (retornoExecPost) {
-        this.$dialog.message.success(msgm, {
-          position: "top-right",
-          timeout: 5000,
-        });
-        return true;
-      } else {
-        return false;
-      }
-    },
-
-    execSalvar: async function () {
-      let msgm = "Packing " + this.objForm.name + " cadastrado com sucesso!";
-      let objSalvar = {
-        name: this.objForm.name,
-        unity: this.objForm.unity,
-      };
-
-      //console.log(JSON.stringify(objSalvar));
-      let retornoExecPost = await execPost.call(
-        this,
-        this.urlAPI,
-        objSalvar,
-        this.headerRequest
-      );
-      if (retornoExecPost) {
-        this.$dialog.message.success(msgm, {
-          position: "top-right",
-          timeout: 5000,
-        });
-        return true;
-      } else {
-        return false;
-      }
-    },
-
     salvar: async function () {
       try {
         this.overlay = true;
-
         if (this.validate()) {
           if (this.objForm.id > 0) {
             let retornoAlterar = await this.execUpdate();
@@ -352,84 +282,118 @@ export default {
           }
         }
       } catch (e) {
-        this.objLoadingGrid = false;
-        this.$dialog.message.error("Executa salvar: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro save",
+          text: e,
         });
       } finally {
         this.overlay = false;
       }
     },
 
+    execSalvar: async function () {
+      let msgm = "Packing " + this.objForm.name + " cadastrado com sucesso!";
+      let objSalvar = {
+        name: this.objForm.name,
+        unity: this.objForm.unity,
+      };
+      console.log("SALVAR ", objSalvar);
+      let retornoExecPost = await execPost(this.urlAPI, objSalvar);
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    execUpdate: async function () {
+      let msgm = "Packing " + this.objForm.name + " alterado com sucesso!";
+      let urlPut = this.urlAPI.concat("/" + this.objForm.id);
+      let objPut = {
+        id: this.objForm.id,
+        name: this.objForm.name,
+        unity: this.objForm.unity,
+      };
+      console.log("ALTERAR ", objPut);
+      let retornoExecPost = await execPut(urlPut, objPut);
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return true;
+      } else {
+        return false;
+      }
+    },
+
     validate: function () {
-      return this.$refs.form.validate();
-    },
-
-    reset: function () {
-      this.$refs.form.reset();
-      this.tab = 0;
-    },
-
-    resetValidation: function () {
-      this.$refs.form.resetValidation();
-    },
-
-    alterar: async function (item) {
-      this.overlay = true;
-      //?id=7&get_data=true
-      //orders/2?get_data=true
-
-      let urlGet = this.urlAPI.concat("/" + item.id);
-
-      try {
-        let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
-        this.objForm.id = objEdicao.id;
-        this.objForm.name = objEdicao.name;
-        this.objForm.unity = objEdicao.unity;
-        this.tab = 1;
-      } catch (e) {
+      if (!this.$refs.objForm.validate()) {
         this.$dialog.message.error(
-          "Erro consultar dados alterar packing: " + e.message,
+          "Observe o formulário, existe campos inválidos",
           {
             position: "top-right",
             timeout: 5000,
           }
         );
+        return false;
+      }
+      return true;
+    },
+
+    reset: function () {
+      this.$refs.objForm.reset();
+      this.objForm.id = "";
+      this.tab = 0;
+    },
+
+    alterar: async function (item) {
+      this.overlay = true;
+      let urlGet = this.urlAPI.concat("/" + item.id);
+      try {
+        let objEdicao = await execGet(urlGet);
+        this.objForm.id = objEdicao.id;
+        this.objForm.name = objEdicao.name;
+        this.objForm.unity = objEdicao.unity;
+        this.tab = 1;
+      } catch (e) {
+        this.$dialog.error({
+          title: "Erro get date update",
+          text: e,
+        });
       } finally {
         this.overlay = false;
       }
     },
 
     execExcluir: async function (item) {
-      this.overlay = true;
-      let urlDelete = this.urlAPI.concat("/" + item.id);
-      //var myJSON = JSON.stringify(objPost);
-
-      this.$axios.delete(urlDelete, this.headerRequest).then(
-        (response) => {
-          //console.log(response);
-          if (response.status == 200) {
-            this.$dialog.message.success(item.name + " excluido com sucesso!", {
-              position: "top-right",
-              timeout: 5000,
-            });
-          } else {
-            this.$dialog.error({
-              title: "Erro del",
-              text: response.data.mensagem,
-            });
-          }
-        },
-        (error) => {
-          this.$dialog.error({
-            title: "Erro del",
-            text: error,
+      try {
+        this.overlay = true;
+        let urlDelete = this.urlAPI.concat("/" + item.id);
+        let msgm = item.name + " excluido com sucesso!";
+        let returDell = await execDell(urlDelete);
+        if (returDell) {
+          this.$dialog.message.success(msgm, {
+            position: "top-right",
+            timeout: 5000,
           });
+          return true;
+        } else {
+          return false;
         }
-      );
-      this.listar();
-      this.overlay = false;
+      } catch (e) {
+        this.$dialog.error({
+          title: "Erro delete date",
+          text: e,
+        });
+      } finally {
+        this.listar();
+        this.overlay = false;
+      }
     },
 
     excluir: async function (item) {

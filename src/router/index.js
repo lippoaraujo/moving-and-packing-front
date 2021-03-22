@@ -196,6 +196,10 @@ router.afterEach((to) => {
 });
 
 router.beforeEach((to, from, next) => {
+// se nao tiver as permissies mandar pra login
+
+
+
   // redirect to login page if not logged in and trying to access a restricted page
   /*const publicPages = ["login"];
   const authRequired = !publicPages.includes(to.path);
@@ -242,14 +246,19 @@ router.beforeEach((to, from, next) => {
   }
   const authRequired = !publicPages.includes(to.path);
 
-  let userLogado = JSON.parse(sessionStorage.getItem("logado"));
+  let userLogado = JSON.parse(sessionStorage.getItem("userLogado"));
   if( userLogado === null){
-    userLogado = JSON.parse(localStorage.getItem("logado"));
+    userLogado = JSON.parse(localStorage.getItem("userLogado"));
     if(userLogado === null){
       userLogado =false;
     }
   }
 
+  let permissions = JSON.parse(sessionStorage.getItem("permissions"));
+  if(permissions === null){
+    userLogado =false;
+  }
+//se nao existir permissions userLogado = false;
 
 
   //const loggedIn = JSON.parse(localStorage.getItem("logado"));  
@@ -267,11 +276,11 @@ router.beforeEach((to, from, next) => {
   
 
   if (authRequired && !loggedIn) {
-      return next("login");    
+      return next("/login");    
   }else{
     publicPages.push("/home");
     if(!publicPages.includes(to.path)){
-      return next("acessonegado");
+      return next("/acessonegado");
     }else{
       //console.log(to.path);
       next();

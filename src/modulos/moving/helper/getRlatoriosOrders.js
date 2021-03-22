@@ -1,14 +1,7 @@
 import {execGet} from "@/helper/execRequests.js";
 
-export async function exportResumoHtml( objOrigem, objEdicao, urlAPICustomers, headerRequest)
+export async function exportResumoHtml(objEdicao, urlAPICustomers)
 {
-  /*console.log("entrada");
-  console.log(objEdicao);
-  console.log(urlAPICustomers);
-  console.log(headerRequest);
-  console.log("saida");
-  return false;*/
-
   let address = null;
   let postcode = null;
   let city = null;
@@ -22,11 +15,7 @@ export async function exportResumoHtml( objOrigem, objEdicao, urlAPICustomers, h
     let urlGetCustomer = urlAPICustomers.concat(
       "/" + objEdicao.customer.id
     );
-    objCliente = await execGet.call(
-      objOrigem,
-      urlGetCustomer,
-      headerRequest
-    );
+    objCliente = await execGet.call(urlGetCustomer);
     address = objCliente.primary_address.address;
     postcode = objCliente.primary_address.postcode;
     city = objCliente.primary_address.city;
@@ -95,9 +84,8 @@ export async function exportResumoHtml( objOrigem, objEdicao, urlAPICustomers, h
   return varText;
 }
 
-export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers, headerRequest)
+export async function exportRelatorioHtml(objEdicao, urlAPICustomers)
 {
-
   let address = null;
   let postcode = null;
   let city = null;
@@ -111,11 +99,7 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
     let urlGetCustomer = urlAPICustomers.concat(
       "/" + objEdicao.customer.id
     );
-    objCliente = await execGet.call(
-      objOrigem,
-      urlGetCustomer,
-      headerRequest
-    );
+    objCliente = await execGet(urlGetCustomer);
     address = objCliente.primary_address.address;
     postcode = objCliente.primary_address.postcode;
     city = objCliente.primary_address.city;
@@ -131,8 +115,6 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
     country = objEdicao.address.country;
   }
   let objUsuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
-  
-
   let varTextCustomer ="<table id='wrapper' style=' border-spacing: inherit!important;  width:100%; ' >"; 
   varTextCustomer +="<thead>";
     varTextCustomer += "<tr>";
@@ -277,47 +259,61 @@ export async function exportRelatorioHtml( objOrigem, objEdicao, urlAPICustomers
 
       let itemDoComodo = listItemDoComodo[0];
 
-        let itemPackage = (itemDoComodo.pivot.quantity * itemDoComodo.packing_qty );
-        totalPackage = totalPackage + itemPackage;
-        //console.log("DUAS COLUNAS ", duasColunas);
-        if(!duasColunas){
-          //console.log("DUAS COLUNAS FALSE");
-          varTextBody += "<tr>";
-            let totalitem = itemDoComodo.pivot.quantity;
-            totalItens = totalItens + totalitem;
-            varTextBody += "<td>" + totalitem + "</td>";
-            varTextBody += "<td>" + itemDoComodo.name + "<br>cft. item: " +itemDoComodo.cubic_feet+ "</td>";
-            varTextBody += "<td>" +(itemDoComodo.cubic_feet * totalitem) + "</td>";
-            //varTextBody += "<td>"+ itemDoComodo.cubic_feet + " - "+ totalitem + " ----------  " +(itemDoComodo.cubic_feet * totalitem) + "</td>";
-          varTextBody += "</tr>";
-        }else{
-          console.log("ITEM COLUNA 0");
-          console.log(itemDoComodo);
-          console.log("ITEM COLUNA 0");
-          varTextBody +="<tr>";
+      let itemPackage = (itemDoComodo.pivot.quantity * itemDoComodo.packing_qty );
+      totalPackage = totalPackage + itemPackage;
+      //console.log("DUAS COLUNAS ", duasColunas);
+      if(!duasColunas){
+        //console.log("DUAS COLUNAS FALSE");
+        varTextBody += "<tr>";
           let totalitem = itemDoComodo.pivot.quantity;
           totalItens = totalItens + totalitem;
           varTextBody += "<td>" + totalitem + "</td>";
           varTextBody += "<td>" + itemDoComodo.name + "<br>cft. item: " +itemDoComodo.cubic_feet+ "</td>";
           varTextBody += "<td>" +(itemDoComodo.cubic_feet * totalitem) + "</td>";
           //varTextBody += "<td>"+ itemDoComodo.cubic_feet + " - "+ totalitem + " ----------  " +(itemDoComodo.cubic_feet * totalitem) + "</td>";
+        varTextBody += "</tr>";
 
-          let itemDoComodoNovo = listItemDoComodo[1];
-          if(itemDoComodoNovo!=undefined){
-            //totItem = totItem + 1;
-            console.log("ITEM COLUNA 1");
-            console.log(itemDoComodoNovo);
-            console.log("ITEM COLUNA 1");
-
-            let totalitem = itemDoComodoNovo.pivot.quantity;
-            totalItens = totalItens + totalitem;
-            varTextBody += "<td>" + totalitem + "</td>";
-            varTextBody += "<td>" + itemDoComodoNovo.name + "<br>cft. item: " +itemDoComodoNovo.cubic_feet+ "</td>";
-            varTextBody += "<td>" +(itemDoComodoNovo.cubic_feet * totalitem) + "</td>";
-          //varTextBody += "<td>"+ itemDoComodo.cubic_feet + " - "+ totalitem + " ----------  " +(itemDoComodo.cubic_feet * totalitem) + "</td>";
-          } 
-          varTextBody +="</tr>";
+        if(listItemDoComodo.length==2){
+          let itemDoComodo2 = listItemDoComodo[1];
+          let itemPackage2 = (itemDoComodo2.pivot.quantity * itemDoComodo2.packing_qty );
+          totalPackage = totalPackage + itemPackage2;
+          varTextBody += "<tr>";
+            let totalitem2 = itemDoComodo2.pivot.quantity;
+            totalItens = totalItens + totalitem2;
+            varTextBody += "<td>" + totalitem2 + "</td>";
+            varTextBody += "<td>" + itemDoComodo2.name + "<br>cft. item: " +itemDoComodo2.cubic_feet+ "</td>";
+            varTextBody += "<td>" +(itemDoComodo2.cubic_feet * totalitem2) + "</td>";
+            //varTextBody += "<td>"+ itemDoComodo.cubic_feet + " - "+ totalitem + " ----------  " +(itemDoComodo.cubic_feet * totalitem) + "</td>";
+          varTextBody += "</tr>";
         }
+      }else{
+        console.log("ITEM COLUNA 0");
+        console.log(itemDoComodo);
+        console.log("ITEM COLUNA 0");
+        varTextBody +="<tr>";
+        let totalitem = itemDoComodo.pivot.quantity;
+        totalItens = totalItens + totalitem;
+        varTextBody += "<td>" + totalitem + "</td>";
+        varTextBody += "<td>" + itemDoComodo.name + "<br>cft. item: " +itemDoComodo.cubic_feet+ "</td>";
+        varTextBody += "<td>" +(itemDoComodo.cubic_feet * totalitem) + "</td>";
+        //varTextBody += "<td>"+ itemDoComodo.cubic_feet + " - "+ totalitem + " ----------  " +(itemDoComodo.cubic_feet * totalitem) + "</td>";
+
+        let itemDoComodoNovo = listItemDoComodo[1];
+        if(itemDoComodoNovo!=undefined){
+          //totItem = totItem + 1;
+          console.log("ITEM COLUNA 1");
+          console.log(itemDoComodoNovo);
+          console.log("ITEM COLUNA 1");
+
+          let totalitem = itemDoComodoNovo.pivot.quantity;
+          totalItens = totalItens + totalitem;
+          varTextBody += "<td>" + totalitem + "</td>";
+          varTextBody += "<td>" + itemDoComodoNovo.name + "<br>cft. item: " +itemDoComodoNovo.cubic_feet+ "</td>";
+          varTextBody += "<td>" +(itemDoComodoNovo.cubic_feet * totalitem) + "</td>";
+        //varTextBody += "<td>"+ itemDoComodo.cubic_feet + " - "+ totalitem + " ----------  " +(itemDoComodo.cubic_feet * totalitem) + "</td>";
+        } 
+        varTextBody +="</tr>";
+      }
 
 
 
