@@ -1,6 +1,10 @@
 import { execGet } from "@/helper/execRequests.js";
 export async function getPermissionModule(nameModule)
 {
+  let logado = sessionStorage.getItem("logado");
+  if(logado === null || !logado){
+    return false;
+  }
   if (JSON.parse(localStorage.getItem("userAdmin"))) {
     return true;
   }
@@ -33,15 +37,15 @@ export async function getPermissionModule(nameModule)
 
 export async function getPermissionMenu(nameMenu)
 {
+  let logado = sessionStorage.getItem("logado");
+  if(logado === null || !logado){
+    return false;
+  }
   if (JSON.parse(localStorage.getItem("userAdmin"))) {
     return true;
   }
   let listaPermissao = JSON.parse(sessionStorage.getItem("permissions"));
   if(listaPermissao==null){
-    //console.log("aqui2");
-    //listaPermissao = getPermissionPorToken();
-
-
     let objReturn = await getPermissionPorToken();
     if(objReturn.status){
       let a;
@@ -71,7 +75,7 @@ export async function getPermissionMenu(nameMenu)
 }
 
 
-async function  getPermissionPorToken()
+async function getPermissionPorToken()
 {
   try {
     let objReturn = new Object();

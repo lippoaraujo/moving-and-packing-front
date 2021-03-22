@@ -78,7 +78,7 @@
           <v-card flat class="elevation-5">
             <v-card-text>
               <v-form
-                v-on:submit.prevent="salvarMudanca(objForm)"
+                v-on:submit.prevent="salvar(objForm)"
                 ref="objForm"
                 lazy-validation
               >
@@ -181,17 +181,27 @@
                       v-model="objForm.address"
                       label="Endereco"
                       outlined
+                    ></v-text-field>
+                    <!--<v-text-field
+                      v-model="objForm.address"
+                      label="Endereco"
+                      outlined
                       :required="!objForm.checkedEndereco ? true : false"
                       :rules="[(v) => !!v || 'Endereco is required']"
-                    ></v-text-field>
+                    ></v-text-field>-->
                   </v-col>
                   <v-col xs="12" sm="12" md="2" lg="2" xl="2">
-                    <v-text-field
+                    <!--<v-text-field
                       v-model="objForm.postcode"
                       label="Cep"
                       outlined
                       :required="!objForm.checkedEndereco ? true : false"
                       :rules="[(v) => !!v || 'Cep is required']"
+                    ></v-text-field>-->
+                    <v-text-field
+                      v-model="objForm.postcode"
+                      label="Cep"
+                      outlined
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -529,7 +539,7 @@
                         tile
                         color="blue darken-2"
                         class="mr-4 white--text"
-                        @click="salvarMudanca"
+                        @click="salvar"
                       >
                         Salvar
                         <v-icon right dark>mdi-content-save</v-icon>
@@ -679,7 +689,6 @@ export default {
     },
 
     menu: "",
-    headerRequest: "",
 
     itensTituloTabs: [
       { id: 0, nome: "Dados", icon: "mdi-view-list" },
@@ -728,13 +737,6 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
-    this.headerRequest = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: AuthStr,
-      },
-    };
     this.menu = getObjMenu(this.$route.path);
   },
 
@@ -746,17 +748,11 @@ export default {
       location.reload();
     };
     this.limparItensSessaoMudanca();
-    console.log("primeiro");
     await this.getListaClienteAdd();
-    console.log("segundo");
     await this.getListaComodosAdd();
-    console.log("terceiro");
     await this.identificaUsuarioLogado();
-    console.log("quarto");
     await this.preencherComodoListaStorage();
-    console.log("quinto");
     await this.listar();
-    console.log("sexto");
     this.resetComodo();
     this.overlay = false;
   },
@@ -893,16 +889,12 @@ export default {
         if (exibeLoad) {
           this.objLoadingGrid = true;
         }
-        let dados = await execGet.call(
-          this,
-          this.urlAPIOrders,
-          this.headerRequest
-        );
+        let dados = await execGet(this.urlAPIOrders);
         this.repassarListaObjetoArrayGrid(dados);
       } catch (e) {
-        this.$dialog.message.error("Consultar dados: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro list order",
+          text: e,
         });
       } finally {
         if (exibeLoad) {
@@ -940,26 +932,17 @@ export default {
       }
     },
 
-    salvarMudanca: async function () {
+    salvar: async function () {
       try {
         this.overlay = true;
         if (this.validate()) {
           if (this.objForm.id > 0) {
-            this.$dialog.message.error("ALTERAR: ", {
-              position: "top-right",
-              timeout: 5000,
-            });
-
             let retornoUpdate = await this.execUpdate();
             if (retornoUpdate) {
               this.cancelarMudanca();
               this.listar(false);
             }
           } else {
-            this.$dialog.message.error("SALVAR: ", {
-              position: "top-right",
-              timeout: 5000,
-            });
             let retornoSalvar = await this.execSalvar();
             if (retornoSalvar) {
               this.cancelarMudanca();
@@ -968,10 +951,9 @@ export default {
           }
         }
       } catch (e) {
-        this.objLoadingGrid = false;
-        this.$dialog.message.error("Executa salvarMudanca: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro save",
+          text: e,
         });
       } finally {
         this.overlay = false;
@@ -985,7 +967,6 @@ export default {
         this.objForm.cliente.name +
         " cadastrado com sucesso!";
       let address_data_obj = null;
-
       if (!this.objForm.checkedEndereco) {
         address_data_obj = {
           address: this.objForm.address,
@@ -996,7 +977,6 @@ export default {
         };
       }
       let roomsListObj = this.listaComodoExibir;
-
       let objPut = {
         customer_signature: "",
         id: this.objForm.id,
@@ -1007,15 +987,8 @@ export default {
         address_data: address_data_obj,
         rooms: roomsListObj,
       };
-      console.log("ALTERAR");
-      console.log(JSON.stringify(objPut));
-      console.log("ALTERAR");
-      let retornoExecPost = await execPut.call(
-        this,
-        urlPut,
-        objPut,
-        this.headerRequest
-      );
+      console.log("ALTERAR", objPut);
+      let retornoExecPost = await execPut(urlPut, objPut);
       if (retornoExecPost) {
         this.$dialog.message.success(msgm, {
           position: "top-right",
@@ -1033,7 +1006,6 @@ export default {
         this.objForm.cliente.name +
         " cadastrado com sucesso!";
       let address_data_obj = null;
-
       if (!this.objForm.checkedEndereco) {
         address_data_obj = {
           address: this.objForm.address,
@@ -1044,7 +1016,6 @@ export default {
         };
       }
       let roomsListObj = this.listaComodoExibir;
-
       let objSalvar = {
         customer_signature: "",
         price: 0,
@@ -1054,15 +1025,8 @@ export default {
         address_data: address_data_obj,
         rooms: roomsListObj,
       };
-      console.log("SALVAR");
-      console.log(JSON.stringify(objSalvar));
-      console.log("SALVAR");
-      let retornoExecPost = await execPost.call(
-        this,
-        this.urlAPIOrders,
-        objSalvar,
-        this.headerRequest
-      );
+      console.log("SALVAR", objSalvar);
+      let retornoExecPost = await execPost(this.urlAPIOrders, objSalvar);
       if (retornoExecPost) {
         this.$dialog.message.success(msgm, {
           position: "top-right",
@@ -1111,8 +1075,8 @@ export default {
       this.limparItensSessaoMudanca();
       //console.log(this.$refs.objForm);
       this.$refs.objForm.reset();
+      this.objForm.id = "";
       let dt = moment(this.objForm.dateMudanca).format("DD/MM/YYYY");
-
       this.menuDataMudanca = true;
       this.$refs.menuDataMudanca.save(dt);
       this.dateFormated = dt;
@@ -1124,30 +1088,15 @@ export default {
       this.tab = 0;
     },
 
-    resetValidation: function () {
-      this.$refs.objForm.resetValidation();
-    },
-
     relatorio: async function (item) {
       this.overlay = true;
-      //?id=7&get_data=true
-      //orders/2?get_data=true
-
       let urlGet = this.urlAPIOrders.concat("/" + item.id + "?get_data=true");
-
       try {
-        let objGetEdicao = await execGet.call(this, urlGet, this.headerRequest);
-
-        //console.log(objGetEdicao);
-
-        let varText = await exportRelatorioHtml.call(
-          null,
-          this,
+        let objGetEdicao = await execGet(urlGet);
+        let varText = await exportRelatorioHtml(
           objGetEdicao,
-          this.urlAPICustomers,
-          this.headerRequest
+          this.urlAPICustomers
         );
-
         await this.$dialog.info({
           title: "Order: " + item.id,
           text: varText,
@@ -1162,13 +1111,10 @@ export default {
           },
         });
       } catch (e) {
-        this.$dialog.message.error(
-          "Erro consultar dados mudança: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.error({
+          title: "Erro get date relatorio",
+          text: e,
+        });
       } finally {
         this.overlay = false;
       }
@@ -1176,19 +1122,12 @@ export default {
 
     resumo: async function (item) {
       this.overlay = true;
-      //?id=7&get_data=true
-      //orders/2?get_data=true
-
       let urlGet = this.urlAPIOrders.concat("/" + item.id + "?get_data=true");
-
       try {
-        let objGetEdicao = await execGet.call(this, urlGet, this.headerRequest);
-        let varText = await exportResumoHtml.call(
-          null,
-          this,
+        let objGetEdicao = await execGet(urlGet);
+        let varText = await exportResumoHtml(
           objGetEdicao,
-          this.urlAPICustomers,
-          this.headerRequest
+          this.urlAPICustomers
         );
 
         await this.$dialog.info({
@@ -1205,13 +1144,10 @@ export default {
           },
         });
       } catch (e) {
-        this.$dialog.message.error(
-          "Erro consultar dados mudança: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.error({
+          title: "Erro get date resumo",
+          text: e,
+        });
       } finally {
         this.overlay = false;
       }
@@ -1220,11 +1156,8 @@ export default {
     alterar: async function (item) {
       try {
         this.overlay = true;
-        //?id=7&get_data=true
-        //orders/2?get_data=true
-
         let urlGet = this.urlAPIOrders.concat("/" + item.id + "?get_data=true");
-        let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
+        let objEdicao = await execGet(urlGet);
         this.objForm.id = objEdicao.id;
         this.variavelIdMudanca = objEdicao.id;
         this.objForm.vendedor = objEdicao.user;
@@ -1254,13 +1187,10 @@ export default {
         this.preencherComodoListaStorage();
         this.tab = 1;
       } catch (e) {
-        this.$dialog.message.error(
-          "Erro consultar dados alterar mudança: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.error({
+          title: "Erro get date update",
+          text: e,
+        });
       } finally {
         this.overlay = false;
       }
@@ -1271,7 +1201,7 @@ export default {
         this.overlay = true;
         let urlDelete = this.urlAPIOrders.concat("/" + item.id);
         let msgm = "mudança de :" + item.customer_id + " excluida com sucesso!";
-        let returDell = await execDell.call(this, urlDelete);
+        let returDell = await execDell(urlDelete);
         if (returDell) {
           this.$dialog.message.success(msgm, {
             position: "top-right",
@@ -1282,9 +1212,9 @@ export default {
           return false;
         }
       } catch (e) {
-        this.$dialog.message.error("Erro excluir dados: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro delete date",
+          text: e,
         });
       } finally {
         this.listar();
@@ -1311,59 +1241,35 @@ export default {
 
     getListaVendedorAdd: async function () {
       try {
-        this.objLoadingGrid = true;
-        this.listaVendedorAdd = await execGet.call(
-          this,
-          this.urlAPIGetVendedores,
-          this.headerRequest
-        );
+        //this.objLoadingGrid = true;
+        this.listaVendedorAdd = await execGet(this.urlAPIGetVendedores);
       } catch (e) {
-        this.$dialog.message.error("Consultar dados vendedores: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro get date seller",
+          text: e,
         });
-      } finally {
-        this.objLoadingGrid = false;
       }
     },
 
     getListaClienteAdd: async function () {
       try {
-        console.log("getListaClienteAdd");
-        this.objLoadingGrid = true;
-        //this.listaClienteAdd
-        this.listaClienteAdd = await execGet.call(
-          this,
-          this.urlAPICustomers,
-          this.headerRequest
-        );
+        this.listaClienteAdd = await execGet(this.urlAPICustomers);
       } catch (e) {
-        this.$dialog.message.error("Consultar dados clientes: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro get date customer",
+          text: e,
         });
-      } finally {
-        this.objLoadingGrid = false;
       }
     },
 
     getListaComodosAdd: async function () {
       try {
-        //console.log("getListaClienteAdd");
-        this.objLoadingGrid = true;
-        //this.listaClienteAdd
-        this.listaComodoAdd = await execGet.call(
-          this,
-          this.urlAPIRooms,
-          this.headerRequest
-        );
+        this.listaComodoAdd = await execGet(this.urlAPIRooms);
       } catch (e) {
-        this.$dialog.message.error("consultar dados Comodos: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro get date rooms",
+          text: e,
         });
-      } finally {
-        this.objLoadingGrid = false;
       }
     },
 

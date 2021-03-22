@@ -270,9 +270,9 @@ export default {
       localStorage.setItem("logado", false);
     }*/
 
-    localStorage.setItem("checkContinuarConectado", false);
-    sessionStorage.setItem("permissions", null);
-    localStorage.setItem("usuarioLogado", null);
+    //localStorage.setItem("checkContinuarConectado", false);
+    //sessionStorage.setItem("permissions", null);
+    //localStorage.setItem("usuarioLogado", null);
   },
   mounted() {
     this.nomeApp = process.env.VUE_APP_NAME_APLICATION;
@@ -327,10 +327,10 @@ export default {
 
               if (this.objForm.checkContinuarConectado) {
                 localStorage.setItem("checkContinuarConectado", true);
-                localStorage.setItem("logado", true);
+                localStorage.setItem("userLogado", true);
               } else {
                 localStorage.setItem("checkContinuarConectado", false);
-                sessionStorage.setItem("logado", true);
+                sessionStorage.setItem("userLogado", true);
               }
 
               sessionStorage.setItem(
@@ -415,35 +415,24 @@ export default {
 
     identificaUsuarioLogado: async function () {
       try {
-        const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
-        let headerRequest = {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: AuthStr,
-          },
-        };
-
         //console.log("getListaClienteAdd");
-        this.objLoadingGrid = true;
+        //this.objLoadingGrid = true;
         //this.listaClienteAdd
-        let userLoged = await execGet.call(
-          this,
-          process.env.VUE_APP_URL_CONNECTION + "/auth/user",
-          headerRequest
-        );
+        let urlGetUser = process.env.VUE_APP_URL_CONNECTION + "/auth/user";
+        //console.log("urlGetUser", urlGetUser);
+        let userLoged = await execGet(urlGetUser);
+        //console.log("userLogeduserLogeduserLogeduserLogeduserLoged", userLoged);
+
         localStorage.setItem("usuarioLogado", JSON.stringify(userLoged));
 
         this.$router.push("modulos");
       } catch (e) {
-        this.$dialog.message.error(
-          "consultar dados usaurio logado: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.error({
+          title: "Erro get date user",
+          text: e,
+        });
       } finally {
-        this.objLoadingGrid = false;
+        this.overlay = false;
       }
     },
 
@@ -462,64 +451,60 @@ export default {
     },
 
     checkUserLogado: function () {
-      let checkContinuarLogado = localStorage.getItem(
-        "checkContinuarConectado"
+      this.overlay = true;
+
+      let checkContinuarLogado = JSON.parse(
+        localStorage.getItem("checkContinuarConectado")
       );
-      let logado = sessionStorage.getItem("logado");
-      if (logado === null) {
-        logado = localStorage.getItem("logado");
+      if (checkContinuarLogado === null) {
+        checkContinuarLogado = false;
+      }
+      let userLogado = JSON.parse(sessionStorage.getItem("userLogado"));
+      if (userLogado === null) {
+        userLogado = JSON.parse(localStorage.getItem("userLogado"));
+        if (userLogado === null) {
+          userLogado = false;
+        }
       }
 
-      if (checkContinuarLogado === true) {
-        if (logado === true) {
+      console.log("checkContinuarLogado", checkContinuarLogado);
+      console.log("userLogado", userLogado);
+
+      if (checkContinuarLogado) {
+        if (userLogado) {
           //fazer requisição usando o token guardado
           //fazer requisição pra identificar usuario
           //redirecionar pra home
-
-          //this.getPermissaoPorToken();
-          alert("login automatico");
+          this.getPermissaoPorToken();
         }
-      } /*else {
-        alert("fazer login");
-      }*/
+      } else {
+        this.overlay = false;
+      }
     },
 
     getPermissaoPorToken: async function () {
       try {
-        const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
-        let headerRequest = {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: AuthStr,
-          },
-        };
+        let urlPermissionFOrToken =
+          process.env.VUE_APP_URL_CONNECTION + "/system/users/permissions";
+        let permissions = await execGet(urlPermissionFOrToken);
 
-        let permissions = await execGet.call(
-          this,
-          process.env.VUE_APP_URL_CONNECTION + "/system/users/permissions",
-          headerRequest
-        );
-
-        if (typeof permissions.data.permissions === "boolean") {
+        if (typeof permissions.permissions === "boolean") {
           localStorage.setItem("userAdmin", true);
         } else {
           sessionStorage.setItem(
             "permissions",
-            JSON.stringify(permissions.data)
+            JSON.stringify(permissions.permissions)
           );
         }
 
         this.identificaUsuarioLogado();
       } catch (e) {
-        this.$dialog.message.error(
-          "consultar dados usaurio logado: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.error({
+          title: "Erro get permission for token",
+          text: e,
+        });
       } finally {
-        this.objLoadingGrid = false;
+        this.overlay = false;
       }
     },
   },
