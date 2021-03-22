@@ -69,8 +69,7 @@
                 <v-card-text>
                   <v-form
                     v-on:submit.prevent="salvar(objForm)"
-                    ref="form"
-                    v-model="valid"
+                    ref="objForm"
                     lazy-validation
                   >
                     <v-row>
@@ -142,11 +141,7 @@ import { mask } from "vue-the-mask";
 
 import { getObjMenu } from "@/helper/listRoutes.js";
 
-import {
-  //execPost,
-  execGet,
-  //execPut
-} from "@/helper/execRequests.js";
+import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 
 export default {
   directives: { mask },
@@ -155,7 +150,6 @@ export default {
   data: () => ({
     overlay: false,
     menu: "",
-    headerRequest: "",
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/moving/rooms",
 
     itensTituloTabs: [
@@ -200,13 +194,6 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
-    this.headerRequest = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: AuthStr,
-      },
-    };
     this.menu = getObjMenu(this.$route.path);
   },
 
@@ -244,16 +231,12 @@ export default {
       try {
         this.overlay = true;
         this.objLoadingGrid = true;
-        let listData = await execGet.call(
-          this,
-          this.urlAPI,
-          this.headerRequest
-        );
+        let listData = await execGet(this.urlAPI);
         this.repassarListaObjetoArrayGrid(listData);
       } catch (e) {
-        this.$dialog.message.error("Erro consultar dados Room: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro list",
+          text: e,
         });
       } finally {
         this.overlay = false;
@@ -263,7 +246,6 @@ export default {
 
     repassarListaObjetoArrayGrid: function (list) {
       this.desserts = [];
-      //console.log(list.data);
       if (list.length > 0) {
         let a = 0;
         for (a; a < list.length; a++) {
@@ -272,158 +254,137 @@ export default {
       }
     },
 
-    salvar: function () {
-      if (this.$refs.form.validate()) {
-        if (this.objForm.id > 0) {
-          let objUpdate = {
-            id: this.objForm.id,
-            name: this.objForm.name,
-            description: this.objForm.description,
-          };
-          let msgm = "Rooms " + this.objForm.name + " alterado com sucesso!";
-          let urlUpdate = this.urlAPI.concat("/" + this.objForm.id);
-          //console.log(urlUpdate);
-          //console.log(objUpdate);
-          //console.log(this.headerRequest);
-          this.$axios.put(urlUpdate, objUpdate, this.headerRequest).then(
-            (response) => {
-              if (response.status == 200) {
-                this.$dialog.message.success(msgm, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-                this.reset();
-                this.listar();
-              } else {
-                this.$dialog.message.error(response.status, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-              }
-            },
-            (error) => {
-              this.$dialog.message.error(error, {
-                position: "top-right",
-                timeout: 5000,
-              });
+    salvar: async function () {
+      try {
+        this.overlay = true;
+        if (this.validate()) {
+          if (this.objForm.id > 0) {
+            let retornoUpdate = await this.execUpdate();
+            if (retornoUpdate) {
+              this.reset();
+              this.listar();
             }
-          );
-        } else {
-          let msgm = "Rooms " + this.objForm.name + " cadastrado com sucesso!";
-          let objSalvar = {
-            name: this.objForm.name,
-            description: this.objForm.description,
-          };
-          this.$axios.post(this.urlAPI, objSalvar, this.headerRequest).then(
-            (response) => {
-              if (response.status == 201) {
-                this.$dialog.message.success(msgm, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-                this.reset();
-                this.listar();
-              } else {
-                this.$dialog.message.error(response.status, {
-                  position: "top-right",
-                  timeout: 5000,
-                });
-              }
-            },
-            (error) => {
-              this.$dialog.message.error(error, {
-                position: "top-right",
-                timeout: 5000,
-              });
+          } else {
+            let retornoSalvar = await this.execSalvar();
+            if (retornoSalvar) {
+              this.reset();
+              this.listar();
             }
-          );
+          }
         }
+      } catch (e) {
+        this.$dialog.error({
+          title: "Erro save",
+          text: e,
+        });
+      } finally {
+        this.overlay = false;
+      }
+    },
+
+    execSalvar: async function () {
+      let msgm = "Rooms " + this.objForm.name + " cadastrado com sucesso!";
+      let objSalvar = {
+        name: this.objForm.name,
+        description: this.objForm.description,
+      };
+      console.log("SALVAR", objSalvar);
+      let retornoExecPost = await execPost(this.urlAPI, objSalvar);
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    execUpdate: async function () {
+      let urlPut = this.urlAPI.concat("/" + this.objForm.id);
+      let msgm = "Rooms " + this.objForm.name + " alterado com sucesso!";
+      let objPut = {
+        id: this.objForm.id,
+        name: this.objForm.name,
+        description: this.objForm.description,
+      };
+      console.log("ALTERAR", objPut);
+      let retornoExecPost = await execPut(urlPut, objPut);
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return true;
+      } else {
+        return false;
       }
     },
 
     validate: function () {
-      alert(this.$refs.form.validate());
+      if (!this.$refs.objForm.validate()) {
+        this.$dialog.message.error(
+          "Observe o formulário, existe campos inválidos",
+          {
+            position: "top-right",
+            timeout: 5000,
+          }
+        );
+        return false;
+      }
+      return true;
     },
 
     reset: function () {
-      this.$refs.form.reset();
-      this.id = "";
-      this.nome = "";
-      this.description = "";
+      this.$refs.objForm.reset();
+      this.objForm.id = "";
       this.tab = 0;
     },
 
-    resetValidation: function () {
-      this.$refs.form.resetValidation();
-    },
-
-    alterar: function (item) {
-      let urlGet = this.urlAPI.concat("/" + item.id);
-      this.$axios.get(urlGet, this.headerRequest).then(
-        (response) => {
-          //console.log(response);
-          //console.log(response.data.data);
-
-          if (response.status === 200) {
-            let objEdicao = response.data.data;
-            //console.log(response.data.dados.obj[0]);
-
-            this.objForm.id = objEdicao.id;
-            this.objForm.name = objEdicao.name;
-            this.objForm.description = objEdicao.description;
-            this.tab = 1;
-            //this.headers = response.data.dados.obj;
-          } else {
-            this.$dialog.message.error(
-              "Erro alterar dados: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-        },
-        (error) => {
-          this.$dialog.message.error("Erro alterar dados: " + error, {
-            position: "top-right",
-            timeout: 5000,
-          });
-        }
-      );
-      //this.editedIndex = this.desserts.indexOf(item);
-      //this.editedItem = Object.assign({}, item);
-      //this.dialog = true;
+    alterar: async function (item) {
+      try {
+        this.overlay = true;
+        let urlGet = this.urlAPI.concat("/" + item.id);
+        let objEdicao = await execGet(urlGet);
+        this.objForm.id = objEdicao.id;
+        this.objForm.name = objEdicao.name;
+        this.objForm.description = objEdicao.description;
+        this.tab = 1;
+      } catch (e) {
+        this.$dialog.error({
+          title: "Erro get date update",
+          text: e,
+        });
+      } finally {
+        this.overlay = false;
+      }
     },
 
     execExcluir: async function (item) {
-      this.overlay = true;
-      let urlDelete = this.urlAPI.concat("/" + item.id);
-      //var myJSON = JSON.stringify(objPost);
-
-      this.$axios.delete(urlDelete, this.headerRequest).then(
-        (response) => {
-          //console.log(response);
-          if (response.status == 200) {
-            this.$dialog.message.success(item.name + " excluido com sucesso!", {
-              position: "top-right",
-              timeout: 5000,
-            });
-          } else {
-            this.$dialog.error({
-              title: "Erro del",
-              text: response.data.mensagem,
-            });
-          }
-        },
-        (error) => {
-          this.$dialog.error({
-            title: "Erro del",
-            text: error,
+      try {
+        this.overlay = true;
+        let urlDelete = this.urlAPI.concat("/" + item.id);
+        let msgm = item.name + " excluido com sucesso!";
+        let returDell = await execDell(urlDelete);
+        if (returDell) {
+          this.$dialog.message.success(msgm, {
+            position: "top-right",
+            timeout: 5000,
           });
+          return true;
+        } else {
+          return false;
         }
-      );
-      this.listar();
-      this.overlay = false;
+      } catch (e) {
+        this.$dialog.error({
+          title: "Erro delete date",
+          text: e,
+        });
+      } finally {
+        this.listar();
+        this.overlay = false;
+      }
     },
 
     excluir: async function (item) {

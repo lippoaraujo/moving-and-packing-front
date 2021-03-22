@@ -199,7 +199,7 @@ import { mask } from "vue-the-mask";
 //import { getObjMenu } from "@/helper/getModulosRotasActionsUserLogado.js";
 import { getObjMenu } from "@/helper/listRoutes.js";
 
-import { execPost, execGet, execPut } from "@/helper/execRequests.js";
+import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 
 export default {
   directives: { mask },
@@ -210,7 +210,6 @@ export default {
     urlAPIGrupoUser: process.env.VUE_APP_URL_CONNECTION + "/system/roles",
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/system/users",
     menu: "",
-    headerRequest: "",
 
     itensTituloTabs: [
       { id: 0, nome: "Dados", icon: "mdi-view-list" },
@@ -279,26 +278,17 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
-    this.headerRequest = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: AuthStr,
-      },
-    };
     this.menu = getObjMenu(this.$route.path);
   },
 
   async mounted() {
-    this.overlay = true;
+    this.getListaGrupoPermissao();
+    this.listar();
     this.getEstadoMenu = true;
     this.getCaminhoBreadCrumb = this.$route.path.split("/");
     window.onpopstate = () => {
       location.reload();
     };
-    await this.getListaGrupoPermissao();
-    this.listar();
-    this.overlay = false;
   },
 
   computed: {
@@ -328,46 +318,30 @@ export default {
   },
 
   methods: {
-    listar: function (exibeLoad = true) {
-      this.objLoadingGrid = true;
-
-      if (exibeLoad) {
+    listar: async function () {
+      try {
+        this.overlay = true;
         this.objLoadingGrid = true;
+        let listData = await execGet(this.urlAPI);
+        this.repassarListaObjetoArrayGrid(listData);
+      } catch (e) {
+        this.$dialog.error({
+          title: "Erro list",
+          text: e,
+        });
+      } finally {
+        this.overlay = false;
+        this.objLoadingGrid = false;
       }
-
-      this.$axios.get(this.urlAPI, this.headerRequest).then(
-        (response) => {
-          if (response.status == 200) {
-            this.repassarListaObjetoArrayGrid(response.data);
-          } else {
-            this.$dialog.message.error(
-              "Erro consultar dados: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-          this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.objLoadingGrid = false;
-          this.$dialog.message.error("Consultar dados: " + error, {
-            position: "top-right",
-            timeout: 5000,
-          });
-        }
-      );
     },
 
     repassarListaObjetoArrayGrid: function (list) {
       this.desserts = [];
       //console.log(list.data);
-      if (list.data.length > 0) {
+      if (list.length > 0) {
         let a = 0;
-        for (a; a < list.data.length; a++) {
-          let item = list.data[a];
-
+        for (a; a < list.length; a++) {
+          let item = list[a];
           if (item.roles.length > 0) {
             let b = 0;
             let roleNames = "";
@@ -376,7 +350,6 @@ export default {
               roleNames += role.name + " ";
             }
             item.roleNames = roleNames;
-
             this.desserts.push(item);
           }
         }
@@ -402,10 +375,9 @@ export default {
           }
         }
       } catch (e) {
-        this.objLoadingGrid = false;
-        this.$dialog.message.error("Executa salvar: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro save",
+          text: e,
         });
       } finally {
         this.overlay = false;
@@ -414,7 +386,6 @@ export default {
 
     execSalvar: async function () {
       let msgm = "User  " + this.objForm.name + " cadastrado com sucesso!";
-
       let arrayRole = [];
       let u = 0;
       for (u; u < this.objForm.listObjUserGroup.length; u++) {
@@ -422,7 +393,6 @@ export default {
         arrayRole.push(role.id);
       }
       //arrayRole.push(this.objForm.listObjUserGroup);
-
       let objSalvar = {
         name: this.objForm.name,
         email: this.objForm.email,
@@ -430,13 +400,8 @@ export default {
         password_confirmation: this.objForm.confirmPassword,
         roles: arrayRole,
       };
-
-      let retornoExecPost = await execPost.call(
-        this,
-        this.urlAPI,
-        objSalvar,
-        this.headerRequest
-      );
+      console.log("SALVAR :", objSalvar);
+      let retornoExecPost = await execPost(this.urlAPI, objSalvar);
       if (retornoExecPost) {
         this.$dialog.message.success(msgm, {
           position: "top-right",
@@ -451,14 +416,12 @@ export default {
     execUpdate: async function () {
       let urlPut = this.urlAPI.concat("/" + this.objForm.id);
       let msgm = "User  " + this.objForm.name + " alterado com sucesso!";
-
       let arrayRole = [];
       let u = 0;
       for (u; u < this.objForm.listObjUserGroup.length; u++) {
         let role = this.objForm.listObjUserGroup[u];
         arrayRole.push(role.id);
       }
-
       let objPut = {
         name: this.objForm.name,
         email: this.objForm.email,
@@ -466,17 +429,8 @@ export default {
         password_confirmation: this.objForm.confirmPassword,
         roles: arrayRole,
       };
-
-      console.log("ALTERAR");
-      console.log(JSON.stringify(objPut));
-      console.log("ALTERAR");
-
-      let retornoExecPost = await execPut.call(
-        this,
-        urlPut,
-        objPut,
-        this.headerRequest
-      );
+      console.log("ALTERAR", objPut);
+      let retornoExecPost = await execPut(urlPut, objPut);
       if (retornoExecPost) {
         this.$dialog.message.success(msgm, {
           position: "top-right",
@@ -503,21 +457,17 @@ export default {
     },
 
     reset: function () {
-      //this.resetValidation();
       this.$refs.objForm.reset();
+      this.objForm.id = "";
       this.tab = 0;
     },
 
     alterar: async function (item) {
-      let urlGet = this.urlAPI.concat("/" + item.id);
-
       try {
-        this.objLoadingGrid = true;
-        let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
-
-        console.log("carrega obj edicao");
-        console.log(objEdicao);
-        console.log("carrega obj edicao");
+        this.overlay = true;
+        let urlGet = this.urlAPI.concat("/" + item.id);
+        let objEdicao = await execGet(urlGet);
+        console.log("obj edicao", objEdicao);
         let a = 0;
         this.objForm.listObjUserGroup = [];
         console.log(this.objForm.listObjUserGroup);
@@ -529,99 +479,50 @@ export default {
         this.objForm.email = objEdicao.email;
         this.tab = 1;
       } catch (e) {
-        this.$dialog.message.error(
-          "Erro consultar dados alterar usuario: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.error({
+          title: "Erro get date update",
+          text: e,
+        });
       } finally {
-        this.objLoadingGrid = false;
+        this.overlay = false;
       }
     },
 
-    excluir: function (item) {
-      let urlDelete = this.urlAPI.concat("/" + item.id);
-      //var myJSON = JSON.stringify(objPost);
-
-      this.$axios.delete(urlDelete, this.headerRequest).then(
-        (response) => {
-          //console.log(response);
-          if (response.status == 200) {
-            this.$dialog.message.success(item.name + " excluido com sucesso!", {
-              position: "top-right",
-              timeout: 5000,
-            });
-          } else {
-            this.$dialog.message.error(
-              "Excluir dados: " + response.data.mensagem,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-          this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.$dialog.message.error("Delete: " + error, {
+    excluir: async function (item) {
+      try {
+        this.overlay = true;
+        let urlDelete = this.urlAPI.concat("/" + item.id);
+        let msgm = item.name + " excluido com sucesso!";
+        let returDell = await execDell(urlDelete);
+        if (returDell) {
+          this.$dialog.message.success(msgm, {
             position: "top-right",
             timeout: 5000,
           });
-          this.objLoadingGrid = false;
+          return true;
+        } else {
+          return false;
         }
-      );
-      this.listar();
+      } catch (e) {
+        this.$dialog.error({
+          title: "Erro delete date",
+          text: e,
+        });
+      } finally {
+        this.listar();
+        this.overlay = false;
+      }
     },
 
     getListaGrupoPermissao: async function () {
       try {
-        this.objLoadingGrid = true;
-        this.listaGrupoPermissao = await execGet.call(
-          this,
-          this.urlAPIGrupoUser,
-          this.headerRequest
-        );
+        this.listaGrupoPermissao = await execGet(this.urlAPIGrupoUser);
       } catch (e) {
-        this.$dialog.message.error(
-          "Erro consultar dados Grupo Permissao: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
-      } finally {
-        this.objLoadingGrid = false;
+        this.$dialog.error({
+          title: "Erro list permission",
+          text: e,
+        });
       }
-
-      /*this.objLoadingGrid = true;
-      this.$axios.get(this.urlAPIGrupoUser, this.headerRequest).then(
-        (response) => {
-          if (response.status == 200) {
-            this.listaGrupoPermissao = response.data.data;
-          } else {
-            this.$dialog.message.error(
-              "Erro consultar dados Grupo Permissao: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
-          }
-          this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.objLoadingGrid = false;
-          this.$dialog.message.error(
-            "Erro consultar dados Grupo Permissao: " + error,
-            {
-              position: "top-right",
-              timeout: 5000,
-            }
-          );
-        }
-      );*/
     },
   },
 };

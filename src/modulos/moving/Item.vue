@@ -67,7 +67,7 @@
             <v-card-text>
               <v-form
                 v-on:submit.prevent="salvar(objForm)"
-                ref="form"
+                ref="objForm"
                 v-model="valid"
                 lazy-validation
               >
@@ -98,6 +98,7 @@
                       label="Cubic feet"
                       style="text-align: right"
                       v-money="money"
+                      ref="price"
                       outlined
                     ></v-text-field>
                   </v-col>
@@ -180,7 +181,7 @@ import { mask } from "vue-the-mask";
 
 import { getObjMenu } from "@/helper/listRoutes.js";
 
-import { execPost, execGet, execPut } from "@/helper/execRequests.js";
+import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 
 export default {
   directives: { mask },
@@ -195,11 +196,10 @@ export default {
       decimal: ".",
       thousands: "",
       precision: 2,
-      masked: true /* doesn't work with directive */,
+      masked: false /* doesn't work with directive */,
     },
     listPacking: [],
     menu: "",
-    headerRequest: "",
 
     itensTituloTabs: [
       { id: 0, nome: "Dados", icon: "mdi-view-list" },
@@ -261,13 +261,6 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
-    this.headerRequest = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: AuthStr,
-      },
-    };
     this.menu = getObjMenu(this.$route.path);
   },
 
@@ -306,16 +299,12 @@ export default {
       try {
         this.overlay = true;
         this.objLoadingGrid = true;
-        let listData = await execGet.call(
-          this,
-          this.urlAPI,
-          this.headerRequest
-        );
+        let listData = await execGet(this.urlAPI);
         this.repassarListaObjetoArrayGrid(listData);
       } catch (e) {
-        this.$dialog.message.error("Erro consultar dados Item: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro list",
+          text: e,
         });
       } finally {
         this.overlay = false;
@@ -335,70 +324,9 @@ export default {
       }
     },
 
-    execUpdate: async function () {
-      let urlPut = this.urlAPI.concat("/" + this.objForm.id);
-      let objPut = {
-        id: this.objForm.id,
-        name: this.objForm.name,
-        description: this.objForm.description,
-        cubic_feet: this.objForm.cubic_feet,
-        tag: this.objForm.tag,
-        packing_id: this.objForm.packing.id,
-        packing_qty: this.objForm.packing_qty,
-      };
-      let msgm = "Item " + this.objForm.name + " alterado com sucesso!";
-
-      //console.log(JSON.stringify(objSalvar));
-      let retornoExecPost = await execPut.call(
-        this,
-        urlPut,
-        objPut,
-        this.headerRequest
-      );
-      if (retornoExecPost) {
-        this.$dialog.message.success(msgm, {
-          position: "top-right",
-          timeout: 5000,
-        });
-        return true;
-      } else {
-        return false;
-      }
-    },
-
-    execSalvar: async function () {
-      let msgm = "Item " + this.objForm.name + " cadastrado com sucesso!";
-      let objSalvar = {
-        name: this.objForm.name,
-        description: this.objForm.description,
-        cubic_feet: this.objForm.cubic_feet,
-        tag: this.objForm.tag,
-        packing_id: this.objForm.packing.id,
-        packing_qty: this.objForm.packing_qty,
-      };
-
-      //console.log(JSON.stringify(objSalvar));
-      let retornoExecPost = await execPost.call(
-        this,
-        this.urlAPI,
-        objSalvar,
-        this.headerRequest
-      );
-      if (retornoExecPost) {
-        this.$dialog.message.success(msgm, {
-          position: "top-right",
-          timeout: 5000,
-        });
-        return true;
-      } else {
-        return false;
-      }
-    },
-
     salvar: async function () {
       try {
-        this.objLoadingGrid = true;
-
+        this.overlay = true;
         if (this.validate()) {
           if (this.objForm.id > 0) {
             let retornoAlterar = await this.execUpdate();
@@ -415,38 +343,88 @@ export default {
           }
         }
       } catch (e) {
-        this.objLoadingGrid = false;
-        this.$dialog.message.error("Executa salvar: " + e.message, {
+        this.$dialog.error({
+          title: "Erro save",
+          text: e,
+        });
+      } finally {
+        this.overlay = false;
+      }
+    },
+
+    execSalvar: async function () {
+      let msgm = "Item " + this.objForm.name + " cadastrado com sucesso!";
+      let objSalvar = {
+        name: this.objForm.name,
+        description: this.objForm.description,
+        cubic_feet: this.objForm.cubic_feet,
+        tag: this.objForm.tag,
+        packing_id: this.objForm.packing.id,
+        packing_qty: this.objForm.packing_qty,
+      };
+      //console.log(JSON.stringify(objSalvar));
+      let retornoExecPost = await execPost(this.urlAPI, objSalvar);
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
           position: "top-right",
           timeout: 5000,
         });
-      } finally {
-        this.objLoadingGrid = false;
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    execUpdate: async function () {
+      let msgm = "Item " + this.objForm.name + " alterado com sucesso!";
+      let urlPut = this.urlAPI.concat("/" + this.objForm.id);
+      let objPut = {
+        id: this.objForm.id,
+        name: this.objForm.name,
+        description: this.objForm.description,
+        cubic_feet: this.objForm.cubic_feet,
+        tag: this.objForm.tag,
+        packing_id: this.objForm.packing.id,
+        packing_qty: this.objForm.packing_qty,
+      };
+      let retornoExecPost = await execPut(urlPut, objPut);
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return true;
+      } else {
+        return false;
       }
     },
 
     validate: function () {
-      return this.$refs.form.validate();
+      if (!this.$refs.objForm.validate()) {
+        this.$dialog.message.error(
+          "Observe o formulário, existe campos inválidos",
+          {
+            position: "top-right",
+            timeout: 5000,
+          }
+        );
+        return false;
+      }
+      return true;
     },
 
     reset: function () {
-      this.$refs.form.reset();
+      this.$refs.objForm.reset();
+      this.$refs.price.$el.getElementsByTagName("input")[0].value = 0;
+      this.objForm.id = "";
       this.tab = 0;
     },
 
-    resetValidation: function () {
-      this.$refs.form.resetValidation();
-    },
-
     alterar: async function (item) {
-      this.overlay = true;
-      //?id=7&get_data=true
-      //orders/2?get_data=true
-
-      let urlGet = this.urlAPI.concat("/" + item.id + "?get_data=true");
-
       try {
-        let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
+        this.overlay = true;
+        let urlGet = this.urlAPI.concat("/" + item.id);
+        let objEdicao = await execGet(urlGet);
         this.objForm.id = objEdicao.id;
         this.objForm.name = objEdicao.name;
         this.objForm.description = objEdicao.description;
@@ -461,13 +439,10 @@ export default {
         this.objForm.packing_qty = objEdicao.packing_qty;
         this.tab = 1;
       } catch (e) {
-        this.$dialog.message.error(
-          "Erro consultar dados alterar mudança: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.error({
+          title: "Erro get date update",
+          text: e,
+        });
       } finally {
         this.overlay = false;
       }
@@ -475,51 +450,42 @@ export default {
 
     getListPacking: async function () {
       try {
-        this.objLoadingGrid = true;
-        this.listPacking = await execGet.call(
-          this,
-          this.urlAPIPacking,
-          this.headerRequest
-        );
+        //this.overlay = false;
+        this.listPacking = await execGet(this.urlAPIPacking);
       } catch (e) {
-        this.$dialog.message.error("search data packing: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro get date Packing",
+          text: e,
         });
       } finally {
-        this.objLoadingGrid = false;
+        //this.objLoadingGrid = false;
       }
     },
 
     execExcluir: async function (item) {
-      this.overlay = true;
-      let urlDelete = this.urlAPI.concat("/" + item.id);
-      //var myJSON = JSON.stringify(objPost);
-
-      this.$axios.delete(urlDelete, this.headerRequest).then(
-        (response) => {
-          //console.log(response);
-          if (response.status == 200) {
-            this.$dialog.message.success(item.name + " excluido com sucesso!", {
-              position: "top-right",
-              timeout: 5000,
-            });
-          } else {
-            this.$dialog.error({
-              title: "Erro del",
-              text: response.data.mensagem,
-            });
-          }
-        },
-        (error) => {
-          this.$dialog.error({
-            title: "Erro del",
-            text: error,
+      try {
+        this.overlay = true;
+        let urlDelete = this.urlAPI.concat("/" + item.id);
+        let msgm = item.name + " excluido com sucesso!";
+        let returDell = await execDell(urlDelete);
+        if (returDell) {
+          this.$dialog.message.success(msgm, {
+            position: "top-right",
+            timeout: 5000,
           });
+          return true;
+        } else {
+          return false;
         }
-      );
-      this.listar();
-      this.overlay = false;
+      } catch (e) {
+        this.$dialog.error({
+          title: "Erro delete date",
+          text: e,
+        });
+      } finally {
+        this.listar();
+        this.overlay = false;
+      }
     },
 
     excluir: async function (item) {

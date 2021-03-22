@@ -115,8 +115,6 @@
                           v-model="objForm.address"
                           label="Endereco"
                           outlined
-                          :rules="[(v) => !!v || 'Endereço is required']"
-                          required
                         ></v-text-field>
                       </v-col>
                       <v-col xs="12" sm="12" md="2" lg="2" xl="2">
@@ -124,8 +122,6 @@
                           v-model="objForm.postcode"
                           label="Cep"
                           outlined
-                          :rules="[(v) => !!v || 'Cep is required']"
-                          required
                         ></v-text-field>
                       </v-col>
                     </v-row>
@@ -216,7 +212,7 @@ export default {
   data: () => ({
     overlay: false,
     menu: "",
-    headerRequest: "",
+
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/moving/customers",
 
     itensTituloTabs: [
@@ -280,13 +276,6 @@ export default {
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
-    this.headerRequest = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: AuthStr,
-      },
-    };
     this.menu = getObjMenu(this.$route.path);
   },
 
@@ -324,20 +313,13 @@ export default {
       try {
         this.overlay = true;
         this.objLoadingGrid = true;
-        let listData = await execGet.call(
-          this,
-          this.urlAPI,
-          this.headerRequest
-        );
+        let listData = await execGet(this.urlAPI);
         this.repassarListaObjetoArrayGrid(listData);
       } catch (e) {
-        this.$dialog.message.error(
-          "Erro consultar dados Customer: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.error({
+          title: "Erro list",
+          text: e,
+        });
       } finally {
         this.overlay = false;
         this.objLoadingGrid = false;
@@ -357,7 +339,7 @@ export default {
 
     salvar: async function () {
       try {
-        this.objLoadingGrid = true;
+        this.overlay = true;
         if (this.validate()) {
           if (this.objForm.id > 0) {
             let retornoAlterar = await this.execUpdate();
@@ -374,37 +356,35 @@ export default {
           }
         }
       } catch (e) {
-        this.objLoadingGrid = false;
-        this.$dialog.message.error("Executa salvar: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro save",
+          text: e,
         });
       } finally {
-        this.objLoadingGrid = false;
+        this.overlay = false;
       }
     },
 
     execUpdate: async function () {
       let msgm = "Costomer " + this.objForm.name + " alterado com sucesso!";
       let urlPut = this.urlAPI.concat("/" + this.objForm.id);
-      let objPut = {
-        id: this.objForm.id,
-        primary_address_id: this.objForm.primary_address_id,
-        name: this.objForm.name,
-        email: this.objForm.email,
-        phone: this.objForm.phone,
+      let objAdress = {
         address: this.objForm.address,
         locality: this.objForm.locality,
         city: this.objForm.city,
         country: this.objForm.country,
         postcode: this.objForm.postcode,
       };
-      let retornoExecPost = await execPut.call(
-        this,
-        urlPut,
-        objPut,
-        this.headerRequest
-      );
+      let objPut = {
+        id: this.objForm.id,
+        primary_address_id: this.objForm.primary_address_id,
+        name: this.objForm.name,
+        email: this.objForm.email,
+        phone: this.objForm.phone,
+        customer_address: objAdress,
+      };
+      console.log("UPDATE", objPut);
+      let retornoExecPost = await execPut(urlPut, objPut);
       if (retornoExecPost) {
         this.$dialog.message.success(msgm, {
           position: "top-right",
@@ -418,22 +398,21 @@ export default {
 
     execSalvar: async function () {
       let msgm = "Costomer " + this.objForm.name + " cadastrado com sucesso!";
-      let objSalvar = {
-        name: this.objForm.name,
-        email: this.objForm.email,
-        phone: this.objForm.phone,
+      let objAdress = {
         address: this.objForm.address,
         locality: this.objForm.locality,
         city: this.objForm.city,
         country: this.objForm.country,
         postcode: this.objForm.postcode,
       };
-      let retornoExecPost = await execPost.call(
-        this,
-        this.urlAPI,
-        objSalvar,
-        this.headerRequest
-      );
+      let objSalvar = {
+        name: this.objForm.name,
+        email: this.objForm.email,
+        phone: this.objForm.phone,
+        customer_address: objAdress,
+      };
+      console.log("SALVAR", objSalvar);
+      let retornoExecPost = await execPost(this.urlAPI, objSalvar);
       if (retornoExecPost) {
         this.$dialog.message.success(msgm, {
           position: "top-right",
@@ -461,15 +440,7 @@ export default {
 
     reset: function () {
       this.$refs.objForm.reset();
-      this.id = "";
-      this.nome = "";
-      this.tel1 = "";
-      this.tel2 = "";
-      this.endereco = "";
-      this.numero = "";
-      this.bairro = "";
-      this.cidade = "";
-      this.obs = "";
+      this.objForm.id = "";
       this.tab = 0;
     },
 
@@ -481,7 +452,7 @@ export default {
       try {
         this.overlay = true;
         let urlGet = this.urlAPI.concat("/" + item.id);
-        let objEdicao = await execGet.call(this, urlGet, this.headerRequest);
+        let objEdicao = await execGet(urlGet);
         this.objForm.id = objEdicao.id;
         this.objForm.primary_address_id = objEdicao.primary_address_id;
         this.objForm.name = objEdicao.name;
@@ -495,13 +466,10 @@ export default {
         this.objForm.country = objEdicao.primary_address.country;
         this.tab = 1;
       } catch (e) {
-        this.$dialog.message.error(
-          "Erro consultar dados alterar customer: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.error({
+          title: "Erro get date update",
+          text: e,
+        });
       } finally {
         this.overlay = false;
       }
@@ -512,7 +480,7 @@ export default {
         this.overlay = true;
         let urlDelete = this.urlAPI.concat("/" + item.id);
         let msgm = item.name + " excluido com sucesso!";
-        let returDell = await execDell.call(this, urlDelete);
+        let returDell = await execDell(urlDelete);
         if (returDell) {
           this.$dialog.message.success(msgm, {
             position: "top-right",
@@ -523,9 +491,9 @@ export default {
           return false;
         }
       } catch (e) {
-        this.$dialog.message.error("Erro excluir dados: " + e.message, {
-          position: "top-right",
-          timeout: 5000,
+        this.$dialog.error({
+          title: "Erro delete date",
+          text: e,
         });
       } finally {
         this.listar();
