@@ -606,6 +606,7 @@ import { getNewIdArrayComodo } from "@/modulos/moving/helper/getSetComodoStorage
 import {
   exportResumoHtml,
   exportRelatorioHtml,
+  exportRelatorioHtmlNovo,
 } from "@/modulos/moving/helper/getRlatoriosOrders.js";
 
 import {
@@ -1093,10 +1094,14 @@ export default {
       let urlGet = this.urlAPIOrders.concat("/" + item.id + "?get_data=true");
       try {
         let objGetEdicao = await execGet(urlGet);
-        let varText = await exportRelatorioHtml(
+        let varText1 = await exportRelatorioHtml(
           objGetEdicao,
           this.urlAPICustomers
         );
+        console.log(varText1);
+
+        let varText = await exportRelatorioHtmlNovo();
+
         await this.$dialog.info({
           title: "Order: " + item.id,
           text: varText,
