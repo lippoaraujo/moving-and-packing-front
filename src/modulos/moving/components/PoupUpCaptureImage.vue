@@ -206,7 +206,15 @@ export default {
 
     onCapture: async function () {
       let base64 = this.$refs.webcam.capture();
-      await this.base64ToCanvas(
+      setImageStorageSession(
+        this.getValorVariavelIdMudanca,
+        this.getValorvariavelIdComodo,
+        base64,
+        this.getValorvariavelIdArrayComodo
+      );
+      this.closeModalImage();
+
+      /*await this.base64ToCanvas(
         base64,
         this.getValorVariavelIdMudanca,
         this.getValorvariavelIdComodo,
@@ -220,7 +228,7 @@ export default {
           );
         },
         this.closeModalImage
-      );
+      );*/
 
       //console.log(localStorage.getItem("storageListaImagensComodoNovo"));
     },

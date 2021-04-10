@@ -605,7 +605,7 @@ import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 import { getNewIdArrayComodo } from "@/modulos/moving/helper/getSetComodoStorageSession.js";
 import {
   exportResumoHtml,
-  exportRelatorioHtml,
+  exportRelatorioHtmlNovo,
 } from "@/modulos/moving/helper/getRlatoriosOrders.js";
 
 import {
@@ -1093,10 +1093,12 @@ export default {
       let urlGet = this.urlAPIOrders.concat("/" + item.id + "?get_data=true");
       try {
         let objGetEdicao = await execGet(urlGet);
-        let varText = await exportRelatorioHtml(
+
+        let varText = await exportRelatorioHtmlNovo(
           objGetEdicao,
           this.urlAPICustomers
         );
+
         await this.$dialog.info({
           title: "Order: " + item.id,
           text: varText,

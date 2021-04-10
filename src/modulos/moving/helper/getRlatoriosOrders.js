@@ -1,5 +1,733 @@
 import {execGet} from "@/helper/execRequests.js";
 
+
+
+export async function exportRelatorioHtmlNovo(objEdicao, urlAPICustomers)
+{
+
+  console.log(objEdicao);
+
+  //let objEndereco = null;
+  let objCliente = null;
+
+  let objEndereco= {
+    address: null,
+    postcode: null,
+    city: null,
+    locality: null,
+    country: null,
+  };
+
+  if (objEdicao.address_id == objEdicao.customer.primary_address_id) {
+
+    //o endereco e o mesmo do cliente
+    //buscar endereco do cliente
+    let urlGetCustomer = urlAPICustomers.concat(
+      "/" + objEdicao.customer.id
+    );
+    objCliente = await execGet(urlGetCustomer);
+    objEndereco.address = objCliente.primary_address.address;
+    objEndereco.postcode = objCliente.primary_address.postcode;
+    objEndereco.city = objCliente.primary_address.city;
+    objEndereco.locality = objCliente.primary_address.locality;
+    objEndereco.country = objCliente.primary_address.country;
+    //console.log(objCliente);
+  } else {
+    //e outro endereco
+    objEndereco.address = objEdicao.address.address;
+    objEndereco.postcode = objEdicao.address.postcode;
+    objEndereco.city = objEdicao.address.city;
+    objEndereco.locality = objEdicao.address.locality;
+    objEndereco.country = objEdicao.address.country;
+  }
+  let objUsuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+
+  let html ='<div id="printMe">';
+  
+    html +='<div class="report">';
+      html +='<div class="report_container">';
+        
+        //html +='<header>';
+        html +='<section>';
+          html += getHeader(objEdicao, objEndereco, objUsuarioLogado);
+        //html +='</header>';
+        html +='</section>';
+
+        html +='<section>';
+          html += getComodos(objEdicao);
+          //console.log(getComodos());
+        html +='</section>';
+
+        html +='<section>';
+          html += getCarrier();
+          //console.log(getCarrier());
+        html +='</section>';
+
+        html +='<section>';
+          html += getImage();
+          //console.log(getImage());
+        html +='</section>';
+
+        html +='<footer>';
+          html +='<p>';
+            html +='Signing below acknowledges receipt of an estimate of your move based';
+            html +='on the Table of Measurements. Only the items listed are included in';
+            html +='the cost. Any items added or additional services may result in';
+            html +='additional cost.';
+          html +='</p>';
+          html +='<div class="signature_container">';
+            html +='<div class="signature_left">Customer Signature</div>';
+            html +='<div class="signature_right">Date</div>';
+          html +='</div>';
+
+          html +='<div class="signature_container">';
+            html +='<div class="signature_left">Carrier\'s Representative</div>';
+            html +='<div class="signature_right">Date</div>';
+          html +='</div>';
+        html +='</footer>';
+
+      html +='</div>';
+    html +='</div>';
+
+    html +='<style>';
+      html += getStyleNovo();
+      //console.log(getStyleNovo());
+    html +='</style>';
+    
+    html +='</div>';
+  
+  return  html;
+}
+
+
+function getHeader(objEdicao, objEndereco, objUsuarioLogado)
+{
+  let header = null;
+  header ='<div class="report_header">';
+    header +='<h1>Itemized Customer Survey/Inventory</h1>';
+    header +='<img width="20%" src="' + objUsuarioLogado.tenant.logo + '" />';
+  header +='</div>';
+
+  header +='<div class="report_detail_container">';  
+    header +='<div id="order_box" class="order_container">';
+      header +='<div class="order_title">';
+        header +='<h3>Order</h3>';
+      header +='</div>';
+      
+      header +='<div class="order_details">';
+        header +='<span>Number: ' + objEdicao.id + '</span>';
+        header +='<p>Total rooms: 2</p>';
+        header +='<p>Seller: ' + objEdicao.user.name + ' | '+ objEdicao.user.email +'</p>';
+        header +='<p>Date: 20/01/2021</p>';
+        header +='<span>Delivery date: ' + objEdicao.expected_date + '</span>';
+        header +='<p class="order_address">';
+          header +='Address: ' + objEndereco.address + ' ' + objEndereco.postcode + ' ' + objEndereco.city + ' ' + objEndereco.locality + ' ' +objEndereco.country;
+        header +='</p>';
+      header +='</div>';
+    header +='</div>';
+
+    header +='<div id="customer_box" class="order_container">';
+      header +='<div class="order_title">';
+        header +='<h3>Customer</h3>';
+      header +='</div>';
+      header +='<div class="order_details">';
+        header +='<span>Name: ' + objEdicao.customer.name + '</span>';
+        header +='<p>Phone: ' + objEdicao.customer.phone + '</p>';
+        header +='<p>Email: ' + objEdicao.customer.email + '</p>';
+      header +='</div>';
+    header +='</div>';
+  header +='</div>';
+
+  header +='<div class="totals_container">';
+    header +='<div class="total">';
+      header +='<p>Total Est. Weight:</p>';
+      header +='<span>13,655 lbs.</span>';
+    header +='</div>';
+    header +='<div class="total">';
+      header +='<p>Total Est. Cubic Feet:</p>';
+      header +='<span>2,023</span>';
+    header +='</div>';
+    header +='<div class="total">';
+      header +='<p>Total Nb. Items:</p>';
+      header +='<span>240</span>';
+    header +='</div>';
+  header +='</div>';
+
+  return header;
+}
+
+function getComodos(objEdicao){
+
+
+let htmlComodo = '';
+
+
+let listaComodo = objEdicao.order_rooms;
+let totalComodo = 0;
+for(totalComodo; totalComodo < listaComodo.length; totalComodo++) {
+
+
+
+  
+
+
+  htmlComodo += '<div class="items_container">';
+
+  let como = listaComodo[totalComodo];
+  let objComodo = como.room;
+  
+  let itemsComodos = getItensOrdenadosImpressao(como.items, 2); 
+
+  htmlComodo += '<h3>' + objComodo.name + '</h3>';
+
+  htmlComodo += '<div class="items_table_container">';
+
+        let incrItem=0;
+        let arrayObs = [];
+        htmlComodo += '<table id="tableReport">';
+
+
+
+
+        if(itemsComodos[0].length > 1){
+          htmlComodo += '<tr>';
+            htmlComodo += '<th class="item_qtd">#</th>';
+            htmlComodo += '<th class="item_desc">Item Description</th>';
+            htmlComodo += '<th class="item_cft">CFt.</th>';
+
+            htmlComodo += '<th class="item_qtd">#</th>';
+            htmlComodo += '<th class="item_desc">Item Description</th>';
+            htmlComodo += '<th class="item_cft">CFt.</th>';
+          htmlComodo += '</tr>';
+        } else {
+          htmlComodo += '</tr>';
+            htmlComodo += '<th class="item_qtd">#</th>';
+            htmlComodo += '<th class="item_desc">Item Description</th>';
+            htmlComodo += '<th class="item_cft">CFt.</th>';
+          htmlComodo += '</tr>';
+        }
+
+
+        let totCubic = 0;
+        for(incrItem; incrItem<itemsComodos.length; incrItem++){
+
+          
+
+          //htmlComodo += '<tr>';
+            //htmlComodo += '<th class="item_qtd">#</th>';
+            //htmlComodo += '<th class="item_desc">Item Description</th>';
+            //htmlComodo += '<th class="item_cft">CFt.</th>';
+          //htmlComodo += '</tr>';
+
+          let listaItem = itemsComodos[incrItem];
+          //let item=0;
+          let b = 0;
+          for (b; b < listaItem.length; b++) {
+            let item = listaItem[b];
+            totCubic = totCubic + Number( item.cubic_feet * item.pivot.quantity);
+            let objObs = new Object();
+            objObs.item = item.name;
+            objObs.obs = item.pivot.obs;
+            arrayObs.push(objObs);
+          }
+
+          console.log("ARRAY OBS ", arrayObs);
+  
+          let a=0;
+          let cont = 0;
+          for(a; a<listaItem.length; a++){
+            if(cont==0){
+              htmlComodo += "<tr>";
+            }
+            let item = listaItem[a];
+            
+            htmlComodo += "<td>" + item.pivot.quantity + "</td>";
+            htmlComodo += "<td>" + item.name + "</td>";
+            htmlComodo += "<td>" + (item.cubic_feet * item.pivot.quantity).toFixed(2) + "</td>";
+
+              
+            if(listaItem[a+1]!=undefined){
+              a = a +1;  
+              let item2 = listaItem[a];
+              htmlComodo += "<td>" + item2.pivot.quantity + "</td>";
+              htmlComodo += "<td>" + item2.name + "</td>";
+              htmlComodo += "<td>" + (item2.cubic_feet * item2.pivot.quantity).toFixed(2) + "</td>";
+            }
+            cont = cont + 1;
+            if(cont==2){
+              cont = 0;
+              htmlComodo += "</tr>";
+            }
+          }
+
+          /*for(item; item<listaItem.length; item++){
+            htmlComodo += '<tr>';
+              htmlComodo += '<td class="item_qtd">' + listaItem[item].pivot.quantity + '</td>';
+              htmlComodo += '<td class="item_desc">' + listaItem[item].name + '</td>';
+              htmlComodo += '<td class="item_cft">' + (listaItem[item].cubic_feet * listaItem[item].pivot.quantity).toFixed(2) + '</td>';
+            htmlComodo += '</tr>';
+          }*/
+          
+        }
+        htmlComodo += '</table>';
+
+        /*htmlComodo += '<tr>';
+          htmlComodo += '<td class="item_qtd">1</td>';
+          htmlComodo += '<td class="item_desc">Bed - Queen</td>';
+          htmlComodo += '<td class="item_cft">65.0</td>';
+        htmlComodo += '</tr>';*/
+
+      
+
+      /*htmlComodo += '<table id="tableReport">';
+        
+        htmlComodo += '<tr>';
+          htmlComodo += '<th class="item_qtd">#</th>';
+          htmlComodo += '<th class="item_desc">Item Description</th>';
+          htmlComodo += '<th class="item_cft">CFt.</th>';
+        htmlComodo += '</tr>';
+
+        htmlComodo += '<tr>';
+          htmlComodo += '<td class="item_qtd">1</td>';
+          htmlComodo += '<td class="item_desc">Bed - Queen</td>';
+          htmlComodo += '<td class="item_cft">65.0</td>';
+        htmlComodo += '</tr>';
+
+        htmlComodo += '<tr>';
+          htmlComodo += '<td class="item_qtd">1</td>';
+          htmlComodo += '<td class="item_desc">Bed - Queen</td>';
+          htmlComodo += '<td class="item_cft">65.0</td>';
+        htmlComodo += '</tr>';
+
+      htmlComodo += '</table>';*/
+    
+    htmlComodo += '</div>';
+
+    if(arrayObs.length>0){
+      htmlComodo += '<h4>Observações</h4>';
+
+      htmlComodo += '<div class="items_table_container">';
+
+        htmlComodo += '<table id="tableReport">';
+
+        htmlComodo += '<tr>';
+          htmlComodo += '<th class="item_qtd">Item</th>';
+          htmlComodo += '<th class="item_desc">Observação</th>';
+        htmlComodo += '</tr>';
+
+        let totObs=0;
+        for(totObs; totObs<arrayObs.length; totObs++){
+          let objObs = arrayObs[totObs];
+          htmlComodo += '<tr>';
+            htmlComodo += '<td >' + objObs.item + '</td>';
+            htmlComodo += '<td >' + objObs.obs + '</td>';
+          htmlComodo += '</tr>';
+        }
+
+        htmlComodo += '</table>';
+
+      htmlComodo += '</div>';
+    }
+
+    let totCuMete = (totCubic/35.15);
+    let totLb = (totCuMete*2.205);
+    
+    htmlComodo += '<div class="items_totals_container">';
+        htmlComodo += '<div class="items_totals">';
+          htmlComodo += '<p>Total Cubic Feet:</p>';
+          htmlComodo += '<p>' + totCubic.toFixed(2) + '</p>';
+
+          htmlComodo += '&nbsp;&nbsp;<p>Total Cubic Meter:</p>';
+          htmlComodo += '<p>' + totCuMete.toFixed(2) + '</p>';
+
+          htmlComodo += '&nbsp;&nbsp;<p>Total Weight (lbs.):</p>';
+          htmlComodo += '<p>' + totLb.toFixed(2) + '</p>';
+
+        htmlComodo += '</div>';
+
+        //htmlComodo += '<div class="items_totals">';
+          //htmlComodo += '<p>Total Cubic Meter:</p>';
+          //htmlComodo += '<span>' + totCuMete.toFixed(2) + '</span>';
+        //htmlComodo += '</div>';
+
+        //htmlComodo += '<div class="items_totals">';
+          //htmlComodo += '<p>Total Weight (lbs.):</p>';
+          //htmlComodo += '<span>' + totLb.toFixed(2) + '</span>';
+        //htmlComodo += '</div>';
+
+      htmlComodo += '</div>';
+
+      
+      
+  htmlComodo += '</div>';
+
+}
+    
+  return htmlComodo;
+}
+
+function getCarrier()
+{
+  let htmlCarrier = '';
+  htmlCarrier += '<div class="report_header">';
+    htmlCarrier += '<h1>Carrier Packing & Crating Summary</h1>';
+  htmlCarrier += '</div >';
+
+    htmlCarrier += '<div class="items_container">';
+
+      htmlCarrier += '<div class="items_table_container">';
+    
+        htmlCarrier += '<table id="tableReport" >';
+        
+          htmlCarrier += '<tr>';
+            htmlCarrier += '<th>#</th>';
+            htmlCarrier += '<th>Package Description</th>';
+            htmlCarrier += '<th>Room</th>';
+          htmlCarrier += '</tr>';
+
+          htmlCarrier += '<tr>';
+            htmlCarrier += '<td>3</td>';
+            htmlCarrier += '<td>paperboard boxes</td>';
+            htmlCarrier += '<td>Master Bedroom</td>';
+          htmlCarrier += '</tr>';
+
+          htmlCarrier += '<tr>';
+            htmlCarrier += '<td>3</td>';
+            htmlCarrier += '<td>paperboard boxes</td>';
+            htmlCarrier += '<td>Master Bedroom</td>';
+          htmlCarrier += '</tr>';
+          
+        htmlCarrier += '</table>';
+
+        htmlCarrier += '<table id="tableReport" >';
+        
+          htmlCarrier += '<tr>';
+            htmlCarrier += '<th>#</th>';
+            htmlCarrier += '<th>Package Description</th>';
+            htmlCarrier += '<th>Room</th>';
+          htmlCarrier += '</tr>';
+
+          htmlCarrier += '<tr>';
+            htmlCarrier += '<td>3</td>';
+            htmlCarrier += '<td>paperboard boxes</td>';
+            htmlCarrier += '<td>Master Bedroom</td>';
+          htmlCarrier += '</tr>';
+
+          htmlCarrier += '<tr>';
+            htmlCarrier += '<td>3</td>';
+            htmlCarrier += '<td>paperboard boxes</td>';
+            htmlCarrier += '<td>Master Bedroom</td>';
+          htmlCarrier += '</tr>';
+
+        htmlCarrier += '</table>';
+
+      htmlCarrier += '</div>';
+
+  htmlCarrier += '</div>';
+
+
+  htmlCarrier += '<div class="items_totals_container">';
+    htmlCarrier += '<div class="items_totals">';
+      htmlCarrier += '<p>Total:</p>';
+      htmlCarrier += '<span>112</span>';
+    htmlCarrier += '</div>';
+  htmlCarrier += '</div>';
+
+
+  return htmlCarrier;
+}
+
+function getImage(){
+
+  let objUsuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+  let htmlImg = '';
+  htmlImg += '<div class="report_header">';
+    htmlImg += '<h1>Images</h1>';
+  htmlImg += '</div>';
+
+  htmlImg += '<div class="images_container">';
+    
+    htmlImg += '<div class="image_group">';
+      htmlImg +='<img width="30%" src="' + objUsuarioLogado.tenant.logo + '" />';
+    htmlImg += '</div>';
+    htmlImg += '<div class="image_group">';
+    htmlImg +='<img width="30%" src="' + objUsuarioLogado.tenant.logo + '" />';
+    htmlImg += '</div>';
+    htmlImg += '<div class="image_group">';
+    htmlImg +='<img width="30%" src="' + objUsuarioLogado.tenant.logo + '" />';
+    htmlImg += '</div>';
+
+  htmlImg += '</div>';
+  
+  return htmlImg;
+}
+
+function getStyleNovo(){
+  let style =  "";
+  style += "* {";
+    
+  style += "}";
+
+  style += "html {";
+    style += "";
+  style += "}";
+
+  style += ".report {";
+    style += "font-size: 14px;";
+    style += "font-family: Arial, Helvetica, sans-serif;";
+    style += "margin: 0;";
+    style += "padding: 0;";
+    style += "box-sizing: border-box;";
+  style += "}";
+
+
+  /** MAIN CONTAINER **/
+  style += ".report_container div {";
+    style += "page-break-inside: avoid;";
+  style += "}";
+
+  style += ".report_container {";
+    style += "height: 100%;";
+    style += "padding: 1rem;";
+  style += "}";
+
+  style += ".report_header { ";
+
+    style += "display: flex;";
+    style += "height: 4rem;";
+    style += "justify-content: space-between;";
+    style += "align-items: center;";
+    style += "background-color: #a5d5ff;";
+    style += "padding: 0 0.6rem 0 0.6rem;";
+    style += "border-bottom: 3px solid #444;";
+    style += "margin-bottom: 1rem;";
+  style += "}";
+
+  style += ".report_header > h1 {";
+    style += "color: #024988;";
+    style += "font-style: italic;";
+    style += "font-size: 1.8rem;";
+  style += "}";
+  
+  style += ".report_header > img {";
+    style += "width: 4rem;";
+    style += "height: 3.3rem;";
+  style += "}";
+  
+  style += ".report_detail_container {";
+    style += "display: flex;";
+    style += "border: 3px solid #c4c4c4;";
+  style += "}";  
+
+  /** ORDER - CUSTOMER **/
+  style += ".order_container {";
+    style += "padding: 0.2rem;";
+    style += "flex: 1;";
+  style += "}";
+
+  style += ".order_title {";
+    style += "border-bottom: #c4c4c4 solid 3px;";
+  style += "}";
+  
+  style += ".order_title > h3 {";
+    style += "color: #024988;";
+  style += "}";
+  
+  style += ".order_details {";
+    style += "padding: 1.6rem 0 1.6rem 1.6rem;";
+  style += "}";
+  
+  style += ".order_details > span {";
+    style += "font-weight: 600;";
+  style += "}";
+  
+  style += ".order_address {";
+    style += "margin-top: 2rem;";
+    style += "font-weight: 600;";
+  style += "}";
+  
+  style += "#order_box {";
+    style += "border-right: #c4c4c4 solid 3px;";
+  style += "}";
+
+  /** TOTALS **/
+  style += ".totals_container {";
+    style += "display: flex;";
+    style += "padding: 0.6rem;";
+    style += "justify-content: space-between;";
+    style += "font-weight: 600;";
+    style += "border-bottom: #333333 solid 3px;";
+    style += "margin-bottom: 1rem;";
+  style += "}";
+
+  style += ".total {";
+    style += "display: flex;";
+  style += "}";
+
+  style += ".total > span {";
+    style += "margin-left: 1rem;";
+  style += "}";
+
+  /** ITEMS **/
+
+  style += ".items_container {";
+    style += "margin: 1rem 0 1rem 0;";
+  style += "}";
+
+  style += ".items_container > h3 {";
+    style += "color: #024988;";
+  style += "}";
+
+  style += ".items_table_container {";
+    style += "display: flex;";
+    //style += "/* border: 1px solid #333333; */";
+  style += "}";
+
+  style += ".items_table_container > table {";
+    style += "width: 100%;";
+  style += "}";
+
+
+
+  //#tableA tr td:nth-child(1) {
+    //font-family: arial
+  //}
+
+  style += "#tableReport th";
+  style += " {";
+    style += "border: 3px solid #c4c4c4;";
+    style += "border-collapse: collapse;";
+    style += "border-spacing: 0;";
+    //style += "background: red;";
+  style += "}";
+
+
+  style += "#tableReport td";
+  style += " {";
+    style += "border: 3px solid #c4c4c4;";
+    style += "border-collapse: collapse;";
+    style += "border-spacing: 0;";
+    //style += "background: red;";
+  style += "}";
+
+  //style += ".items_table_container > .tableReport table,";
+  //style += ".items_table_container > table,";
+  /*style += ".items_table_container > table,";  
+  style += "tr, td, th";  
+  style += "";
+  style += " {";
+    style += "border: 3px solid #c4c4c4;";
+    style += "border-collapse: collapse;";
+    style += "border-spacing: 0;";
+  style += "}";*/
+
+  style += ".items_table_container > table th {";
+    style += "text-align: left;";
+  style += "}";
+
+  style += ".items_table_container > table th,";
+  style += "table td {";
+    style += "padding: 5px;";
+  style += "}";
+
+  style += ".items_totals_container {";
+    style += "display: flex;";
+    style += "flex-direction: column;";
+    style += "justify-content: center;";
+    style += "align-items: flex-end;";
+    style += "font-weight: 600;";
+    style += "padding: 0.3rem 2rem 1rem 0;";
+    style += "border-bottom: #333333 solid 3px;";
+  style += "}";
+
+  style += ".items_totals {";
+    style += "display: flex;";
+  style += "}";
+
+  style += ".items_totals > span {";
+    style += "margin-left: 1rem;";
+  style += "}";
+
+  /** IMAGES **/
+
+  style += ".images_container {";
+    style += "display: flex;";
+    style += "flex-wrap: wrap;";
+    style += "border-bottom: #333333 solid 3px;";
+  style += "}";
+
+  style += ".image_group {";
+    style += "flex-basis: 45%;";
+    style += "display: flex;";
+    style += "justify-content: center;";
+    style += "align-items: center;";
+    style += "margin: 1rem;";
+  style += "}";
+
+  style += ".image_group > img {";
+    style += "height: 10rem;";
+  style += "}";
+
+  /** FOOTER **/
+
+  style += "footer {"
+    style += "margin-top: 3rem;";
+    style += "font-weight: 600;";
+  style += "}";
+
+  style += "footer > p {";
+    style += "margin-bottom: 3rem;";
+  style += "}";
+
+  style += ".signature_container {";
+    style += "display: flex;";
+    style += "justify-content: space-between;";
+    style += "margin-bottom: 3rem;";
+  style += "}";
+
+  style += ".signature_container > .signature_left,";
+  style += ".signature_container > .signature_right {";
+    style += "border-top: #333333 3px solid;";
+    style += "padding-top: 0.6rem;";
+    style += "flex-basis: 100%;";
+  style += "}";
+
+  style += ".signature_container > .signature_left {";
+    style += "flex: 4;";
+    style += "margin-right: 50px;";
+  style += "}";
+
+  style += ".signature_container > .signature_right {";
+    style += "flex: 1;";
+  style += "}";
+
+  style += "@media only screen and (max-width: 420px) {";
+    style += ".report_header > h1 {";
+      style += "font-size: 1.2rem;";
+    style += "}";
+
+    style += ".report_detail_container,";
+    style += ".items_table_container,";
+    style += ".totals_container {";
+      style += "flex-direction: column;";
+    style += "}";
+
+    style += "#order_box {";
+      style += "border: none;";
+    style += "}";
+
+    style += ".image_group {";
+      style += "flex-basis: 100%;";
+    style += "}";
+  style += "}";
+
+  return style;
+}
+
+
+
 export async function exportResumoHtml(objEdicao, urlAPICustomers)
 {
   let address = null;
@@ -83,6 +811,24 @@ export async function exportResumoHtml(objEdicao, urlAPICustomers)
   varText += "</div>";
   return varText;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export async function exportRelatorioHtml(objEdicao, urlAPICustomers)
 {
@@ -522,80 +1268,7 @@ varText += "<br>" + varAssinaturas;
 }*/
 
 
-varText += "<style>";
-
-  varText += "";
-  varText += "@page {";
-    //varText += " size: landscape; ";
-    varText += " size: A4; ";
-    varText += " margin: 2px; ";
-  varText += "}";
-  
-  varText += "@media print {";
-    varText += ".pagebreak { page-break-before: always; } ";
-    varText += ".page {";
-      varText += "margin: 0;";
-      varText += "border: initial;";
-      varText += "border-radius: initial;";
-      varText += "width: initial;";
-      varText += "min-height: initial;";
-      varText += "box-shadow: initial;";
-      varText += "background: initial;";
-      varText += "page-break-after: always;";
-    varText += "}";
-  varText += "}";
-
-
-  
-
-  /*varText += "table {";
-    varText += "width: 100%;";
-    varText += "border-collapse: collapse;";
-    varText += "text-align: left;";
-  varText += "}";*/
-
-
-
-
-
-  varText += "#wrapper thead, #wrapper tfoot ";
-  varText += "{";
-    varText += "background-color: #3f87a6;";
-    varText += "color: #fff;";
-  varText += "}";
-
-  varText += "#wrapper tbody {";
-    varText += "background-color: #e4f0f5;";
-  varText += "}";
-
-  varText += "#wrapper caption {";
-    varText += "padding: 10px;";
-    varText += "caption-side: bottom;";
-  varText += "}";
-
-  varText += "#wrapper table {";
-    varText += "border-collapse: collapse;";
-    varText += "border: 1px solid rgb(200, 200, 200);";
-
-    varText += "border-spacing: inherit!important;";
-    
-    //varText += "letter-spacing: 1px;";
-    //varText += "font-family: sans-serif;"
-    //varText += ""
-    //varText += "font-size: .8rem;";
-  varText += "}";
-
-  varText += "#wrapper th, #wrapper td";
-  varText += "{";
-    varText += "border: 1px solid rgb(190, 190, 190);";
-    varText += "padding: 5px 10px;";
-  varText += "}";
-
-  //varText += "#wrapper td {";
-    //varText += "text-align: center;";
-  //varText += "}";
-
-  varText += "</style>";
+varText += getStyle(); 
 
   varText += "</div>";
   
@@ -886,7 +1559,93 @@ function tabelaConteudoPackage(listOrderRooms){
   }
   html += "</tbody>";
   html += "</table>";
+
+  //console.log(getStyleNovo());
+
   return html;
 }
 
 //getItensOrdenadosImpressao(objList.items, 3);
+
+
+
+
+
+
+function getStyle(){
+
+  let style =  "";
+
+  style += "<style>";
+    style += "@page {";
+      //style += " size: landscape; ";
+      style += " size: A4; ";
+      style += " margin: 2px; ";
+    style += "}";
+  
+    style += "@media print {";
+      style += ".pagebreak { page-break-before: always; } ";
+      style += ".page {";
+        style += "margin: 0;";
+        style += "border: initial;";
+        style += "border-radius: initial;";
+        style += "width: initial;";
+        style += "min-height: initial;";
+        style += "box-shadow: initial;";
+        style += "background: initial;";
+        style += "page-break-after: always;";
+      style += "}";
+    style += "}";
+
+
+  
+
+  /*style += "table {";
+    style += "width: 100%;";
+    style += "border-collapse: collapse;";
+    style += "text-align: left;";
+  style += "}";*/
+
+
+
+
+
+  style += "#wrapper thead, #wrapper tfoot ";
+    style += "{";
+      style += "background-color: #3f87a6;";
+      style += "color: #fff;";
+    style += "}";
+
+  style += "#wrapper tbody {";
+    style += "background-color: #e4f0f5;";
+  style += "}";
+
+  style += "#wrapper caption {";
+    style += "padding: 10px;";
+    style += "caption-side: bottom;";
+  style += "}";
+
+  style += "#wrapper table {";
+    style += "border-collapse: collapse;";
+    style += "border: 1px solid rgb(200, 200, 200);";
+    style += "border-spacing: inherit!important;";
+    //style += "letter-spacing: 1px;";
+    //style += "font-family: sans-serif;"
+    //style += ""
+    //style += "font-size: .8rem;";
+  style += "}";
+
+  style += "#wrapper th, #wrapper td";
+  style += "{";
+    style += "border: 1px solid rgb(190, 190, 190);";
+    style += "padding: 5px 10px;";
+  style += "}";
+
+  //style += "#wrapper td {";
+    //style += "text-align: center;";
+  //style += "}";
+
+  style += "</style>";
+
+  return style;
+}
