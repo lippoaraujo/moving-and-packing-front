@@ -1,8 +1,48 @@
 import {execGet} from "@/helper/execRequests.js";
 
 
-export async function exportRelatorioHtmlNovo()
+
+export async function exportRelatorioHtmlNovo(objEdicao, urlAPICustomers)
 {
+
+  console.log(objEdicao);
+
+  //let objEndereco = null;
+  let objCliente = null;
+
+  let objEndereco= {
+    address: null,
+    postcode: null,
+    city: null,
+    locality: null,
+    country: null,
+  };
+
+  if (objEdicao.address_id == objEdicao.customer.primary_address_id) {
+
+    //o endereco e o mesmo do cliente
+    //buscar endereco do cliente
+    let urlGetCustomer = urlAPICustomers.concat(
+      "/" + objEdicao.customer.id
+    );
+    objCliente = await execGet(urlGetCustomer);
+    objEndereco.address = objCliente.primary_address.address;
+    objEndereco.postcode = objCliente.primary_address.postcode;
+    objEndereco.city = objCliente.primary_address.city;
+    objEndereco.locality = objCliente.primary_address.locality;
+    objEndereco.country = objCliente.primary_address.country;
+    //console.log(objCliente);
+  } else {
+    //e outro endereco
+    objEndereco.address = objEdicao.address.address;
+    objEndereco.postcode = objEdicao.address.postcode;
+    objEndereco.city = objEdicao.address.city;
+    objEndereco.locality = objEdicao.address.locality;
+    objEndereco.country = objEdicao.address.country;
+  }
+  let objUsuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+
   let html ='<div id="printMe">';
   
     html +='<div class="report">';
@@ -10,12 +50,12 @@ export async function exportRelatorioHtmlNovo()
         
         //html +='<header>';
         html +='<section>';
-          html += getHeader();
+          html += getHeader(objEdicao, objEndereco, objUsuarioLogado);
         //html +='</header>';
         html +='</section>';
 
         html +='<section>';
-          html += getComodos();
+          html += getComodos(objEdicao);
           //console.log(getComodos());
         html +='</section>';
 
@@ -61,11 +101,8 @@ export async function exportRelatorioHtmlNovo()
 }
 
 
-function getHeader()
+function getHeader(objEdicao, objEndereco, objUsuarioLogado)
 {
-
-  let objUsuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
-
   let header = null;
   header ='<div class="report_header">';
     header +='<h1>Itemized Customer Survey/Inventory</h1>';
@@ -79,13 +116,13 @@ function getHeader()
       header +='</div>';
       
       header +='<div class="order_details">';
-        header +='<span>Number: 15</span>';
+        header +='<span>Number: ' + objEdicao.id + '</span>';
         header +='<p>Total rooms: 2</p>';
-        header +='<p>Seller: LippoAraujo | admin@admin.com</p>';
+        header +='<p>Seller: ' + objEdicao.user.name + ' | '+ objEdicao.user.email +'</p>';
         header +='<p>Date: 20/01/2021</p>';
-        header +='<span>Delivery date: 28/01/2021</span>';
+        header +='<span>Delivery date: ' + objEdicao.expected_date + '</span>';
         header +='<p class="order_address">';
-          header +='Address: 107 Vailco Lane Austin, TX 78738';
+          header +='Address: ' + objEndereco.address + ' ' + objEndereco.postcode + ' ' + objEndereco.city + ' ' + objEndereco.locality + ' ' +objEndereco.country;
         header +='</p>';
       header +='</div>';
     header +='</div>';
@@ -95,9 +132,9 @@ function getHeader()
         header +='<h3>Customer</h3>';
       header +='</div>';
       header +='<div class="order_details">';
-        header +='<span>Name: Elias Siqueira</span>';
-        header +='<p>Phone: (650) 625-7045</p>';
-        header +='<p>Email: nicosiqueira@gmail.com</p>';
+        header +='<span>Name: ' + objEdicao.customer.name + '</span>';
+        header +='<p>Phone: ' + objEdicao.customer.phone + '</p>';
+        header +='<p>Email: ' + objEdicao.customer.email + '</p>';
       header +='</div>';
     header +='</div>';
   header +='</div>';
@@ -120,36 +157,130 @@ function getHeader()
   return header;
 }
 
-function getComodos(){
-  let htmlComodo = '';
+function getComodos(objEdicao){
+
+
+let htmlComodo = '';
+
+
+let listaComodo = objEdicao.order_rooms;
+let totalComodo = 0;
+for(totalComodo; totalComodo < listaComodo.length; totalComodo++) {
+
+
+
+  
+
+
   htmlComodo += '<div class="items_container">';
-    htmlComodo += '<h3>Bedroom</h3>';
 
-    htmlComodo += '<div class="items_table_container">';
+  let como = listaComodo[totalComodo];
+  let objComodo = como.room;
+  
+  let itemsComodos = getItensOrdenadosImpressao(como.items, 2); 
+
+  htmlComodo += '<h3>' + objComodo.name + '</h3>';
+
+  htmlComodo += '<div class="items_table_container">';
+
+        let incrItem=0;
+        let arrayObs = [];
+        htmlComodo += '<table id="tableReport">';
+
+
+
+
+        if(itemsComodos[0].length > 1){
+          htmlComodo += '<tr>';
+            htmlComodo += '<th class="item_qtd">#</th>';
+            htmlComodo += '<th class="item_desc">Item Description</th>';
+            htmlComodo += '<th class="item_cft">CFt.</th>';
+
+            htmlComodo += '<th class="item_qtd">#</th>';
+            htmlComodo += '<th class="item_desc">Item Description</th>';
+            htmlComodo += '<th class="item_cft">CFt.</th>';
+          htmlComodo += '</tr>';
+        } else {
+          htmlComodo += '</tr>';
+            htmlComodo += '<th class="item_qtd">#</th>';
+            htmlComodo += '<th class="item_desc">Item Description</th>';
+            htmlComodo += '<th class="item_cft">CFt.</th>';
+          htmlComodo += '</tr>';
+        }
+
+
+        let totCubic = 0;
+        for(incrItem; incrItem<itemsComodos.length; incrItem++){
+
+          
+
+          //htmlComodo += '<tr>';
+            //htmlComodo += '<th class="item_qtd">#</th>';
+            //htmlComodo += '<th class="item_desc">Item Description</th>';
+            //htmlComodo += '<th class="item_cft">CFt.</th>';
+          //htmlComodo += '</tr>';
+
+          let listaItem = itemsComodos[incrItem];
+          //let item=0;
+          let b = 0;
+          for (b; b < listaItem.length; b++) {
+            let item = listaItem[b];
+            totCubic = totCubic + Number( item.cubic_feet * item.pivot.quantity);
+            let objObs = new Object();
+            objObs.item = item.name;
+            objObs.obs = item.pivot.obs;
+            arrayObs.push(objObs);
+          }
+
+          console.log("ARRAY OBS ", arrayObs);
+  
+          let a=0;
+          let cont = 0;
+          for(a; a<listaItem.length; a++){
+            if(cont==0){
+              htmlComodo += "<tr>";
+            }
+            let item = listaItem[a];
+            
+            htmlComodo += "<td>" + item.pivot.quantity + "</td>";
+            htmlComodo += "<td>" + item.name + "</td>";
+            htmlComodo += "<td>" + (item.cubic_feet * item.pivot.quantity).toFixed(2) + "</td>";
+
+              
+            if(listaItem[a+1]!=undefined){
+              a = a +1;  
+              let item2 = listaItem[a];
+              htmlComodo += "<td>" + item2.pivot.quantity + "</td>";
+              htmlComodo += "<td>" + item2.name + "</td>";
+              htmlComodo += "<td>" + (item2.cubic_feet * item2.pivot.quantity).toFixed(2) + "</td>";
+            }
+            cont = cont + 1;
+            if(cont==2){
+              cont = 0;
+              htmlComodo += "</tr>";
+            }
+          }
+
+          /*for(item; item<listaItem.length; item++){
+            htmlComodo += '<tr>';
+              htmlComodo += '<td class="item_qtd">' + listaItem[item].pivot.quantity + '</td>';
+              htmlComodo += '<td class="item_desc">' + listaItem[item].name + '</td>';
+              htmlComodo += '<td class="item_cft">' + (listaItem[item].cubic_feet * listaItem[item].pivot.quantity).toFixed(2) + '</td>';
+            htmlComodo += '</tr>';
+          }*/
+          
+        }
+        htmlComodo += '</table>';
+
+        /*htmlComodo += '<tr>';
+          htmlComodo += '<td class="item_qtd">1</td>';
+          htmlComodo += '<td class="item_desc">Bed - Queen</td>';
+          htmlComodo += '<td class="item_cft">65.0</td>';
+        htmlComodo += '</tr>';*/
+
       
-      htmlComodo += '<table id="tableReport">';
 
-        htmlComodo += '<tr>';
-          htmlComodo += '<th class="item_qtd">#</th>';
-          htmlComodo += '<th class="item_desc">Item Description</th>';
-          htmlComodo += '<th class="item_cft">CFt.</th>';
-        htmlComodo += '</tr>';
-
-        htmlComodo += '<tr>';
-          htmlComodo += '<td class="item_qtd">1</td>';
-          htmlComodo += '<td class="item_desc">Bed - Queen</td>';
-          htmlComodo += '<td class="item_cft">65.0</td>';
-        htmlComodo += '</tr>';
-
-        htmlComodo += '<tr>';
-          htmlComodo += '<td class="item_qtd">1</td>';
-          htmlComodo += '<td class="item_desc">Bed - Queen</td>';
-          htmlComodo += '<td class="item_cft">65.0</td>';
-        htmlComodo += '</tr>';
-
-      htmlComodo += '</table>';
-
-      htmlComodo += '<table id="tableReport">';
+      /*htmlComodo += '<table id="tableReport">';
         
         htmlComodo += '<tr>';
           htmlComodo += '<th class="item_qtd">#</th>';
@@ -169,22 +300,70 @@ function getComodos(){
           htmlComodo += '<td class="item_cft">65.0</td>';
         htmlComodo += '</tr>';
 
-      htmlComodo += '</table>';
+      htmlComodo += '</table>';*/
     
     htmlComodo += '</div>';
 
+    if(arrayObs.length>0){
+      htmlComodo += '<h4>Observações</h4>';
+
+      htmlComodo += '<div class="items_table_container">';
+
+        htmlComodo += '<table id="tableReport">';
+
+        htmlComodo += '<tr>';
+          htmlComodo += '<th class="item_qtd">Item</th>';
+          htmlComodo += '<th class="item_desc">Observação</th>';
+        htmlComodo += '</tr>';
+
+        let totObs=0;
+        for(totObs; totObs<arrayObs.length; totObs++){
+          let objObs = arrayObs[totObs];
+          htmlComodo += '<tr>';
+            htmlComodo += '<td >' + objObs.item + '</td>';
+            htmlComodo += '<td >' + objObs.obs + '</td>';
+          htmlComodo += '</tr>';
+        }
+
+        htmlComodo += '</table>';
+
+      htmlComodo += '</div>';
+    }
+
+    let totCuMete = (totCubic/35.15);
+    let totLb = (totCuMete*2.205);
+    
     htmlComodo += '<div class="items_totals_container">';
         htmlComodo += '<div class="items_totals">';
           htmlComodo += '<p>Total Cubic Feet:</p>';
-          htmlComodo += '<span>112.0</span>';
+          htmlComodo += '<p>' + totCubic.toFixed(2) + '</p>';
+
+          htmlComodo += '&nbsp;&nbsp;<p>Total Cubic Meter:</p>';
+          htmlComodo += '<p>' + totCuMete.toFixed(2) + '</p>';
+
+          htmlComodo += '&nbsp;&nbsp;<p>Total Weight (lbs.):</p>';
+          htmlComodo += '<p>' + totLb.toFixed(2) + '</p>';
+
         htmlComodo += '</div>';
 
-        htmlComodo += '<div class="items_totals">';
-          htmlComodo += '<p>Total Weight (lbs.):</p>';
-          htmlComodo += '<span>756.0</span>';
-        htmlComodo += '</div>';
+        //htmlComodo += '<div class="items_totals">';
+          //htmlComodo += '<p>Total Cubic Meter:</p>';
+          //htmlComodo += '<span>' + totCuMete.toFixed(2) + '</span>';
+        //htmlComodo += '</div>';
+
+        //htmlComodo += '<div class="items_totals">';
+          //htmlComodo += '<p>Total Weight (lbs.):</p>';
+          //htmlComodo += '<span>' + totLb.toFixed(2) + '</span>';
+        //htmlComodo += '</div>';
+
       htmlComodo += '</div>';
+
+      
+      
   htmlComodo += '</div>';
+
+}
+    
   return htmlComodo;
 }
 

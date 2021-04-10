@@ -41,7 +41,7 @@ let refreshSubscribers = [];
 _axios.interceptors.response.use(
   function (response) {
     // Do something with response data
-    console.log("recebendo resposta OK: ", response);
+    // console.log("recebendo resposta OK: ", response);
     return response;
   },
   function (error) {
