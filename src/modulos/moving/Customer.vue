@@ -102,9 +102,9 @@
                           :rules="foneRules"
                           label="Telefone"
                           required
-                          placeholder="(###) ###-####"
+                          placeholder="+# (###) ###-####"
                           type="text"
-                          v-mask="['(###) ###-####']"
+                          v-mask="['+# (###) ###-####']"
                           outlined
                         ></v-text-field>
                       </v-col>
