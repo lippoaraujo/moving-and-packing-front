@@ -64,7 +64,6 @@
 </template>
 
 <script>
-//import { getModulosUser } from "@/helper/getModulosRotasActionsUserLogado.js";
 import { getListModules } from "@/helper/listRoutes.js";
 import { getPermissionModule } from "@/helper/getPermission.js";
 

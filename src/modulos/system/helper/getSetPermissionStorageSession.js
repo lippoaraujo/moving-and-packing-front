@@ -1,3 +1,5 @@
+import { getListModules } from "@/helper/listRoutes.js";
+import { execGet } from "@/helper/execRequests.js";
 /*
 export function setComodoStorageSession(idMudanca=null, comodo,  obs=null, posicaoArray=null, objComodoOriginarioEdit=null, idOrigemPivot=null )
 {
@@ -90,47 +92,100 @@ export function setComodoStorageSession(idMudanca=null, comodo,  obs=null, posic
 } 
 */
 
-export function getListPermissionStorageSession(modulo=null, grupoPermission=null )
+export function getListPermissionStorageSession(modulo, grupoPermission)
 {
-  console.log(grupoPermission);
-  //console.log(modulo);
-  let listModulos = JSON.parse(localStorage.getItem("permissoesExecucao"));
-  //return listModulos;
+  let listModule = getListModules();
   let retorno = [];
-  if(listModulos != null){
+  if(listModule != null){
     let b = 0;
-    for(b; b<listModulos.length; b++){
-      let objModulo =  listModulos[b];
-      if(modulo != null){
-        if(modulo.id===0){
-          retorno.push(objModulo);
-        }else{
-          if(modulo.id === objModulo.id){
-            retorno.push(objModulo);
-            /*console.log(objModulo.name);
-            let listRoute = objModulo.routes_permissions; 
-            let r = 0;
-            for(r; r<listRoute.length; r++){
-  
-              let rota = listRoute[r];
-              console.log(rota.name);
-              let listAction = rota.actions;
-              let a = 0;
-              for(a; a<listAction.length; a++){
-  
-                let action = listAction[a];
-                console.log(action.name);
-              }
-            }*/
-          }
+    for(b; b<listModule.length; b++){
+      let objPermission =  listModule[b];
+      if(objPermission != null){
+        if(objPermission.name === modulo.name){
+          retorno.push(objPermission);
         }
-      }else{
-        retorno.push(objModulo);
       }
     }
-    //retorno.push(modulo);
+    retorno =  setaPermissaoPorRole(retorno, grupoPermission);
   }
   return retorno;
+}
+
+
+async function setaPermissaoPorRole(listaModulo, role)
+{
+  /*
+  lista as permissoes do role vindas do back
+  percorre a listaModulo e o que for encontrando
+  vai dando um check pra que no front monte a tela
+  com os checkbox marcados ou nao de acordo com as permissoes
+  reais do role.
+  marcar ou nao um check no objeto menu tambem.
+  */
+ 
+  let permissionRole = await getPermissionRole(role);
+  let listaModuloRetorno = [];
+  let mod = 0;
+  for(mod; mod<listaModulo.length; mod++){
+    let objModulo = listaModulo[mod];
+    let listaMenu = objModulo.menu;
+    let totMenu = 0;
+
+    let listMenu = [];
+    for(totMenu; totMenu<listaMenu.length; totMenu++){
+      let objMenu = listaMenu[totMenu];
+      let listActions = objMenu.actions;
+      let objMenuRetorno = setCheckedPermission(listActions, permissionRole);
+      objMenu.actions = objMenuRetorno.listAction;
+      objMenu.checked = objMenuRetorno.checked;
+      listMenu.push(objMenu);
+    }
+    objModulo.menu = listMenu;
+    listaModuloRetorno.push(objModulo);
+  }
+  //console.log("listaModuloRetorno ", listaModuloRetorno);
+  //console.log("permissionRole ",permissionRole);
+  //console.log("listaModulo ",listaModulo);
+  return listaModuloRetorno; 
+}
+
+async function getPermissionRole(role)
+{
+  try {
+    let url = process.env.VUE_APP_URL_CONNECTION + "/system/roles";
+    let urlnova = url.concat("/" + role.id);
+    let newRole = await execGet(urlnova);
+    return newRole.permissions;
+  } catch (e) {
+    this.$dialog.error({
+      title: "Erro list Role",
+      text: e,
+    });
+  }
+}
+
+function setCheckedPermission (listActions, permissionRole){
+  
+  let totAct = 0;
+  let listReturn = [];
+
+  let objMenuRetorno = new Object();
+  objMenuRetorno.checked = false;
+  for(totAct; totAct < listActions.length; totAct++){
+    let action = listActions[totAct];
+    let totPermission = 0;
+    action.checked = false;
+    for(totPermission; totPermission < permissionRole.length; totPermission++){
+      let permission = permissionRole[totPermission];
+      if(action.name === permission.name){
+        action.checked = true;
+        objMenuRetorno.checked = true;
+      }
+    }
+    listReturn.push(action);
+  }
+  objMenuRetorno.listAction = listReturn; 
+  return objMenuRetorno;
 }
 
 /*

@@ -186,11 +186,6 @@ export function getListModules(){
         ]
       },
 
-
-
-
-
-
       {
         "name": "permission",
         "nameExibicao": "Permissions",
