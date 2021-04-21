@@ -195,8 +195,6 @@
 </template>
 <script>
 import { mask } from "vue-the-mask";
-
-//import { getObjMenu } from "@/helper/getModulosRotasActionsUserLogado.js";
 import { getObjMenu } from "@/helper/listRoutes.js";
 
 import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";

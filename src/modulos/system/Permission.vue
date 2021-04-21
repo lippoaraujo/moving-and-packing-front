@@ -33,12 +33,13 @@
                 <v-col>
                   <v-select
                     v-model="selectGrupoUsuario"
-                    :items="listaGrupoPermissao"
-                    label="Grupo do usuario"
+                    :items="this.listaRoles"
+                    label="Role"
                     item-text="name"
                     item-value="id"
                     return-object
                     outlined
+                    @change="setListModulesSelect"
                   ></v-select>
                 </v-col>
                 <v-col>
@@ -93,9 +94,7 @@
                                 }}
                               </tr>
                               <tr
-                                v-for="(
-                                  itemMenu, key
-                                ) in modulo.routes_permissions"
+                                v-for="(itemMenu, key) in modulo.menu"
                                 :key="key"
                               >
                                 <td>
@@ -121,13 +120,7 @@
                                           <v-checkbox
                                             :label="actions.name"
                                             v-model="listaActioncheked"
-                                            :value="
-                                              actions.name +
-                                              '_' +
-                                              itemMenu.id +
-                                              '_' +
-                                              itemMenu.id
-                                            "
+                                            :value="actions.name"
                                             color="blue darken-4"
                                           ></v-checkbox>
                                         </td>
@@ -176,35 +169,33 @@
         </v-tab-item>
       </v-tabs-items>
     </v-col>
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </v-row>
 </template>
 <script>
-import { mask } from "vue-the-mask";
-
-import {
-  getObjMenu,
-  getModulosUser,
-} from "@/helper/getModulosRotasActionsUserLogado.js";
-
+import { getObjMenu } from "@/helper/listRoutes.js";
 import {
   //execPost,
   execGet,
 } from "@/helper/execRequests.js";
-
 import { getListPermissionStorageSession } from "@/modulos/system/helper/getSetPermissionStorageSession.js";
-
+import { getListModules } from "@/helper/listRoutes.js";
 export default {
-  directives: { mask },
-  name: "User",
+  name: "Permission",
 
   data: () => ({
+    overlay: false,
     panelList: [],
+    urlAPIRoles: process.env.VUE_APP_URL_CONNECTION + "/system/roles",
     urlAPIGrupoUser: process.env.VUE_APP_URL_CONNECTION + "/system/usergroups",
     urlAPIRoutes: process.env.VUE_APP_URL_CONNECTION + "system/routes",
 
     selectGrupoUsuario: null,
     selectModulosGrupoUsuario: null,
     listaModulos: [],
+    listaRoles: [],
     menu: "",
     //headerRequest: "",
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/system/dashboard",
@@ -384,12 +375,12 @@ export default {
 
     //grid
     //form
-    valid: true,
+    /*valid: true,
     nameRules: [
       (v) => !!v || "Name e obrigatório",
       (v) =>
         (v && v.length <= 200) || "O Name deve ter no máximo 200 caracteres",
-    ],
+    ],*/
   }),
 
   created() {
@@ -409,8 +400,7 @@ export default {
     window.onpopstate = () => {
       location.reload();
     };
-    await this.getListaGrupoPermissao();
-    this.listaModulos = this.preencherSelectModulo();
+    await this.getListRole();
     //this.listaModule = getListPermissionStorageSession();
   },
 
@@ -435,111 +425,135 @@ export default {
   },
 
   methods: {
-    preencherPermissaoPorModulos: function () {
+    preencherTodasAcoesMenu: function (itemMenu) {
+      //console.log(this.listaMenucheked);
+      //console.log("listaActioncheked ", this.listaActioncheked);
+      //console.log("itemMenu ", itemMenu);
+
+      for (let i = 0; i < itemMenu.actions.length; i++) {
+        let action = itemMenu.actions[i];
+
+        //let itemChecked = action.name + action.id;
+        let itemChecked = action.name;
+
+        console.log("item para teste ", itemChecked);
+
+        //console.log(itemChecked);
+        if (this.listaActioncheked.indexOf(itemChecked) === -1) {
+          console.log("adiciona ");
+          // Insere o número pois ele não existe
+          this.listaActioncheked.push(itemChecked);
+          //this.marcaDescmarcaCheckPermissao(true, itemChecked);
+        } else {
+          console.log("retira ");
+          //retira
+          this.listaActioncheked.splice(itemChecked, 1);
+          //this.marcaDescmarcaCheckPermissao(false, itemChecked);
+        }
+      }
+    },
+
+    /*marcaDescmarcaCheckPermissao: function (check, nameAction) {
+      let totMod = 0;
+      for (totMod; totMod < this.listaModule.length; totMod++) {
+        let objModulo = this.listaModule[totMod];
+
+        let listMenu = objModulo.menu;
+        let totMen = 0;
+
+        let novaListaMenu = [];
+        for (totMen; totMen < listMenu.length; totMen++) {
+          let objMenu = listMenu[totMen];
+          let listAction = objMenu.actions;
+          let totAct = 0;
+          let novaListaActio = [];
+          for (totAct; totAct < listAction.length; totAct++) {
+            let act = listAction[totAct];
+            //let nameAct = act.name + act.id;
+            let nameAct = act.name;
+            console.log("nameAct ", nameAct);
+            console.log("nameActTeste ", nameAction);
+            if (nameAct === nameAction) {
+              act.checked = check;
+            }
+            novaListaActio.push(act);
+          }
+          objMenu.actions = novaListaActio;
+          novaListaMenu.push(objMenu);
+        }
+        objModulo.menu = novaListaMenu;
+
+        this.listaModule.splice(totMod, 1, objModulo);
+
+        console.log("listaModule ", this.listaModule);
+
+        //var items = Array(523,3452,334,31, ...5346);
+        //items.splice(1, 1, 1010);
+        //A operação de emenda removerá 1 item,
+        //começando na posição 1 na matriz (ou seja 3452),
+        //e o substituirá pelo novo item 1010.
+        this.$forceUpdate();
+      }
+    },*/
+
+    reset: function () {},
+    salvar: function () {},
+
+    setListModulesSelect: function () {
+      let list = getListModules();
+      let i;
+      let lisRetorno = [];
+      this.panelList = [];
+      for (i = 0; i < list.length; i++) {
+        let objModulo = list[i];
+        this.panelList.push(i);
+        lisRetorno[i] = objModulo;
+      }
+      this.listaModulos = lisRetorno;
+    },
+
+    getListRole: async function () {
+      try {
+        this.listaRoles = await execGet(this.urlAPIRoles);
+      } catch (e) {
+        this.$dialog.error({
+          title: "Erro list Role",
+          text: e,
+        });
+      }
+    },
+
+    preencherPermissaoPorModulos: async function () {
+      this.overlay = true;
+      this.listaActioncheked = [];
       let modulo = this.selectModulosGrupoUsuario;
-      this.listaModule = getListPermissionStorageSession(modulo, null);
+      let grupoUser = this.selectGrupoUsuario;
+      this.listaModule = await getListPermissionStorageSession(
+        modulo,
+        grupoUser
+      );
       this.panelList = [];
       this.listaMenucheked = [];
       let i = 0;
       for (i; i < this.listaModule.length; i++) {
         let modulo = this.listaModule[i];
         let men = 0;
-        for (men; men < modulo.routes_permissions.length; men++) {
-          let menu = modulo.routes_permissions[men];
-          console.log(menu);
-          if (menu.is_menu) {
+        for (men; men < modulo.menu.length; men++) {
+          let menu = modulo.menu[men];
+          if (menu.checked) {
             this.listaMenucheked.push(menu.name);
-            //console.log(menu);
-            let act = 0;
-            for (act; act < menu.actions.length; act++) {
-              let action = menu.actions[act];
-              //:value="actions.name + '_' + itemMenu.id + '_' + itemMenu.id"
-              this.listaActioncheked.push(
-                action.name + "_" + menu.id + "_" + action.id
-              );
-              //console.log(action);
+          }
+          let act = 0;
+          for (act; act < menu.actions.length; act++) {
+            let action = menu.actions[act];
+            if (action.checked) {
+              this.listaActioncheked.push(action.name);
             }
           }
         }
         this.panelList.push(i);
       }
-      console.log(this.listaMenucheked);
-      console.log(this.listaActioncheked);
-    },
-
-    preencherSelectModulo: function () {
-      let list = getModulosUser();
-      let i;
-      let lisRetorno = [];
-      let obj = new Object();
-      obj.id = 0;
-      obj.name = " ";
-      this.panelList = [];
-      lisRetorno.push(obj);
-      for (i = 0; i < list.length; i++) {
-        let objModulo = list[i];
-        this.panelList.push(i);
-        lisRetorno[i + 1] = objModulo;
-      }
-      return lisRetorno;
-    },
-
-    preencherTodasAcoesMenu: function (itemMenu) {
-      console.log("aq");
-      console.log(this.listaMenucheked);
-      console.log(this.listaActioncheked);
-      console.log(itemMenu);
-      console.log("aq");
-
-      for (let i = 0; i < itemMenu.actions.length; i++) {
-        let action = itemMenu.actions[i];
-        let itemChecked = action.name + itemMenu.id;
-        //console.log(itemChecked);
-        if (this.listaActioncheked.indexOf(itemChecked) === -1) {
-          // Insere o número pois ele não existe
-          this.listaActioncheked.push(itemChecked);
-        } else {
-          //retira
-          this.listaActioncheked.splice(itemChecked, 1);
-        }
-      }
-    },
-
-    reset: function () {},
-    salvar: function () {},
-
-    //urlAPIRoutes
-
-    getListaGrupoPermissao: async function () {
-      try {
-        this.objLoadingGrid = true;
-
-        let list = await execGet.call(
-          this,
-          this.urlAPIGrupoUser,
-          this.headerRequest
-        );
-
-        let obj = new Object();
-        obj.id = 0;
-        obj.name = " ";
-        let i = 0;
-        this.listaGrupoPermissao = [];
-        this.listaGrupoPermissao.push(obj);
-        for (i; i < list.length; i++) {
-          this.listaGrupoPermissao.push(list[i]);
-        }
-      } catch (e) {
-        this.$dialog.message.error(
-          "Erro consultar dados Grupo Permissao: " + e.message,
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
-      } finally {
-        this.objLoadingGrid = false;
-      }
+      this.overlay = false;
     },
   },
 };

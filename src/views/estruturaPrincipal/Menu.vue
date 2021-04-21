@@ -56,12 +56,6 @@
   </v-navigation-drawer>
 </template>
 <script>
-/*
-import {
-  getMenusModulo,
-  getModulo,
-} from "@/helper/getModulosRotasActionsUserLogado.js";*/
-
 import { getListMenuModule, getListModules } from "@/helper/listRoutes.js";
 import { getPermissionMenu } from "@/helper/getPermission.js";
 
