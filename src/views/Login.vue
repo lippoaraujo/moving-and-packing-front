@@ -42,12 +42,12 @@
                       <div class="text-center mt3">
                         <!--<v-btn rounded outlined dark> Logar </v-btn>-->
                         <h5
-                          title="esqueceu a senha?"
+                          :title="$t('tradEsqueceuSenha')"
                           style="cursor: pointer"
                           class="white--text"
                           @click="step++"
                         >
-                          Esqueceu a senha
+                          {{ $t("tradEsqueceuSenha") }}
                           <v-icon dark> mdi-progress-question </v-icon>
                         </h5>
                       </div>
@@ -64,10 +64,10 @@
                     >
                       <v-card-text class="text--white mt-2">
                         <h3 class="text-center Heading 4">
-                          Acesso ao sistema.
+                          {{ $t("tradTituloLogin") }}
                         </h3>
                         <p class="text-center Heading 6">
-                          Informe as credenciais para acessar o sistema!
+                          {{ $t("tradSubTituloLogin") }}
                         </p>
                         <!--<h5 class="text-center">
                           https://www.youtube.com/watch?v=jWoy_LQydvk
@@ -87,7 +87,7 @@
                             :rules="emailRules"
                           />
                           <v-text-field
-                            label="Senha"
+                            :label="$t('tradSenha')"
                             v-model="objForm.senha"
                             :append-icon="
                               valuePassword ? 'mdi-eye-off' : 'mdi-eye'
@@ -101,18 +101,71 @@
                           />
                           <v-checkbox
                             v-model="objForm.checkContinuarConectado"
-                            label="continuar conectado?"
+                            :label="$t('tradContinuarConectado')"
                             color="primary"
                             :value="true"
                             hide-details
                           ></v-checkbox>
+
+                          <v-radio-group
+                            :label="$t('tradLinguagem')"
+                            row
+                            v-model="radioLingauagem"
+                          >
+                            <v-radio v-on:click="setLocaleClick()" value="en">
+                              <template v-slot:label>
+                                <v-avatar
+                                  class="my-3 elevation-12"
+                                  color="white"
+                                  size="40"
+                                >
+                                  <img src="@/assets/us.svg" />
+                                </v-avatar>
+                              </template>
+                            </v-radio>
+                            <v-radio
+                              v-on:click="setLocaleClick()"
+                              value="pt-BR"
+                            >
+                              <template v-slot:label>
+                                <v-avatar
+                                  class="my-3 elevation-12"
+                                  color="white"
+                                  size="40"
+                                >
+                                  <img src="@/assets/br.svg" />
+
+                                  <!--<img
+                                src="https://placekitten.com/300/300"
+                                size="1em"
+                            /> -->
+                                </v-avatar>
+                              </template>
+                            </v-radio>
+                            <v-radio v-on:click="setLocaleClick()" value="es">
+                              <template v-slot:label>
+                                <v-avatar
+                                  class="my-3 elevation-12"
+                                  color="white"
+                                  size="40"
+                                >
+                                  <img src="@/assets/es.svg" />
+
+                                  <!--<img
+                                src="https://placekitten.com/300/300"
+                                size="1em"
+                            /> -->
+                                </v-avatar>
+                              </template>
+                            </v-radio>
+                          </v-radio-group>
                         </v-form>
                       </v-card-text>
 
                       <div class="text-center mt3">
                         <v-btn @click="logar" color="blue darken-3" dark>
                           <v-icon left> mdi-login-variant </v-icon>
-                          Logar
+                          {{ $t("tradBtLogar") }}
                         </v-btn>
                       </div>
                     </v-col>
@@ -131,16 +184,17 @@
                       class="white rounded-l-lg"
                     >
                       <v-card-text class="text--white mt-8">
-                        <h3 class="text-center Heading 4">Recuperar senha</h3>
+                        <h3 class="text-center Heading 4">
+                          {{ $t("tradRecuperarSenha") }}
+                        </h3>
                         <p class="text-center Heading 6">
-                          Informe seu e-mail para iniciar o processo de
-                          recuperação de senha
+                          {{ $t("tradRecuperarSenhaTexto") }}
                         </p>
                         <v-form>
                           <br />
                           <v-text-field
                             prepend-inner-icon="mdi-email-plus-outline"
-                            label="Informe seu e-mail"
+                            :label="$t('tradInformeSeuEmail')"
                             type="E-mail"
                             color="blue darken-3"
                             :rules="emailRules"
@@ -152,7 +206,7 @@
                       <div class="text-center mt3">
                         <v-btn color="blue darken-4" dark>
                           <v-icon left> mdi-email-plus-outline </v-icon>
-                          Recuperar senha
+                          {{ $t("tradBtRecuperarSenha") }}
                         </v-btn>
                       </div>
                     </v-col>
@@ -196,7 +250,8 @@
                           class="white--text"
                           @click="step--"
                         >
-                          Acessar sistema
+                          {{ $t("tradBtAcessarSistema") }}
+
                           <v-icon dark> mdi-login-variant </v-icon>
                         </h5>
                       </div>
@@ -229,6 +284,8 @@ export default {
     overlay: false,
     valuePassword: true,
 
+    radioLingauagem: "en",
+
     objForm: {
       email: "",
       senha: "",
@@ -238,12 +295,6 @@ export default {
     objFormRecuperaSenha: {
       email: "",
     },
-
-    emailRules: [
-      (v) => !!v || "E-mail é obrigatorio",
-      (v) => /.+@.+\..+/.test(v) || "E-mail inválido!",
-    ],
-    passwordRules: [(v) => !!v || "Senha é obrigatorio"],
   }),
   props: {
     source: String,
@@ -276,7 +327,38 @@ export default {
   },
   mounted() {
     this.nomeApp = process.env.VUE_APP_NAME_APLICATION;
+
+    let linguagem = localStorage.getItem("linguagemUsuario");
+
+    console.log("linguagem ", linguagem);
+
+    if (linguagem != null) {
+      this.$i18n.locale = linguagem;
+    } else {
+      let userLanguage = (navigator.languages && navigator.languages[0]) || "";
+      this.$i18n.locale = userLanguage;
+      this.radioLingauagem = userLanguage;
+      //console.log("userLanguage", userLanguage);
+      //let userLanguageResumida = (
+      //(navigator.languages && navigator.languages[0]) ||
+      //""
+      //).substr(0, 2);
+      //console.log("userLanguageResumida", userLanguageResumida);
+    }
+
     this.checkUserLogado();
+  },
+
+  computed: {
+    emailRules() {
+      return [
+        (v) => !!v || +this.$t("tradEmailObrigatorio"),
+        (v) => /.+@.+\..+/.test(v) || this.$t("tradEmailInvalido"),
+      ];
+    },
+    passwordRules() {
+      return [(v) => !!v || this.$t("tradSenhaObrigatoria")];
+    },
   },
 
   create: function () {
@@ -284,6 +366,12 @@ export default {
     this.overlay = false;
   },
   methods: {
+    setLocaleClick() {
+      let linguagem = this.radioLingauagem;
+      console.log(linguagem);
+      this.$i18n.locale = linguagem;
+    },
+
     /*logar: function () {
       this.overlay = true;
       setTimeout(() => this.$router.push("modulos"), 3000);
@@ -425,6 +513,9 @@ export default {
 
         localStorage.setItem("usuarioLogado", JSON.stringify(userLoged));
 
+        //seta linguagem
+        localStorage.setItem("linguagemUsuario", this.$i18n.locale);
+
         this.$router.push("modulos");
       } catch (e) {
         this.$dialog.error({
@@ -519,5 +610,8 @@ export default {
     rgba(9, 46, 100, 1) 0%,
     rgba(13, 71, 161, 1) 100%
   );
+}
+.container img {
+  margin-right: 0px !important ;
 }
 </style>
