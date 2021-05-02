@@ -1,0 +1,17 @@
+{
+  "tradTituloLogin": "Acesso ao sistema.",
+  "tradSubTituloLogin": "Informe as credenciais para acessar o sistema!",
+  "tradSenha": "Senha",
+  "tradContinuarConectado": "Continuar conectado?",
+  "tradLinguagem": "Linguagem",
+  "tradBtLogar": "Logar",
+  "tradEsqueceuSenha": "Esquceu a senha?",
+  "tradRecuperarSenha": "Recuperar senha",
+  "tradRecuperarSenhaTexto": "Informe seu e-mail para iniciar o processo de recuperação de senha",
+  "tradInformeSeuEmail": "Informe seu e-mail",
+  "tradBtRecuperarSenha": "Recuperar senha",
+  "tradBtAcessarSistema": "Acessar sistema",
+  "tradEmailObrigatorio": "E-mail é obrigatorio",
+  "tradEmailInvalido": "E-mail inválido!",
+  "tradSenhaObrigatoria": "Senha é obrigatorio"
+}
