@@ -75,7 +75,7 @@
                         <!--<h5>Informe o e-mail</h5>-->
                         <v-form
                           v-on:submit.prevent="logar(objForm)"
-                          ref="form"
+                          ref="formLogar"
                           lazy-validation
                         >
                           <v-text-field
@@ -275,6 +275,8 @@
 
 import { execGet } from "@/helper/execRequests.js";
 
+//olhar isso https://github.com/vuetifyjs/vuetify/blob/master/packages/docs/src/examples/v-form/prop-rules.vue
+
 export default {
   data: () => ({
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/auth/login",
@@ -295,6 +297,9 @@ export default {
     objFormRecuperaSenha: {
       email: "",
     },
+
+    //emailRules: [],
+    //passwordRules: [],
   }),
   props: {
     source: String,
@@ -370,6 +375,7 @@ export default {
       let linguagem = this.radioLingauagem;
       console.log(linguagem);
       this.$i18n.locale = linguagem;
+      this.$refs.formLogar.validate();
     },
 
     /*logar: function () {

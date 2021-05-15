@@ -1,0 +1,17 @@
+{  
+  "tradTituloLogin": "Acceso al sistema.",
+  "tradSubTituloLogin": "¡Ingrese las credenciales para acceder al sistema!",
+  "tradSenha": "Contraseña",
+  "tradContinuarConectado": "¿Mantente conectado?",
+  "tradLinguagem": "Idioma",
+  "tradBtLogar": "Iniciar sesión en",
+  "tradEsqueceuSenha": "¿Olvidaste tu contraseña?",
+  "tradRecuperarSenha": "Recuperar contraseña",
+  "tradRecuperarSenhaTexto": "Ingrese su correo electrónico para iniciar el proceso de recuperación de contraseña",
+  "tradInformeSeuEmail": "Introduce tu correo electrónico",
+  "tradBtRecuperarSenha": "Recuperar contraseña",
+  "tradBtAcessarSistema": "Sistema de acceso",
+  "tradEmailObrigatorio": "Correo electronico es requerido",
+  "tradEmailInvalido": "¡Email inválido!",
+  "tradSenhaObrigatoria": "Se requiere contraseña"
+}
