@@ -4,7 +4,15 @@
       <v-row>
         <v-col>
           <v-icon> {{ menu.icon }}</v-icon>
-          <span class="subtitle-1">{{ menu.nameExibicao }}</span>
+          <span class="subtitle-1" v-if="linguagem === 'en'">
+            {{ menu.nameExibicao }}
+          </span>
+          <span class="subtitle-1" v-if="linguagem === 'pt-BR'">
+            {{ menu.nameExibicaoPtBr }}
+          </span>
+          <span class="subtitle-1" v-if="linguagem === 'es'">
+            {{ menu.nameExibicaoEs }}
+          </span>
         </v-col>
       </v-row>
       <v-row>
@@ -35,7 +43,7 @@
                   <v-text-field
                     v-model="search"
                     append-icon="mdi-card-search-outline"
-                    label="Consulta rapida"
+                    :label="$t('tradLabelConsultaGrid')"
                     single-line
                     hide-details
                   ></v-text-field>
@@ -45,18 +53,24 @@
                   :items="desserts"
                   multi-sort
                   :loading="objLoadingGrid"
-                  loading-text="Carregando... Aguarde"
+                  :loading-text="$t('tradLoadConsultaGrid')"
                   :search="search"
+                  :footer-props="{
+                    'items-per-page-text': $t('tradItemPorPaginaGrid'),
+                  }"
                 >
                   <template v-slot:[`item.actions`]="{ item }">
                     <v-icon
                       medium
                       class="mr-2"
-                      title="Alterar"
+                      :title="$t('tradTitleBtnAlterar')"
                       @click="alterar(item)"
                       >mdi-pencil</v-icon
                     >
-                    <v-icon medium title="Excluir" @click="excluir(item)"
+                    <v-icon
+                      medium
+                      :title="$t('tradTitleBtnExcluir')"
+                      @click="excluir(item)"
                       >mdi-delete</v-icon
                     >
                   </template>
@@ -79,7 +93,7 @@
                           v-model="objForm.name"
                           :counter="200"
                           :rules="nameRules"
-                          label="Name"
+                          :label="$t('tradNamePacking')"
                           outlined
                           required
                         ></v-text-field>
@@ -91,7 +105,7 @@
                         <v-select
                           :items="listaUnity"
                           v-model="objForm.unity"
-                          label="Unity"
+                          :label="$t('tradUnityPacking')"
                           outlined
                           :rules="unityRules"
                         ></v-select>
@@ -107,7 +121,7 @@
                             class="mr-4 white--text"
                             @click="salvar"
                           >
-                            Salvar
+                            {{ $t("tradBtSalvarForm") }}
                             <v-icon right dark>mdi-content-save</v-icon>
                           </v-btn>
                         </v-col>
@@ -119,7 +133,7 @@
                             class="mr-4 white--text"
                             @click="reset"
                           >
-                            Cancelar
+                            {{ $t("tradBtCancelarForm") }}
                             <v-icon right dark>mdi-cancel</v-icon>
                           </v-btn>
                         </v-col>
@@ -150,13 +164,11 @@ export default {
   name: "Customer",
 
   data: () => ({
+    linguagem: null,
     overlay: false,
     menu: "",
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/moving/packings",
-    itensTituloTabs: [
-      { id: 0, nome: "Dados", icon: "mdi-view-list" },
-      { id: 1, nome: "Cadastro", icon: "mdi-keyboard-variant" },
-    ],
+    itensTituloTabs: [],
 
     listaUnity: ["unitario", "metro", "fardo", "litro"],
 
@@ -170,43 +182,62 @@ export default {
     tab: null,
     objLoadingGrid: true,
     //grid
-    headers: [
+    headers: [],
+    desserts: [],
+    //grid
+    //form
+    valid: true,
+    nameRules: [],
+    unityRules: [],
+  }),
+
+  created() {
+    this.linguagem = localStorage.getItem("linguagemUsuario");
+    this.$i18n.locale = this.linguagem;
+
+    this.nameRules = [
+      (v) => !!v || this.$i18n.t("tradRuleNamePacking"),
+      (v) =>
+        (v && v.length <= 200) || this.$i18n.t("tradRuleNameLengthPacking"),
+    ];
+
+    this.unityRules = [(v) => !!v || this.$i18n.t("tradRuleUnityPacking")];
+
+    this.headers = [
       {
         align: "start",
         text: "Código",
         value: "id",
       },
       {
-        text: "Name",
+        text: this.$i18n.t("tradNamePacking"),
         value: "name",
       },
       {
-        text: "Unity",
+        text: this.$i18n.t("tradUnityPacking"),
         value: "unity",
       },
       {
-        text: "Actions",
+        text: this.$i18n.t("tradActionGrid"),
         value: "actions",
         sortable: "false",
       },
-    ],
-    desserts: [],
-    //grid
-    //form
-    valid: true,
-    nameRules: [
-      (v) => !!v || "Nome e obrigatório",
-      (v) =>
-        (v && v.length <= 200) || "O Nome deve ter no máximo 200 caracteres",
-    ],
-    unityRules: [(v) => !!v || "Unity e obrigatório"],
-  }),
+    ];
 
-  created() {
+    this.itensTituloTabs = [
+      { id: 0, nome: this.$i18n.t("tradDadoAbaForm"), icon: "mdi-view-list" },
+      {
+        id: 1,
+        nome: this.$i18n.t("tradCadastroAbaForm"),
+        icon: "mdi-keyboard-variant",
+      },
+    ];
+
     this.menu = getObjMenu(this.$route.path);
   },
 
   mounted() {
+    this.linguagem = localStorage.getItem("linguagemUsuario");
     this.listar();
     this.getEstadoMenu = true;
     this.getCaminhoBreadCrumb = this.$route.path.split("/");
@@ -292,7 +323,11 @@ export default {
     },
 
     execSalvar: async function () {
-      let msgm = "Packing " + this.objForm.name + " cadastrado com sucesso!";
+      let msgm =
+        this.$i18n.t("tradMsgmPacking") +
+        this.objForm.name +
+        this.$i18n.t("tradMsgmSalvar");
+
       let objSalvar = {
         name: this.objForm.name,
         unity: this.objForm.unity,
@@ -311,7 +346,10 @@ export default {
     },
 
     execUpdate: async function () {
-      let msgm = "Packing " + this.objForm.name + " alterado com sucesso!";
+      let msgm =
+        this.$i18n.t("tradMsgmPacking") +
+        this.objForm.name +
+        this.$i18n.t("tradMsgmAlterar");
       let urlPut = this.urlAPI.concat("/" + this.objForm.id);
       let objPut = {
         id: this.objForm.id,
@@ -333,13 +371,10 @@ export default {
 
     validate: function () {
       if (!this.$refs.objForm.validate()) {
-        this.$dialog.message.error(
-          "Observe o formulário, existe campos inválidos",
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.message.error(this.$i18n.t("tradMsgmForm"), {
+          position: "top-right",
+          timeout: 5000,
+        });
         return false;
       }
       return true;
@@ -374,7 +409,7 @@ export default {
       try {
         this.overlay = true;
         let urlDelete = this.urlAPI.concat("/" + item.id);
-        let msgm = item.name + " excluido com sucesso!";
+        let msgm = item.name + this.$i18n.t("tradMsgmForm");
         let returDell = await execDell(urlDelete);
         if (returDell) {
           this.$dialog.message.success(msgm, {
@@ -398,8 +433,8 @@ export default {
 
     excluir: async function (item) {
       await this.$dialog.info({
-        title: "Delete Room " + item.id,
-        text: "Delete Room " + item.name + " ?",
+        title: this.$i18n.t("tradMsgmDeletePacking") + item.id,
+        text: this.$i18n.t("tradMsgmDeletePacking") + item.name + " ?",
         actions: {
           true: {
             text: "OK",

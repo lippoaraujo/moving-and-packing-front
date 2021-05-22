@@ -18,9 +18,19 @@
 
               <v-list-item>
                 <v-list-item-content>
-                  <v-list-item-title class="title">{{
-                    item.name
-                  }}</v-list-item-title>
+                  <v-list-item-title class="title">
+                    <span v-if="linguagem === 'en'">
+                      {{ item.nameExibicao }}
+                    </span>
+
+                    <span v-if="linguagem === 'pt-BR'">
+                      {{ item.nameExibicaoPtBr }}
+                    </span>
+
+                    <span v-if="linguagem === 'es'">
+                      {{ item.nameExibicaoEs }}
+                    </span>
+                  </v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-avatar>
                   <v-icon large>
@@ -31,9 +41,19 @@
 
               <v-list-item>
                 <v-list-item-content>
-                  <v-list-item-subtitle>{{
-                    item.description
-                  }}</v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    <span v-if="linguagem === 'en'">
+                      {{ item.description }}
+                    </span>
+
+                    <span v-if="linguagem === 'pt-BR'">
+                      {{ item.descriptionPtBr }}
+                    </span>
+
+                    <span v-if="linguagem === 'es'">
+                      {{ item.descriptionEs }}
+                    </span>
+                  </v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
 
@@ -76,6 +96,7 @@ export default {
   data: () => ({
     overlay: false,
     items: [],
+    linguagem: null,
     /*items: [
       {
         color: "#1F7087",
@@ -115,6 +136,7 @@ export default {
   },
 
   mounted() {
+    this.linguagem = localStorage.getItem("linguagemUsuario");
     this.incializaTela();
   },
 

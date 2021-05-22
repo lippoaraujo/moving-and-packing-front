@@ -4,7 +4,15 @@
       <v-row>
         <v-col>
           <v-icon> {{ menu.icon }}</v-icon>
-          <span class="subtitle-1">{{ menu.nameExibicao }}</span>
+          <span class="subtitle-1" v-if="linguagem === 'en'">
+            {{ menu.nameExibicao }}
+          </span>
+          <span class="subtitle-1" v-if="linguagem === 'pt-BR'">
+            {{ menu.nameExibicaoPtBr }}
+          </span>
+          <span class="subtitle-1" v-if="linguagem === 'es'">
+            {{ menu.nameExibicaoEs }}
+          </span>
         </v-col>
       </v-row>
       <v-row>
@@ -35,7 +43,7 @@
                   <v-text-field
                     v-model="search"
                     append-icon="mdi-card-search-outline"
-                    label="Consulta rapida"
+                    :label="$t('tradLabelConsultaGrid')"
                     single-line
                     hide-details
                   ></v-text-field>
@@ -45,18 +53,24 @@
                   :items="desserts"
                   multi-sort
                   :loading="objLoadingGrid"
-                  loading-text="Carregando... Aguarde"
+                  :loading-text="$t('tradLoadConsultaGrid')"
                   :search="search"
+                  :footer-props="{
+                    'items-per-page-text': $t('tradItemPorPaginaGrid'),
+                  }"
                 >
                   <template v-slot:[`item.actions`]="{ item }">
                     <v-icon
                       medium
                       class="mr-2"
-                      title="Alterar"
+                      :title="$t('tradTitleBtnAlterar')"
                       @click="alterar(item)"
                       >mdi-pencil</v-icon
                     >
-                    <v-icon medium title="Excluir" @click="excluir(item)"
+                    <v-icon
+                      medium
+                      :title="$t('tradTitleBtnExcluir')"
+                      @click="excluir(item)"
                       >mdi-delete</v-icon
                     >
                   </template>
@@ -79,7 +93,7 @@
                           v-model="objForm.name"
                           :counter="200"
                           :rules="nameRules"
-                          label="Nome"
+                          :label="$t('tradNamePacking')"
                           outlined
                           required
                         ></v-text-field>
@@ -90,7 +104,7 @@
                         <v-text-field
                           v-model="objForm.email"
                           :rules="emailRules"
-                          label="E-mail"
+                          :label="$t('tradEmailCustumer')"
                           outlined
                           required
                         ></v-text-field>
@@ -100,7 +114,7 @@
                           v-model="objForm.phone"
                           :counter="15"
                           :rules="foneRules"
-                          label="Telefone"
+                          :label="$t('tradPhoneCustumer')"
                           required
                           placeholder="+# (###) ###-####"
                           type="text"
@@ -113,14 +127,14 @@
                       <v-col xs="12" sm="12" md="10" lg="10" xl="10">
                         <v-text-field
                           v-model="objForm.address"
-                          label="Endereco"
+                          :label="$t('tradEnderecoCustumer')"
                           outlined
                         ></v-text-field>
                       </v-col>
                       <v-col xs="12" sm="12" md="2" lg="2" xl="2">
                         <v-text-field
                           v-model="objForm.postcode"
-                          label="Cep"
+                          :label="$t('tradCepCustumer')"
                           outlined
                         ></v-text-field>
                       </v-col>
@@ -130,9 +144,9 @@
                       <v-col xs="12" sm="12" md="6" lg="6" xl="6">
                         <v-text-field
                           v-model="objForm.city"
-                          label="Cidade"
+                          :label="$t('tradCepCustumer')"
                           outlined
-                          :rules="[(v) => !!v || 'Cidade is required']"
+                          :rules="cityRules"
                           required
                         ></v-text-field>
                       </v-col>
@@ -140,7 +154,7 @@
                         <v-text-field
                           v-model="objForm.locality"
                           label="Estado"
-                          :rules="[(v) => !!v || 'Estado is required']"
+                          :rules="localityRules"
                           outlined
                           required
                         ></v-text-field>
@@ -151,7 +165,7 @@
                         <v-text-field
                           v-model="objForm.country"
                           label="País"
-                          :rules="[(v) => !!v || 'País is required']"
+                          :rules="countryRules"
                           outlined
                           required
                         ></v-text-field>
@@ -167,7 +181,7 @@
                             class="mr-4 white--text"
                             @click="salvar"
                           >
-                            Salvar
+                            {{ $t("tradBtSalvarForm") }}
                             <v-icon right dark>mdi-content-save</v-icon>
                           </v-btn>
                         </v-col>
@@ -179,7 +193,7 @@
                             class="mr-4 white--text"
                             @click="reset"
                           >
-                            Cancelar
+                            {{ $t("tradBtCancelarForm") }}
                             <v-icon right dark>mdi-cancel</v-icon>
                           </v-btn>
                         </v-col>
@@ -210,15 +224,13 @@ export default {
   name: "Customer",
 
   data: () => ({
+    linguagem: null,
     overlay: false,
     menu: "",
 
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/moving/customers",
 
-    itensTituloTabs: [
-      { id: 0, nome: "Dados", icon: "mdi-view-list" },
-      { id: 1, nome: "Cadastro", icon: "mdi-keyboard-variant" },
-    ],
+    itensTituloTabs: [],
     search: "",
     objForm: {
       id: "",
@@ -236,46 +248,72 @@ export default {
     tab: null,
     objLoadingGrid: true,
     //grid
-    headers: [
-      {
-        align: "start",
-        text: "Nome",
-        value: "name",
-      },
-      {
-        text: "E-mail",
-        value: "email",
-      },
-      {
-        text: "Telefone",
-        value: "phone",
-      },
-      {
-        text: "Ações",
-        value: "actions",
-        sortable: "false",
-      },
-    ],
+    headers: [],
     desserts: [],
     //grid
     //form
     valid: true,
-    nameRules: [
-      (v) => !!v || "Nome is required",
-      (v) =>
-        (v && v.length <= 200) || "O Nome deve ter no máximo 200 caracteres",
-    ],
-
-    foneRules: [(v) => !!v || "Telefone is required"],
-
-    emailRules: [
-      (v) => !!v || "E-mail is required",
-      (v) => /.+@.+\..+/.test(v) || "E-mail inválido",
-    ],
+    nameRules: [],
+    foneRules: [],
+    emailRules: [],
+    cityRules: [],
+    countryRules: [],
+    localityRules: [],
     select: null,
   }),
 
   created() {
+    this.linguagem = localStorage.getItem("linguagemUsuario");
+    this.$i18n.locale = this.linguagem;
+    this.nameRules = [
+      (v) => !!v || this.$i18n.t("tradRuleNamePacking"),
+      (v) =>
+        (v && v.length <= 200) || this.$i18n.t("tradRuleNameLengthPacking"),
+    ];
+    this.foneRules = [(v) => !!v || this.$i18n.t("tradRuleTelefoneCustumer")];
+    this.emailRules = [
+      (v) => !!v || this.$i18n.t("tradRuleEmailRequiredCustumer"),
+      (v) =>
+        /.+@.+\..+/.test(v) || this.$i18n.t("tradRuleEmailInvalidCustumer"),
+    ];
+    this.cityRules = [
+      (v) => !!v || this.$i18n.t("tradRuleCityRequiredCustumer"),
+    ];
+    this.localityRules = [
+      (v) => !!v || this.$i18n.t("tradRuleLocalityRequiredCustumer"),
+    ];
+    this.countryRules = [
+      (v) => !!v || this.$i18n.t("tradRuleCountryRequiredCustumer"),
+    ];
+    this.itensTituloTabs = [
+      { id: 0, nome: this.$i18n.t("tradDadoAbaForm"), icon: "mdi-view-list" },
+      {
+        id: 1,
+        nome: this.$i18n.t("tradCadastroAbaForm"),
+        icon: "mdi-keyboard-variant",
+      },
+    ];
+    this.headers = [
+      {
+        align: "start",
+        text: this.$i18n.t("tradNamePacking"),
+        value: "name",
+      },
+      {
+        text: this.$i18n.t("tradEmailCustumer"),
+        value: "email",
+      },
+      {
+        text: this.$i18n.t("tradPhoneCustumer"),
+        value: "phone",
+      },
+      {
+        text: this.$i18n.t("tradActionGrid"),
+        value: "actions",
+        sortable: "false",
+      },
+    ];
+
     this.menu = getObjMenu(this.$route.path);
   },
 
@@ -366,7 +404,10 @@ export default {
     },
 
     execUpdate: async function () {
-      let msgm = "Costomer " + this.objForm.name + " alterado com sucesso!";
+      let msgm =
+        this.$i18n.t("tradMsgmCustomer") +
+        this.objForm.name +
+        this.$i18n.t("tradMsgmAlterar");
       let urlPut = this.urlAPI.concat("/" + this.objForm.id);
       let objAdress = {
         address: this.objForm.address,
@@ -397,7 +438,10 @@ export default {
     },
 
     execSalvar: async function () {
-      let msgm = "Costomer " + this.objForm.name + " cadastrado com sucesso!";
+      let msgm =
+        this.$i18n.t("tradMsgmCustomer") +
+        this.objForm.name +
+        this.$i18n.t("tradMsgmSalvar");
       let objAdress = {
         address: this.objForm.address,
         locality: this.objForm.locality,
@@ -426,13 +470,10 @@ export default {
 
     validate: function () {
       if (!this.$refs.objForm.validate()) {
-        this.$dialog.message.error(
-          "Observe o formulário, existe campos inválidos",
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.message.error(this.$i18n.t("tradMsgmForm"), {
+          position: "top-right",
+          timeout: 5000,
+        });
         return false;
       }
       return true;
@@ -479,7 +520,7 @@ export default {
       try {
         this.overlay = true;
         let urlDelete = this.urlAPI.concat("/" + item.id);
-        let msgm = item.name + " excluido com sucesso!";
+        let msgm = item.name + this.$i18n.t("tradMsgmForm");
         let returDell = await execDell(urlDelete);
         if (returDell) {
           this.$dialog.message.success(msgm, {
@@ -503,8 +544,8 @@ export default {
 
     excluir: async function (item) {
       await this.$dialog.info({
-        title: "Delete Customers " + item.id,
-        text: "Delete Customers " + item.name + " ?",
+        title: this.$i18n.t("tradMsgmDeleteRoom") + item.id,
+        text: this.$i18n.t("tradMsgmDeleteRoom") + item.name + " ?",
         actions: {
           true: {
             text: "OK",

@@ -13,5 +13,20 @@
   "tradBtAcessarSistema": "Access system",
   "tradEmailObrigatorio": "E-mail is required",
   "tradEmailInvalido": "Invalid email!",
-  "tradSenhaObrigatoria": "Password is required"
+  "tradSenhaObrigatoria": "Password is required",
+  
+  "tradLabelConsultaGrid": "Quick consultation",
+  "tradLoadConsultaGrid": "Loading ... Please wait",
+  "tradTitleBtnAlterar": "Change",
+  "tradTitleBtnExcluir": "Delete",
+  "tradItemPorPaginaGrid": "Items per page",
+  "tradActionGrid": "Actions",
+  "tradMsgmSalvar": "Registered successfully!",
+  "tradMsgmAlterar": "successfully changed!",
+  "tradMsgmExcluir": "successfully deleted!",
+  "tradMsgmForm": "Observe the form, there are invalid fields!",
+  "tradBtSalvarForm": "Save",
+  "tradBtCancelarForm": "Cancel",
+  "tradDadoAbaForm": "Data",
+  "tradCadastroAbaForm": "Register"
 }

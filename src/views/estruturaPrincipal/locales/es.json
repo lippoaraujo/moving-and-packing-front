@@ -13,5 +13,20 @@
   "tradBtAcessarSistema": "Sistema de acceso",
   "tradEmailObrigatorio": "Correo electronico es requerido",
   "tradEmailInvalido": "¡Email inválido!",
-  "tradSenhaObrigatoria": "Se requiere contraseña"
+  "tradSenhaObrigatoria": "Se requiere contraseña",
+  
+  "tradLabelConsultaGrid": "Referencia rápida",
+  "tradLoadConsultaGrid": "Cargando por favor espere",
+  "tradTitleBtnAlterar": "Cambio",
+  "tradTitleBtnExcluir": "Borrar",
+  "tradItemPorPaginaGrid": "Elementos por página",
+  "tradActionGrid": "Comportamiento",
+  "tradMsgmSalvar": "¡Registrado correctamente!",
+  "tradMsgmAlterar": "¡Cambiado exitosamente!",
+  "tradMsgmExcluir": "¡Eliminado correctamente!",
+  "tradMsgmForm": "¡Observa el formulario, hay campos inválidos!",
+  "tradBtSalvarForm": "Ahorrar",
+  "tradBtCancelarForm": "Cancelar",
+  "tradDadoAbaForm": "Datos",
+  "tradCadastroAbaForm": "Registrarse"
 }
