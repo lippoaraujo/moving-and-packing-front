@@ -116,9 +116,9 @@
                           :rules="foneRules"
                           :label="$t('tradPhoneCustumer')"
                           required
-                          placeholder="+# (###) ###-####"
+                          :placeholder="placeholderFone"
                           type="text"
-                          v-mask="['+# (###) ###-####']"
+                          v-mask="`${foneMaskRule}`"
                           outlined
                         ></v-text-field>
                       </v-col>
@@ -144,7 +144,7 @@
                       <v-col xs="12" sm="12" md="6" lg="6" xl="6">
                         <v-text-field
                           v-model="objForm.city"
-                          :label="$t('tradCepCustumer')"
+                          :label="$t('tradCidadeCustumer')"
                           outlined
                           :rules="cityRules"
                           required
@@ -153,7 +153,7 @@
                       <v-col xs="12" sm="12" md="6" lg="6" xl="6">
                         <v-text-field
                           v-model="objForm.locality"
-                          label="Estado"
+                          :label="$t('tradEstadoCustumer')"
                           :rules="localityRules"
                           outlined
                           required
@@ -164,7 +164,7 @@
                       <v-col>
                         <v-text-field
                           v-model="objForm.country"
-                          label="País"
+                          :label="$t('tradPaisCustumer')"
                           :rules="countryRules"
                           outlined
                           required
@@ -225,6 +225,9 @@ export default {
 
   data: () => ({
     linguagem: null,
+    placeholderFone: null,
+    foneMaskRule: [],
+
     overlay: false,
     menu: "",
 
@@ -265,6 +268,22 @@ export default {
   created() {
     this.linguagem = localStorage.getItem("linguagemUsuario");
     this.$i18n.locale = this.linguagem;
+
+    if (this.$i18n.locale === "en") {
+      this.placeholderFone = "+# (###) ###-####";
+      this.foneMaskRule = ["+# (###) ###-####"];
+    }
+
+    if (this.$i18n.locale === "es") {
+      this.placeholderFone = "+## (###) ####-#####";
+      this.foneMaskRule = ["+## (##) ####-#####"];
+    }
+
+    if (this.$i18n.locale === "pt-BR") {
+      this.placeholderFone = "+## (##) ####-#####";
+      this.foneMaskRule = ["+## (##) ####-#####"];
+    }
+
     this.nameRules = [
       (v) => !!v || this.$i18n.t("tradRuleNamePacking"),
       (v) =>
@@ -520,7 +539,7 @@ export default {
       try {
         this.overlay = true;
         let urlDelete = this.urlAPI.concat("/" + item.id);
-        let msgm = item.name + this.$i18n.t("tradMsgmForm");
+        let msgm = item.name + this.$i18n.t("tradMsgmCustomer");
         let returDell = await execDell(urlDelete);
         if (returDell) {
           this.$dialog.message.success(msgm, {
@@ -544,8 +563,8 @@ export default {
 
     excluir: async function (item) {
       await this.$dialog.info({
-        title: this.$i18n.t("tradMsgmDeleteRoom") + item.id,
-        text: this.$i18n.t("tradMsgmDeleteRoom") + item.name + " ?",
+        title: this.$i18n.t("tradMsgmDeleteCustomer") + item.id,
+        text: this.$i18n.t("tradMsgmDeleteCustomer") + item.name + " ?",
         actions: {
           true: {
             text: "OK",

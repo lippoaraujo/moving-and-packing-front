@@ -4,7 +4,7 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
-import money from 'v-money';
+import "./plugins/vuetify-money";
 import VueHtmlToPaper from "vue-html-to-paper";
 
 const options = {
@@ -37,4 +37,4 @@ Vue.use(VuetifyDialog, {
     vuetify,
   },
 });
-Vue.use(money, {precision: 4});
+//Vue.use(money, {precision: 4});

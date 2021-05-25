@@ -400,7 +400,7 @@ export default {
       try {
         this.overlay = true;
         let urlDelete = this.urlAPI.concat("/" + item.id);
-        let msgm = item.name + this.$i18n.t("tradMsgmForm");
+        let msgm = item.name + this.$i18n.t("tradMsgmRoom");
         let returDell = await execDell(urlDelete);
         if (returDell) {
           this.$dialog.message.success(msgm, {

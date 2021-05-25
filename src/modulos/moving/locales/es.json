@@ -1,14 +1,38 @@
 {  
-  "tradMsgmPacking": "Embalaje ",
-  "tradMsgmDeletePacking": "Eliminar embalaje ",
-  "tradNamePacking": "Nombre ",
+  "tradMsgmPacking": "Empaquetedura ",
+  "tradMsgmItem": "Artículos",
+  "tradMsgmRoom": "Habitación",
+
+
+
+
+  "tradMsgmDeletePacking": "Eliminar empaquetedura ",
+  "tradMsgmDeleteItem": "Eliminar artículos ",
+  "tradMsgmDeleteRoom": "Eliminar habitación ",
+
+
+
+  "tradNamePackingEN": "Nombre en-US",
+  "tradNamePackingPT": "Nombre pt-BR",
+  "tradNamePackingES": "Nombre es-MX",
   "tradUnityPacking": "Unidad",
-  "tradRuleNamePacking": "Se requiere el nombre",
-  "tradRuleNameLengthPacking": "El nombre debe tener un máximo de 200 caracteres",
+  "tradNamePacking": "Nombre",
+
+  "tradRuleNamePacking": "Se requiere el nombre en-US",
+  "tradRuleNameLengthPacking": "El nombre en-US debe tener un máximo de 200 caracteres",
+
+  "tradRuleNameItemPT": "Se requiere el nombre pt-BR ",
+  "tradRuleNameLengthItemPT": "El nombre pt-BR debe tener un máximo de 200 caracteres",
+
+  "tradRuleNameItemES": "Se requiere el nombre es-MX",
+  "tradRuleNameLengthItemES": "El nombre es-MX debe tener un máximo de 200 caracteres",
+
+  "tradRulePackingRequired": "Se requiere el empaquetedura",
+
   "tradRuleUnityPacking": "Se requiere unidad",
   "tradDescriptionRoom": "Descripción",
-  "tradMsgmRoom": "Habitación",
-  "tradMsgmDeleteRoom": "Eliminar habitación ",
+  
+  
   "tradRuleTelefoneCustumer": "Se requiere telefono",
   "tradRuleEmailRequiredCustumer": "Correo electronico es requerido",
   "tradRuleEmailInvalidCustumer": "Correo electronico inválido",
@@ -17,8 +41,14 @@
   "tradEnderecoCustumer": "Habla a",
   "tradCepCustumer": "Código postal",
   "tradCidadeCustumer": "Ciudad",
+  "tradEstadoCustumer": "Localidad",
+  "tradPaisCustumer": "País",
   "tradRuleCityRequiredCustumer": "Se requiere la ciudad",
   "tradRuleLocalityRequiredCustumer": "Se requiere localidad",
   "tradRuleCountryRequiredCustumer": "El país es obligatorio",
-  "tradMsgmCustomer": "Cliente"
+  "tradMsgmCustomer": "Cliente",
+  "tradMsgmDeleteCustomer": "Eliminar cliente ",
+  "tradDescriptionItem": "Descripción ",
+  "tradQuantidadeItem": "La cantidad ",
+  "tradCubiFeetNameItem": "Pie cúbico"
 }

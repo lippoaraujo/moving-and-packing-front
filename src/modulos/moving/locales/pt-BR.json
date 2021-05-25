@@ -1,14 +1,38 @@
 {
+  
   "tradMsgmPacking": "Embalagem ",
+  "tradMsgmItem": "Itens ",
+  "tradMsgmRoom": "Ambiente",
+
+
   "tradMsgmDeletePacking": "Excluir embalagem ",
-  "tradNamePacking": "Nome ",
+  "tradMsgmDeleteItem": "Excluir item ",
+  "tradMsgmDeleteRoom": "Excluir ambiente ",
+
+
+
+  "tradNamePackingEN": "Nome en-US",
+  "tradNamePackingPT": "Nome pt-BR",
+  "tradNamePackingES": "Nome es-MX",
   "tradUnityPacking": "Unidade ",
-  "tradRuleNamePacking": "Nome e obrigatório",
-  "tradRuleNameLengthPacking": "O Nome deve ter no máximo 200 caracteres",
+  "tradNamePacking": "Nome",
+
+  
+  "tradRuleNamePacking": "Nome en-US e obrigatório",
+  "tradRuleNameLengthPacking": "O Nome en-US deve ter no máximo 200 caracteres",
+
+  "tradRuleNameItemPT": "Nome pt-BR e obrigatório",
+  "tradRuleNameLengthItemPT": "O Nome pt-BR deve ter no máximo 200 caracteres",
+
+  "tradRuleNameItemES": "Nome es-MX e obrigatório",
+  "tradRuleNameLengthItemES": "O Nome es-MX deve ter no máximo 200 caracteres",
+
+  "tradRulePackingRequired": "Embalagem é obrigatório",
+
   "tradRuleUnityPacking": "Unidade é obrigatório",
   "tradDescriptionRoom": "Descrição",
-  "tradMsgmRoom": "Ambiente",
-  "tradMsgmDeleteRoom": "Excluir ambiente ",
+  
+  
   "tradRuleTelefoneCustumer": "O telefone é obrigatório",
   "tradRuleEmailRequiredCustumer": "E-mail é obrigatório",
   "tradRuleEmailInvalidCustumer": "E-mail inválido",
@@ -17,8 +41,14 @@
   "tradEnderecoCustumer": "Endereço",
   "tradCepCustumer": "Cep",
   "tradCidadeCustumer": "Cidade",
+  "tradEstadoCustumer": "Estado",
+  "tradPaisCustumer": "País",
   "tradRuleCityRequiredCustumer": "Cidade é obrigatório",
   "tradRuleLocalityRequiredCustumer": "Estado é obrigatório",
   "tradRuleCountryRequiredCustumer": "País é obrigatório",
-  "tradMsgmCustomer": "Cliente"
+  "tradMsgmCustomer": "Cliente",
+  "tradMsgmDeleteCustomer": "Excluir cliente ",
+  "tradDescriptionItem": "Descrição ",
+  "tradQuantidadeItem": "Quantidade ",
+  "tradCubiFeetNameItem": "Pés cúbicos"
 }

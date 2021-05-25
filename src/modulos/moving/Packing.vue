@@ -93,7 +93,7 @@
                           v-model="objForm.name"
                           :counter="200"
                           :rules="nameRules"
-                          :label="$t('tradNamePacking')"
+                          :label="$t('tradMsgmPacking')"
                           outlined
                           required
                         ></v-text-field>
@@ -210,7 +210,7 @@ export default {
         value: "id",
       },
       {
-        text: this.$i18n.t("tradNamePacking"),
+        text: this.$i18n.t("tradMsgmPacking"),
         value: "name",
       },
       {
@@ -409,7 +409,7 @@ export default {
       try {
         this.overlay = true;
         let urlDelete = this.urlAPI.concat("/" + item.id);
-        let msgm = item.name + this.$i18n.t("tradMsgmForm");
+        let msgm = item.name + this.$i18n.t("tradMsgmPacking");
         let returDell = await execDell(urlDelete);
         if (returDell) {
           this.$dialog.message.success(msgm, {
