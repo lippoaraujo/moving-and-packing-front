@@ -1,0 +1,17 @@
+{
+  "tradTituloLogin": "System access.",
+  "tradSubTituloLogin": "Enter the credentials to access the system!",
+  "tradSenha": "Password",
+  "tradContinuarConectado": "Stay connected?",
+  "tradLinguagem": "Language",
+  "tradBtLogar": "Log into",
+  "tradEsqueceuSenha": "Forgot your password?",
+  "tradRecuperarSenha": "Recover Password",
+  "tradRecuperarSenhaTexto": "Enter your email to start the password recovery process",
+  "tradInformeSeuEmail": "Enter your email",
+  "tradBtRecuperarSenha": "Recover Password",
+  "tradBtAcessarSistema": "Access system",
+  "tradEmailObrigatorio": "E-mail is required",
+  "tradEmailInvalido": "Invalid email!",
+  "tradSenhaObrigatoria": "Password is required"
+}

@@ -1,0 +1,48 @@
+{
+  "tradMsgmPacking": "Packing ",
+  "tradMsgmItem": "Items",
+  "tradMsgmRoom": "Room",
+
+  "tradMsgmDeletePacking": "Delete packing ",
+  "tradMsgmDeleteItem": "Delete item ",
+  "tradMsgmDeleteRoom": "Delete room ",
+
+  "tradNamePackingEN": "Name en-US",
+  "tradNamePackingPT": "Name pt-BR",
+  "tradNamePackingES": "Name es-MX",
+  "tradUnityPacking": "Unity",
+  "tradNamePacking": "Name",
+
+  "tradRuleNamePacking": "Name en-US is required",
+  "tradRuleNameLengthPacking": "Name en-US must be a maximum of 200 characters",
+
+  "tradRuleNameItemPT": "Name pt-BR is required  ",
+  "tradRuleNameLengthItemPT": "Name pt-BR must be a maximum of 200 characters",
+
+  "tradRuleNameItemES": "Name es-MX is required ",
+  "tradRuleNameLengthItemES": "Name es-MX must be a maximum of 200 characters",
+
+  "tradRulePackingRequired": "Packing is required",
+
+  "tradRuleUnityPacking": "Unity is required",
+  "tradDescriptionRoom": "Description",
+    
+  "tradRuleTelefoneCustumer": "Telefone is required",
+  "tradRuleEmailRequiredCustumer": "Email is required",
+  "tradRuleEmailInvalidCustumer": "Invalid email",
+  "tradPhoneCustumer": "Phone ",
+  "tradEmailCustumer": "Email",
+  "tradEnderecoCustumer": "Address",
+  "tradCepCustumer": "Postcode",
+  "tradCidadeCustumer": "City",
+  "tradEstadoCustumer": "Locality",
+  "tradPaisCustumer": "Country",
+  "tradRuleCityRequiredCustumer": "City is required",
+  "tradRuleLocalityRequiredCustumer": "Locality is required",
+  "tradRuleCountryRequiredCustumer": "Country is required",
+  "tradMsgmCustomer": "Customer",
+  "tradMsgmDeleteCustomer": "Delete customer ",
+  "tradDescriptionItem": "Description ",
+  "tradQuantidadeItem": "The amount ",
+  "tradCubiFeetNameItem": "Cubic feet"
+}

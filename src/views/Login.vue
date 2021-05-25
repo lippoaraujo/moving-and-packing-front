@@ -75,7 +75,7 @@
                         <!--<h5>Informe o e-mail</h5>-->
                         <v-form
                           v-on:submit.prevent="logar(objForm)"
-                          ref="form"
+                          ref="formLogar"
                           lazy-validation
                         >
                           <v-text-field
@@ -275,6 +275,8 @@
 
 import { execGet } from "@/helper/execRequests.js";
 
+//olhar isso https://github.com/vuetifyjs/vuetify/blob/master/packages/docs/src/examples/v-form/prop-rules.vue
+
 export default {
   data: () => ({
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/auth/login",
@@ -295,6 +297,9 @@ export default {
     objFormRecuperaSenha: {
       email: "",
     },
+
+    emailRules: [],
+    passwordRules: [],
   }),
   props: {
     source: String,
@@ -330,8 +335,6 @@ export default {
 
     let linguagem = localStorage.getItem("linguagemUsuario");
 
-    console.log("linguagem ", linguagem);
-
     if (linguagem != null) {
       this.$i18n.locale = linguagem;
     } else {
@@ -349,27 +352,24 @@ export default {
     this.checkUserLogado();
   },
 
-  computed: {
-    emailRules() {
-      return [
-        (v) => !!v || +this.$t("tradEmailObrigatorio"),
-        (v) => /.+@.+\..+/.test(v) || this.$t("tradEmailInvalido"),
-      ];
-    },
-    passwordRules() {
-      return [(v) => !!v || this.$t("tradSenhaObrigatoria")];
-    },
-  },
+  computed: {},
 
   create: function () {
     // the data object is not yet created
     this.overlay = false;
+
+    this.emailRules = [
+      (v) => !!v || +this.$t("tradEmailObrigatorio"),
+      (v) => /.+@.+\..+/.test(v) || this.$t("tradEmailInvalido"),
+    ];
+    this.passwordRules = [(v) => !!v || this.$t("tradSenhaObrigatoria")];
   },
   methods: {
     setLocaleClick() {
       let linguagem = this.radioLingauagem;
-      console.log(linguagem);
+      //console.log(linguagem);
       this.$i18n.locale = linguagem;
+      //this.$refs.formLogar.validate();
     },
 
     /*logar: function () {
@@ -528,7 +528,8 @@ export default {
     },
 
     validate: function () {
-      return this.$refs.form.validate();
+      //console.log(this.$refs.formLogar.validate());
+      return this.$refs.formLogar.validate();
     },
 
     reset: function () {

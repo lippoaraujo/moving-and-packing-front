@@ -73,14 +73,20 @@ export function getListModules(){
   let moduloSystem = { 
     "name": "system",
     "nameExibicao": "System",
+    "nameExibicaoPtBr": "Sistema",
+    "nameExibicaoEs": "Sistema",
     "ordemExibicao" : 0,
     "color": "#1F7087",
     "description": "users, permissions, system management...",
+    "descriptionPtBr": "usuários, permissões, gerenciamento de sistema...",
+    "descriptionEs": "usuarios, permisos, gestión del sistema...",
     "image": "mdi-shield-home",
     "menu": [
       {
       "name": "user",
       "nameExibicao": "Users",
+      "nameExibicaoPtBr": "Usuários",
+      "nameExibicaoEs": "Usuarios",
       "icon": "mdi-account-tie",
       "url" : "/system/users",
       "actions" : [
@@ -134,7 +140,9 @@ export function getListModules(){
 
       {
       "name": "role",
-      "nameExibicao": "Roles",
+      "nameExibicao": "User Groups",
+      "nameExibicaoPtBr": "Grupos de Usuários",
+      "nameExibicaoEs": "Grupos de Usuarios",
       "icon": "mdi-account-group-outline",
       "url" : "/system/roles",
       "actions" : [
@@ -189,6 +197,8 @@ export function getListModules(){
       {
         "name": "permission",
         "nameExibicao": "Permissions",
+        "nameExibicaoPtBr": "Permissões",
+        "nameExibicaoEs": "Permisos",
         "icon": "mdi-account-details",
         "url" : "/system/permissions",
         "actions" : [
@@ -258,14 +268,20 @@ export function getListModules(){
   let moduloMoving = { 
     "name": "moving",
     "nameExibicao": "Moving",
+    "nameExibicaoPtBr": "Mudança",
+    "nameExibicaoEs": "Mudanza",
     "ordemExibicao" : 1,
     "color": "#45b877",
     "description": "moving, packing, orders and customers management...",
+    "descriptionPtBr": "movimentação, embalagem, pedidos e gestão de clientes...",
+    "descriptionEs": "mudanzas, embalajes, pedidos y gestión de clientes...",
     "image": "mdi-clipboard-edit-outline",
     "menu" : [
       {
         "name": "customer",
         "nameExibicao": "Customers",
+        "nameExibicaoPtBr": "Clientes",
+        "nameExibicaoEs": "Clientes",
         "icon": "mdi-account-arrow-left",
         "url" : "/moving/customers",
         "actions" : [
@@ -319,6 +335,8 @@ export function getListModules(){
       {
         "name": "room",
         "nameExibicao": "Rooms",
+        "nameExibicaoPtBr": "Ambientes",
+        "nameExibicaoEs": "Habitaciones",
         "icon": "mdi-widgets",
         "url" : "/moving/rooms",
         "actions" : [
@@ -373,6 +391,8 @@ export function getListModules(){
       {
         "name": "item",
         "nameExibicao": "Items",
+        "nameExibicaoPtBr": "Itens",
+        "nameExibicaoEs": "Artículos",
         "icon": "mdi-scatter-plot",
         "url" : "/moving/items",
         "actions" : [
@@ -426,6 +446,8 @@ export function getListModules(){
       {
         "name": "order",
         "nameExibicao": "Orders",
+        "nameExibicaoPtBr": "Pedidos",
+        "nameExibicaoEs": "Pedidos",
         "icon": "mdi-package-variant",
         "url" : "/moving/orders",
         "actions" : [
@@ -479,6 +501,8 @@ export function getListModules(){
       {
         "name": "packing",
         "nameExibicao": "Packings",
+        "nameExibicaoPtBr": "Embalagens",
+        "nameExibicaoEs": "Empaquetaduras",
         "icon": "mdi-package-variant-closed",
         "url" : "/moving/packings",
         "actions" : [
