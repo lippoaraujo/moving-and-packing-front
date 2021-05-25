@@ -1,173 +1,194 @@
 <template>
   <v-row>
     <v-col>
-      <v-icon> {{ menu.image }}</v-icon
-      ><span class="subtitle-1">{{ menu.name }}</span>
-      <v-tabs
-        hide-on-leave="true"
-        v-model="tab"
-        background-color="blue darken-4"
-        centered
-        dark
-        color
-        icons-and-text
-        grow
-        class="tabs-container elevation-5"
-      >
-        <v-tabs-slider></v-tabs-slider>
+      <v-row>
+        <v-col>
+          <v-icon> {{ menu.icon }}</v-icon>
+          <span class="subtitle-1" v-if="linguagem === 'en'">
+            {{ menu.nameExibicao }}
+          </span>
+          <span class="subtitle-1" v-if="linguagem === 'pt-BR'">
+            {{ menu.nameExibicaoPtBr }}
+          </span>
+          <span class="subtitle-1" v-if="linguagem === 'es'">
+            {{ menu.nameExibicaoEs }}
+          </span>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-tabs
+            hide-on-leave="true"
+            v-model="tab"
+            background-color="blue darken-4"
+            centered
+            dark
+            color
+            icons-and-text
+            grow
+            class="tabs-container elevation-5"
+          >
+            <v-tabs-slider></v-tabs-slider>
 
-        <v-tab v-for="i in itensTituloTabs" :key="i.id">
-          <div>{{ i.nome }}</div>
-          <v-icon large>{{ i.icon }}</v-icon>
-        </v-tab>
-      </v-tabs>
+            <v-tab v-for="i in itensTituloTabs" :key="i.id">
+              <div>{{ i.nome }}</div>
+              <v-icon large>{{ i.icon }}</v-icon>
+            </v-tab>
+          </v-tabs>
 
-      <v-tabs-items v-model="tab">
-        <v-tab-item>
-          <v-card flat class="elevation-5">
-            <!--<v-card-title>
+          <v-tabs-items v-model="tab">
+            <v-tab-item>
+              <v-card flat class="elevation-5">
+                <!--<v-card-title>
                   
                 </v-card-title>-->
-            <v-card-text>
-              <v-row>
-                <v-col>
-                  <v-select
-                    v-model="selectGrupoUsuario"
-                    :items="this.listaRoles"
-                    label="Role"
-                    item-text="name"
-                    item-value="id"
-                    return-object
-                    outlined
-                    @change="setListModulesSelect"
-                  ></v-select>
-                </v-col>
-                <v-col>
-                  <v-select
-                    v-model="selectModulosGrupoUsuario"
-                    :items="listaModulos"
-                    label="Modulos"
-                    item-text="name"
-                    item-value="id"
-                    return-object
-                    outlined
-                    @change="preencherPermissaoPorModulos"
-                  ></v-select>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col>
-                  <v-expansion-panels
-                    class="elevation-5 rounded-lg"
-                    accordion
-                    multiple
-                    v-model="panelList"
-                  >
-                    <v-expansion-panel
-                      v-for="(modulo, key) in listaModule"
-                      :key="key"
-                    >
-                      <v-expansion-panel-header>
-                        {{ modulo.name }}
-                      </v-expansion-panel-header>
+                <v-card-text>
+                  <v-row>
+                    <v-col>
+                      <v-select
+                        v-model="selectGrupoUsuario"
+                        :items="this.listaRoles"
+                        label="Role"
+                        item-text="name"
+                        item-value="id"
+                        return-object
+                        outlined
+                        @change="setListModulesSelect"
+                      ></v-select>
+                    </v-col>
+                    <v-col>
+                      <v-select
+                        v-model="selectModulosGrupoUsuario"
+                        :items="listaModulos"
+                        label="Modulos"
+                        item-text="name"
+                        item-value="id"
+                        return-object
+                        outlined
+                        @change="preencherPermissaoPorModulos"
+                      ></v-select>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col>
+                      <v-expansion-panels
+                        class="elevation-5 rounded-lg"
+                        accordion
+                        multiple
+                        v-model="panelList"
+                      >
+                        <v-expansion-panel
+                          v-for="(modulo, key) in listaModule"
+                          :key="key"
+                        >
+                          <v-expansion-panel-header>
+                            {{ modulo.name }}
+                          </v-expansion-panel-header>
 
-                      <v-expansion-panel-content>
-                        <v-simple-table dense>
-                          <template v-slot:default>
-                            <thead>
-                              <tr>
-                                <th class="text-left subtitle-1">Menu</th>
-                                <th colspan="4" class="text-left subtitle-1">
-                                  Ações
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                {{
-                                  listaMenucheked
-                                }}
-                              </tr>
-                              <tr>
-                                {{
-                                  listaActioncheked
-                                }}
-                              </tr>
-                              <tr
-                                v-for="(itemMenu, key) in modulo.menu"
-                                :key="key"
-                              >
-                                <td>
-                                  <v-checkbox
-                                    :label="itemMenu.name"
-                                    v-model="listaMenucheked"
-                                    :value="itemMenu.name"
-                                    color="blue darken-4"
-                                    @click="preencherTodasAcoesMenu(itemMenu)"
-                                  ></v-checkbox>
-                                </td>
+                          <v-expansion-panel-content>
+                            <v-simple-table dense>
+                              <template v-slot:default>
+                                <thead>
+                                  <tr>
+                                    <th class="text-left subtitle-1">Menu</th>
+                                    <th
+                                      colspan="4"
+                                      class="text-left subtitle-1"
+                                    >
+                                      Ações
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    {{
+                                      listaMenucheked
+                                    }}
+                                  </tr>
+                                  <tr>
+                                    {{
+                                      listaActioncheked
+                                    }}
+                                  </tr>
+                                  <tr
+                                    v-for="(itemMenu, key) in modulo.menu"
+                                    :key="key"
+                                  >
+                                    <td>
+                                      <v-checkbox
+                                        :label="itemMenu.name"
+                                        v-model="listaMenucheked"
+                                        :value="itemMenu.name"
+                                        color="blue darken-4"
+                                        @click="
+                                          preencherTodasAcoesMenu(itemMenu)
+                                        "
+                                      ></v-checkbox>
+                                    </td>
 
-                                <td>
-                                  <v-simple-table>
-                                    <tbody>
-                                      <tr>
-                                        <td
-                                          v-for="(
-                                            actions, keyy, index
-                                          ) in itemMenu.actions"
-                                          :key="index"
-                                        >
-                                          <v-checkbox
-                                            :label="actions.name"
-                                            v-model="listaActioncheked"
-                                            :value="actions.name"
-                                            color="blue darken-4"
-                                          ></v-checkbox>
-                                        </td>
-                                      </tr>
-                                    </tbody>
-                                  </v-simple-table>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </template>
-                        </v-simple-table>
-                      </v-expansion-panel-content>
-                    </v-expansion-panel>
-                  </v-expansion-panels>
-                </v-col>
-              </v-row>
+                                    <td>
+                                      <v-simple-table>
+                                        <tbody>
+                                          <tr>
+                                            <td
+                                              v-for="(
+                                                actions, keyy, index
+                                              ) in itemMenu.actions"
+                                              :key="index"
+                                            >
+                                              <v-checkbox
+                                                :label="actions.name"
+                                                v-model="listaActioncheked"
+                                                :value="actions.name"
+                                                color="blue darken-4"
+                                              ></v-checkbox>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </v-simple-table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </template>
+                            </v-simple-table>
+                          </v-expansion-panel-content>
+                        </v-expansion-panel>
+                      </v-expansion-panels>
+                    </v-col>
+                  </v-row>
 
-              <center>
-                <v-row>
-                  <v-col>
-                    <v-btn
-                      dark
-                      tile
-                      color="blue darken-2"
-                      class="mr-4 white--text"
-                      @click="salvar"
-                    >
-                      Salvar
-                      <v-icon right dark>mdi-content-save</v-icon>
-                    </v-btn>
-                    <v-btn
-                      dark
-                      tile
-                      color="blue darken-2"
-                      class="mr-4 white--text"
-                      @click="reset"
-                    >
-                      Cancelar
-                      <v-icon right dark>mdi-cancel</v-icon>
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </center>
-            </v-card-text>
-          </v-card>
-        </v-tab-item>
-      </v-tabs-items>
+                  <center>
+                    <v-row>
+                      <v-col>
+                        <v-btn
+                          dark
+                          tile
+                          color="blue darken-2"
+                          class="mr-4 white--text"
+                          @click="salvar"
+                        >
+                          Salvar
+                          <v-icon right dark>mdi-content-save</v-icon>
+                        </v-btn>
+                        <v-btn
+                          dark
+                          tile
+                          color="blue darken-2"
+                          class="mr-4 white--text"
+                          @click="reset"
+                        >
+                          Cancelar
+                          <v-icon right dark>mdi-cancel</v-icon>
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </center>
+                </v-card-text>
+              </v-card>
+            </v-tab-item>
+          </v-tabs-items>
+        </v-col>
+      </v-row>
     </v-col>
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
@@ -186,6 +207,7 @@ export default {
   name: "Permission",
 
   data: () => ({
+    linguagem: null,
     overlay: false,
     panelList: [],
     urlAPIRoles: process.env.VUE_APP_URL_CONNECTION + "/system/roles",
@@ -384,6 +406,8 @@ export default {
   }),
 
   created() {
+    this.linguagem = localStorage.getItem("linguagemUsuario");
+    this.$i18n.locale = this.linguagem;
     const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
     this.headerRequest = {
       headers: {
@@ -500,15 +524,18 @@ export default {
     salvar: function () {},
 
     setListModulesSelect: function () {
+      this.listaModule = [];
       let list = getListModules();
       let i;
       let lisRetorno = [];
+      
       this.panelList = [];
       for (i = 0; i < list.length; i++) {
         let objModulo = list[i];
         this.panelList.push(i);
         lisRetorno[i] = objModulo;
       }
+      console.log("AAAAAAAAAAAA ", lisRetorno);
       this.listaModulos = lisRetorno;
     },
 

@@ -11,10 +11,30 @@
     <v-list-item>
       <v-list-item-content>
         <v-list-item-title class="title">
-          {{ this.objModulo.nameExibicao }}
+          <span v-if="linguagem === 'en'">
+            {{ this.objModulo.nameExibicao }}
+          </span>
+
+          <span v-if="linguagem === 'pt-BR'">
+            {{ this.objModulo.nameExibicaoPtBr }}
+          </span>
+
+          <span v-if="linguagem === 'es'">
+            {{ this.objModulo.nameExibicaoEs }}
+          </span>
         </v-list-item-title>
         <v-list-item-subtitle>
-          {{ this.objModulo.description }}
+          <span v-if="linguagem === 'en'">
+            {{ this.objModulo.description }}
+          </span>
+
+          <span v-if="linguagem === 'pt-BR'">
+            {{ this.objModulo.descriptionPtBr }}
+          </span>
+
+          <span v-if="linguagem === 'es'">
+            {{ this.objModulo.descriptionEs }}
+          </span>
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
@@ -31,7 +51,19 @@
           <v-icon>{{ item.icon }}</v-icon>
         </v-list-item-action>
         <v-list-item-content>
-          <v-list-item-title>{{ item.nameExibicao }}</v-list-item-title>
+          <v-list-item-title>
+            <span v-if="linguagem === 'en'">
+              {{ item.nameExibicao }}
+            </span>
+
+            <span v-if="linguagem === 'pt-BR'">
+              {{ item.nameExibicaoPtBr }}
+            </span>
+
+            <span v-if="linguagem === 'es'">
+              {{ item.nameExibicaoEs }}
+            </span>
+          </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
 
@@ -63,6 +95,7 @@ export default {
   name: "Menu",
   data() {
     return {
+      linguagem: null,
       objModulo: null,
       items: [
         /*{
@@ -73,7 +106,9 @@ export default {
     };
   },
 
-  mounted() {},
+  mounted() {
+    this.linguagem = localStorage.getItem("linguagemUsuario");
+  },
 
   created() {
     this.getModuloDoMenu();

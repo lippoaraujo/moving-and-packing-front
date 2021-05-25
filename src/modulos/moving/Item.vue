@@ -4,7 +4,15 @@
       <v-row>
         <v-col>
           <v-icon> {{ menu.icon }}</v-icon>
-          <span class="subtitle-1">{{ menu.nameExibicao }}</span>
+          <span class="subtitle-1" v-if="linguagem === 'en'">
+            {{ menu.nameExibicao }}
+          </span>
+          <span class="subtitle-1" v-if="linguagem === 'pt-BR'">
+            {{ menu.nameExibicaoPtBr }}
+          </span>
+          <span class="subtitle-1" v-if="linguagem === 'es'">
+            {{ menu.nameExibicaoEs }}
+          </span>
         </v-col>
       </v-row>
       <v-tabs
@@ -33,7 +41,7 @@
               <v-text-field
                 v-model="search"
                 append-icon="mdi-card-search-outline"
-                label="Consulta rapida"
+                :label="$t('tradLabelConsultaGrid')"
                 single-line
                 hide-details
               ></v-text-field>
@@ -43,18 +51,24 @@
               :items="desserts"
               multi-sort
               :loading="objLoadingGrid"
-              loading-text="Carregando... Aguarde"
+              :loading-text="$t('tradLoadConsultaGrid')"
               :search="search"
+              :footer-props="{
+                'items-per-page-text': $t('tradItemPorPaginaGrid'),
+              }"
             >
               <template v-slot:[`item.actions`]="{ item }">
                 <v-icon
                   medium
                   class="mr-2"
-                  title="Alterar"
+                  :title="$t('tradTitleBtnAlterar')"
                   @click="alterar(item)"
                   >mdi-pencil</v-icon
                 >
-                <v-icon medium title="Excluir" @click="excluir(item)"
+                <v-icon
+                  medium
+                  :title="$t('tradTitleBtnExcluir')"
+                  @click="excluir(item)"
                   >mdi-delete</v-icon
                 >
               </template>
@@ -77,30 +91,68 @@
                       v-model="objForm.name"
                       :counter="200"
                       :rules="nameRules"
-                      label="Nome"
+                      :label="$t('tradNamePackingEN')"
                       outlined
                     ></v-text-field>
                   </v-col>
                 </v-row>
+
+                <v-row>
+                  <v-col>
+                    <v-text-field
+                      v-model="objForm.name_pt"
+                      :counter="200"
+                      :rules="nameRulesPt"
+                      :label="$t('tradNamePackingPT')"
+                      outlined
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+
+                <v-row>
+                  <v-col>
+                    <v-text-field
+                      v-model="objForm.name_es"
+                      :counter="200"
+                      :rules="nameRulesEs"
+                      :label="$t('tradNamePackingES')"
+                      outlined
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+
                 <v-row>
                   <v-col>
                     <v-text-field
                       v-model="objForm.description"
-                      label="Description"
+                      :label="$t('tradDescriptionItem')"
                       outlined
                     ></v-text-field>
                   </v-col>
                 </v-row>
+
                 <v-row>
                   <v-col>
-                    <v-text-field
+                    <!--<v-text-field
                       v-model="objForm.cubic_feet"
                       label="Cubic feet"
                       style="text-align: right"
                       v-money="money"
                       ref="price"
                       outlined
-                    ></v-text-field>
+                    ></v-text-field> -->
+                    <vuetify-money
+                      v-model="objForm.cubic_feet"
+                      :label="label"
+                      :placeholder="placeholder"
+                      :readonly="readonly"
+                      :disabled="disabled"
+                      :outlined="outlined"
+                      :clearable="clearable"
+                      :valueWhenIsEmpty="valueWhenIsEmpty"
+                      :options="options"
+                      :properties="properties"
+                    />
                   </v-col>
                   <v-col>
                     <v-text-field
@@ -116,7 +168,7 @@
                     <v-select
                       :items="listPacking"
                       v-model="objForm.packing"
-                      label="Embalagem"
+                      :label="$t('tradMsgmPacking')"
                       :item-text="(item) => item.name + ' - ' + item.unity"
                       item-value="id"
                       outlined
@@ -131,7 +183,7 @@
                   <v-col>
                     <v-text-field
                       v-model="objForm.packing_qty"
-                      label="Quantidade"
+                      :label="$t('tradQuantidadeItem')"
                       outlined
                       type="number"
                     ></v-text-field>
@@ -147,7 +199,7 @@
                         class="mr-4 white--text"
                         @click="salvar"
                       >
-                        Salvar
+                        {{ $t("tradBtSalvarForm") }}
                         <v-icon right dark>mdi-content-save</v-icon>
                       </v-btn>
                     </v-col>
@@ -159,7 +211,7 @@
                         class="mr-4 white--text"
                         @click="reset"
                       >
-                        Cancelar
+                        {{ $t("tradBtCancelarForm") }}
                         <v-icon right dark>mdi-cancel</v-icon>
                       </v-btn>
                     </v-col>
@@ -188,28 +240,49 @@ export default {
   name: "Customer",
 
   data: () => ({
+    value: "0",
+    label: "",
+    placeholder: " ",
+    readonly: false,
+    disabled: false,
+    outlined: true,
+    clearable: true,
+    valueWhenIsEmpty: "0.00",
+    options: {
+      locale: "en-US",
+      prefix: "",
+      suffix: "",
+      length: 6,
+      precision: 2,
+    },
+    properties: {
+      hint: "",
+      // You can add other v-text-field properties, here.
+    },
+
+    linguagem: null,
     overlay: false,
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/moving/items",
     urlAPIPacking: process.env.VUE_APP_URL_CONNECTION + "/moving/packings",
 
-    money: {
+    /*money: {
       decimal: ".",
       thousands: "",
       precision: 2,
-      masked: false /* doesn't work with directive */,
-    },
+      masked: false // doesn't work with directive ,
+    },*/
+
     listPacking: [],
     menu: "",
 
-    itensTituloTabs: [
-      { id: 0, nome: "Dados", icon: "mdi-view-list" },
-      { id: 1, nome: "Cadastro", icon: "mdi-keyboard-variant" },
-    ],
+    itensTituloTabs: [],
     search: "",
 
     objForm: {
       id: "",
       name: "",
+      name_pt: "",
+      name_es: "",
       description: "",
       cubic_feet: "",
       tag: "",
@@ -221,18 +294,59 @@ export default {
     tab: null,
     objLoadingGrid: true,
     //grid
-    headers: [
+    headers: [],
+    desserts: [],
+    //grid
+    //form
+    valid: true,
+    nameRules: [],
+    nameRulesPt: [],
+    nameRulesEs: [],
+
+    packingRules: [],
+
+    select: null,
+  }),
+
+  created() {
+    this.linguagem = localStorage.getItem("linguagemUsuario");
+    this.$i18n.locale = this.linguagem;
+
+    this.label = this.$i18n.t("tradCubiFeetNameItem");
+
+    this.itensTituloTabs = [
+      { id: 0, nome: this.$i18n.t("tradDadoAbaForm"), icon: "mdi-view-list" },
+      {
+        id: 1,
+        nome: this.$i18n.t("tradCadastroAbaForm"),
+        icon: "mdi-keyboard-variant",
+      },
+    ];
+
+    this.headers = [
       {
         align: "start",
-        text: "Name",
+        text: "Código",
+        value: "id",
+      },
+
+      {
+        text: this.$i18n.t("tradNamePackingEN"),
         value: "name",
       },
+
       {
-        text: "Description",
-        value: "description",
+        text: this.$i18n.t("tradNamePackingPT"),
+        value: "name_pt",
       },
+
       {
-        text: "Cubic feet",
+        text: this.$i18n.t("tradNamePackingES"),
+        value: "name_es",
+      },
+
+      {
+        text: this.$i18n.t("tradCubiFeetNameItem"),
         value: "cubic_feet",
       },
       {
@@ -240,27 +354,26 @@ export default {
         value: "tag",
       },
       {
-        text: "Ações",
+        text: this.$i18n.t("tradActionGrid"),
         value: "actions",
         sortable: "false",
       },
-    ],
-    desserts: [],
-    //grid
-    //form
-    valid: true,
-    nameRules: [
-      (v) => !!v || "Nome e obrigatório",
+    ];
+
+    this.nameRules = [
+      (v) => !!v || this.$i18n.t("tradRuleNamePacking"),
       (v) =>
-        (v && v.length <= 200) || "O Nome deve ter no máximo 200 caracteres",
-    ],
-
-    packingRules: [(v) => !!v || "Embalagem é obrigatorio"],
-
-    select: null,
-  }),
-
-  created() {
+        (v && v.length <= 200) || this.$i18n.t("tradRuleNameLengthPacking"),
+    ];
+    this.nameRulesPt = [
+      (v) => !!v || this.$i18n.t("tradRuleNameItemPT"),
+      (v) => (v && v.length <= 200) || this.$i18n.t("tradRuleNameLengthItemPT"),
+    ];
+    this.nameRulesEs = [
+      (v) => !!v || this.$i18n.t("tradRuleNameItemES"),
+      (v) => (v && v.length <= 200) || this.$i18n.t("tradRuleNameLengthItemES"),
+    ];
+    this.packingRules = [(v) => !!v || this.$i18n.t("tradRulePackingRequired")];
     this.menu = getObjMenu(this.$route.path);
   },
 
@@ -353,9 +466,17 @@ export default {
     },
 
     execSalvar: async function () {
-      let msgm = "Item " + this.objForm.name + " cadastrado com sucesso!";
+      //let msgm = "Item " + this.objForm.name + " cadastrado com sucesso!";
+
+      let msgm =
+        this.$i18n.t("tradMsgmItem") +
+        this.objForm.name +
+        this.$i18n.t("tradMsgmSalvar");
+
       let objSalvar = {
         name: this.objForm.name,
+        name_pt: this.objForm.name_pt,
+        name_es: this.objForm.name_es,
         description: this.objForm.description,
         cubic_feet: this.objForm.cubic_feet,
         tag: this.objForm.tag,
@@ -376,11 +497,17 @@ export default {
     },
 
     execUpdate: async function () {
-      let msgm = "Item " + this.objForm.name + " alterado com sucesso!";
+      let msgm =
+        this.$i18n.t("tradMsgmItem") +
+        this.objForm.name +
+        this.$i18n.t("tradMsgmAlterar");
+
       let urlPut = this.urlAPI.concat("/" + this.objForm.id);
       let objPut = {
         id: this.objForm.id,
         name: this.objForm.name,
+        name_pt: this.objForm.name_pt,
+        name_es: this.objForm.name_es,
         description: this.objForm.description,
         cubic_feet: this.objForm.cubic_feet,
         tag: this.objForm.tag,
@@ -401,13 +528,10 @@ export default {
 
     validate: function () {
       if (!this.$refs.objForm.validate()) {
-        this.$dialog.message.error(
-          "Observe o formulário, existe campos inválidos",
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.message.error(this.$i18n.t("tradMsgmForm"), {
+          position: "top-right",
+          timeout: 5000,
+        });
         return false;
       }
       return true;
@@ -415,7 +539,7 @@ export default {
 
     reset: function () {
       this.$refs.objForm.reset();
-      this.$refs.price.$el.getElementsByTagName("input")[0].value = 0;
+      //this.$refs.price.$el.getElementsByTagName("input")[0].value = 0;
       this.objForm.id = "";
       this.tab = 0;
     },
@@ -427,8 +551,15 @@ export default {
         let objEdicao = await execGet(urlGet);
         this.objForm.id = objEdicao.id;
         this.objForm.name = objEdicao.name;
+        this.objForm.name_pt = objEdicao.name_pt;
+        this.objForm.name_es = objEdicao.name_es;
         this.objForm.description = objEdicao.description;
         this.objForm.cubic_feet = objEdicao.cubic_feet;
+
+        //console.log("OOOO ", objEdicao.cubic_feet);
+        //this.$refs.price.getElementsByTagName("input")[0].value =
+        //objEdicao.cubic_feet;
+
         this.objForm.tag = objEdicao.tag;
         let b = 0;
         for (b; b < this.listPacking.length; b++) {
@@ -466,7 +597,7 @@ export default {
       try {
         this.overlay = true;
         let urlDelete = this.urlAPI.concat("/" + item.id);
-        let msgm = item.name + " excluido com sucesso!";
+        let msgm = item.name + this.$i18n.t("tradMsgmPacking");
         let returDell = await execDell(urlDelete);
         if (returDell) {
           this.$dialog.message.success(msgm, {
@@ -490,8 +621,8 @@ export default {
 
     excluir: async function (item) {
       await this.$dialog.info({
-        title: "Delete Item " + item.id,
-        text: "Delete Item " + item.name + " ?",
+        title: this.$i18n.t("tradMsgmDeleteItem") + item.id,
+        text: this.$i18n.t("tradMsgmDeleteItem") + item.name + " ?",
         actions: {
           true: {
             text: "OK",
