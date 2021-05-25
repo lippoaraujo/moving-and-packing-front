@@ -336,6 +336,7 @@ export default {
     let linguagem = localStorage.getItem("linguagemUsuario");
 
     if (linguagem != null) {
+      this.radioLingauagem = linguagem;
       this.$i18n.locale = linguagem;
     } else {
       let userLanguage = (navigator.languages && navigator.languages[0]) || "";
