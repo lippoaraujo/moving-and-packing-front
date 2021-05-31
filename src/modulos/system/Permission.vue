@@ -56,7 +56,7 @@
                         @change="setListModulesSelect"
                       ></v-select>
                     </v-col>
-                    <v-col>
+                    <!--<v-col>
                       <v-select
                         v-model="selectModulosGrupoUsuario"
                         :items="listaModulos"
@@ -67,93 +67,143 @@
                         outlined
                         @change="preencherPermissaoPorModulos"
                       ></v-select>
-                    </v-col>
+                    </v-col>-->
                   </v-row>
-                  <v-row>
+                  <v-row v-if="listaModule.length">
                     <v-col>
-                      <v-expansion-panels
-                        class="elevation-5 rounded-lg"
-                        accordion
-                        multiple
-                        v-model="panelList"
-                      >
-                        <v-expansion-panel
-                          v-for="(modulo, key) in listaModule"
-                          :key="key"
-                        >
-                          <v-expansion-panel-header>
-                            {{ modulo.name }}
-                          </v-expansion-panel-header>
+                      <v-card style="width:100%;important">
+                        <v-card-text>
+                          <!--<p class="display-1 text-center text--primary">
+                          Módulos do sistema
+                        </p>-->
+                          <v-col class="subtitle-1">
+                            <v-icon>mdi-view-dashboard</v-icon>
+                            Módulos do sistema
+                          </v-col>
 
-                          <v-expansion-panel-content>
-                            <v-simple-table dense>
-                              <template v-slot:default>
-                                <thead>
-                                  <tr>
-                                    <th class="text-left subtitle-1">Menu</th>
-                                    <th
-                                      colspan="4"
-                                      class="text-left subtitle-1"
-                                    >
-                                      Ações
-                                    </th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  <tr>
-                                    {{
-                                      listaMenucheked
-                                    }}
-                                  </tr>
-                                  <tr>
-                                    {{
-                                      listaActioncheked
-                                    }}
-                                  </tr>
-                                  <tr
-                                    v-for="(itemMenu, key) in modulo.menu"
-                                    :key="key"
-                                  >
-                                    <td>
-                                      <v-checkbox
-                                        :label="itemMenu.name"
-                                        v-model="listaMenucheked"
-                                        :value="itemMenu.name"
-                                        color="blue darken-4"
-                                        @click="
-                                          preencherTodasAcoesMenu(itemMenu)
-                                        "
-                                      ></v-checkbox>
-                                    </td>
+                          <v-bottom-navigation
+                            background-color="blue darken-4"
+                            dark
+                            grow
+                          >
+                            <v-btn @click="all">
+                              <span>Exibir</span>
+                              <v-icon>mdi-download-multiple</v-icon>
+                            </v-btn>
 
-                                    <td>
-                                      <v-simple-table>
-                                        <tbody>
-                                          <tr>
-                                            <td
-                                              v-for="(
-                                                actions, keyy, index
-                                              ) in itemMenu.actions"
-                                              :key="index"
-                                            >
-                                              <v-checkbox
-                                                :label="actions.name"
-                                                v-model="listaActioncheked"
-                                                :value="actions.name"
-                                                color="blue darken-4"
-                                              ></v-checkbox>
-                                            </td>
-                                          </tr>
-                                        </tbody>
-                                      </v-simple-table>
-                                    </td>
-                                  </tr>
-                                </tbody>
-                              </template>
-                            </v-simple-table>
-                          </v-expansion-panel-content>
-                        </v-expansion-panel>
-                      </v-expansion-panels>
+                            <v-btn @click="none">
+                              <span>Ocultar</span>
+                              <v-icon>mdi-upload-multiple</v-icon>
+                            </v-btn>
+                          </v-bottom-navigation>
+
+                          <!--<v-col class="text-right">-->
+                          <!--<v-col>
+                          <v-btn
+                            dark
+                            tile
+                            color="blue darken-2"
+                            class="mr-4 white--text"
+                            @click="all"
+                            >Exibir
+                            <v-icon right dark>mdi-chevron-triple-down</v-icon>
+                          </v-btn>
+
+                          <v-btn
+                            dark
+                            tile
+                            color="blue darken-2"
+                            class="mr-4 white--text"
+                            @click="none" 
+                          >
+                            Ocultar
+                            <v-icon right dark>mdi-chevron-triple-up</v-icon>
+                          </v-btn>
+                        </v-col> -->
+                          <v-expansion-panels v-model="panelPai" multiple>
+                            <v-expansion-panel
+                              v-model="panelList"
+                              v-for="(modulo, key) in listaModule"
+                              :key="key"
+                            >
+                              <v-expansion-panel-header>
+                                {{ modulo.modulo.name }}
+                              </v-expansion-panel-header>
+
+                              <v-expansion-panel-content>
+                                <v-simple-table dense>
+                                  <template v-slot:default>
+                                    <thead>
+                                      <tr>
+                                        <th class="text-left subtitle-1">
+                                          Menu
+                                        </th>
+                                        <th
+                                          colspan="4"
+                                          class="text-left subtitle-1"
+                                        >
+                                          Ações
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <!--<tr>
+                                  {{
+                                    listaMenucheked
+                                  }}
+                                </tr>
+                                <tr>
+                                  {{
+                                    listaActioncheked
+                                  }}
+                                </tr>-->
+                                      <tr
+                                        v-for="(itemMenu, key) in modulo.modulo
+                                          .menu"
+                                        :key="key"
+                                      >
+                                        <td>
+                                          <v-checkbox
+                                            :label="itemMenu.name"
+                                            v-model="listaMenucheked"
+                                            :value="itemMenu.name"
+                                            color="blue darken-4"
+                                            @click="
+                                              preencherTodasAcoesMenu(itemMenu)
+                                            "
+                                          ></v-checkbox>
+                                        </td>
+
+                                        <td>
+                                          <v-simple-table>
+                                            <tbody>
+                                              <tr>
+                                                <td
+                                                  v-for="(
+                                                    actions, keyy, index
+                                                  ) in itemMenu.actions"
+                                                  :key="index"
+                                                >
+                                                  <v-checkbox
+                                                    :label="actions.name"
+                                                    v-model="listaActioncheked"
+                                                    :value="actions.name"
+                                                    color="blue darken-4"
+                                                  ></v-checkbox>
+                                                </td>
+                                              </tr>
+                                            </tbody>
+                                          </v-simple-table>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </template>
+                                </v-simple-table>
+                              </v-expansion-panel-content>
+                            </v-expansion-panel>
+                          </v-expansion-panels>
+                        </v-card-text>
+                      </v-card>
                     </v-col>
                   </v-row>
 
@@ -207,6 +257,7 @@ export default {
   name: "Permission",
 
   data: () => ({
+    panelPai: [],
     linguagem: null,
     overlay: false,
     panelList: [],
@@ -449,6 +500,16 @@ export default {
   },
 
   methods: {
+    all() {
+      //https: github.com/vuetifyjs/vuetify/blob/master/packages/docs/src/examples/v-expansion-panels/prop-model.vue
+
+      this.panelPai = this.panelList;
+    },
+    // Reset the panel
+    none() {
+      this.panelPai = [];
+    },
+
     preencherTodasAcoesMenu: function (itemMenu) {
       //console.log(this.listaMenucheked);
       //console.log("listaActioncheked ", this.listaActioncheked);
@@ -524,19 +585,19 @@ export default {
     salvar: function () {},
 
     setListModulesSelect: function () {
-      this.listaModule = [];
       let list = getListModules();
       let i;
       let lisRetorno = [];
-      
+
       this.panelList = [];
       for (i = 0; i < list.length; i++) {
         let objModulo = list[i];
         this.panelList.push(i);
         lisRetorno[i] = objModulo;
       }
-      console.log("AAAAAAAAAAAA ", lisRetorno);
       this.listaModulos = lisRetorno;
+
+      this.preencherPermissaoPorModulos();
     },
 
     getListRole: async function () {
@@ -551,35 +612,61 @@ export default {
     },
 
     preencherPermissaoPorModulos: async function () {
+      this.listaModule = [];
+
       this.overlay = true;
       this.listaActioncheked = [];
-      let modulo = this.selectModulosGrupoUsuario;
-      let grupoUser = this.selectGrupoUsuario;
-      this.listaModule = await getListPermissionStorageSession(
-        modulo,
-        grupoUser
-      );
-      this.panelList = [];
-      this.listaMenucheked = [];
-      let i = 0;
-      for (i; i < this.listaModule.length; i++) {
-        let modulo = this.listaModule[i];
-        let men = 0;
-        for (men; men < modulo.menu.length; men++) {
-          let menu = modulo.menu[men];
-          if (menu.checked) {
-            this.listaMenucheked.push(menu.name);
-          }
-          let act = 0;
-          for (act; act < menu.actions.length; act++) {
-            let action = menu.actions[act];
-            if (action.checked) {
-              this.listaActioncheked.push(action.name);
+
+      let totModulo = this.listaModulos.length;
+
+      let tot = [];
+
+      for (let a = 0; a < totModulo; a++) {
+        let obj = new Object();
+
+        let modulo = this.listaModulos[a];
+        let grupoUser = this.selectGrupoUsuario;
+
+        obj.modulo = modulo;
+
+        this.listaModule = await getListPermissionStorageSession(
+          modulo,
+          grupoUser
+        );
+
+        obj.listaModule = this.listaModule;
+
+        obj.listaActioncheked = [];
+        obj.listaMenucheked = [];
+
+        this.listaMenucheked = [];
+        let i = 0;
+        for (i; i < this.listaModule.length; i++) {
+          let modulo = this.listaModule[i];
+          let men = 0;
+          for (men; men < modulo.menu.length; men++) {
+            let menu = modulo.menu[men];
+            if (menu.checked) {
+              this.listaMenucheked.push(menu.name);
+            }
+            let act = 0;
+            for (act; act < menu.actions.length; act++) {
+              let action = menu.actions[act];
+              if (action.checked) {
+                this.listaActioncheked.push(action.name);
+              }
             }
           }
         }
-        this.panelList.push(i);
+        tot.push(obj);
       }
+
+      //console.log("tot ", tot);
+
+      this.listaModule = tot;
+
+      //console.log("listaModule ", this.listaModule);
+
       this.overlay = false;
     },
   },
