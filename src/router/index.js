@@ -235,7 +235,12 @@ router.beforeEach((to, from, next) => {
   publicPages.push("/login");
   publicPages.push("/acessonegado");
 
-  let listaRotasUserLogado = getListaRotasUserLogado();
+  let listaRotasUserLogado =  getListaRotasUserLogado();
+  console.log("AQUI");
+  console.log(listaRotasUserLogado);
+  setTimeout(200000);
+
+  
   
   if(listaRotasUserLogado!=null){
     //console.log(listaRotasUserLogado);

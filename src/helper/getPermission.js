@@ -1,7 +1,7 @@
 import { execGet } from "@/helper/execRequests.js";
 export async function getPermissionModule(nameModule)
 {
-  let logado = sessionStorage.getItem("logado");
+  let logado = sessionStorage.getItem("userLogado");
   if(logado === null || !logado){
     return false;
   }
@@ -10,6 +10,10 @@ export async function getPermissionModule(nameModule)
   }
   let listaPermissao = JSON.parse(sessionStorage.getItem("permissions"));
   if(listaPermissao==null){
+
+retirar este getPermissionPorToken daqui e no route/index se nao trazer permissao
+retornar pra tela de login
+
     let objReturn = await getPermissionPorToken();
     if(objReturn.status){
       let a;
@@ -37,7 +41,7 @@ export async function getPermissionModule(nameModule)
 
 export async function getPermissionMenu(nameMenu)
 {
-  let logado = sessionStorage.getItem("logado");
+  let logado = sessionStorage.getItem("userLogado");
   if(logado === null || !logado){
     return false;
   }

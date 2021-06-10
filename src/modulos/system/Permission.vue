@@ -127,7 +127,7 @@
                               :key="key"
                             >
                               <v-expansion-panel-header>
-                                {{ modulo.modulo.name }}
+                                {{ modulo.modulo.nameExibicao }}
                               </v-expansion-panel-header>
 
                               <v-expansion-panel-content>
@@ -147,16 +147,11 @@
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      <!--<tr>
-                                  {{
-                                    listaMenucheked
-                                  }}
-                                </tr>
-                                <tr>
-                                  {{
-                                    listaActioncheked
-                                  }}
-                                </tr>-->
+                                      <tr>
+                                        <td colspan="2">
+                                          {{ modulo.listaMenucheked }}
+                                        </td>
+                                      </tr>
                                       <tr
                                         v-for="(itemMenu, key) in modulo.modulo
                                           .menu"
@@ -165,7 +160,7 @@
                                         <td>
                                           <v-checkbox
                                             :label="itemMenu.name"
-                                            v-model="listaMenucheked"
+                                            v-model="modulo.listaMenucheked"
                                             :value="itemMenu.name"
                                             color="blue darken-4"
                                             @click="
@@ -186,7 +181,9 @@
                                                 >
                                                   <v-checkbox
                                                     :label="actions.name"
-                                                    v-model="listaActioncheked"
+                                                    v-model="
+                                                      modulo.listaActioncheked
+                                                    "
                                                     :value="actions.name"
                                                     color="blue darken-4"
                                                   ></v-checkbox>
@@ -281,163 +278,8 @@ export default {
 
     listaMenucheked: [],
     listaActioncheked: [],
-
     listaModule: [],
-    /*
-    listaModule: [
-      {
-        id: 1,
-        name: "System",
-        routes_permissions: [
-          {
-            id: 1,
-            name: "User",
-            actions: [
-              {
-                id: 1,
-                name: "salvar",
-              },
-              {
-                id: 2,
-                name: "alterar",
-              },
-              {
-                id: 3,
-                name: "excluir",
-              },
-              {
-                id: 3,
-                name: "deletar",
-              },
-            ],
-          },
-          {
-            id: 2,
-            name: "User Group",
 
-            actions: [
-              {
-                id: 1,
-                name: "salvar",
-              },
-              {
-                id: 2,
-                name: "alterar",
-              },
-              {
-                id: 3,
-                name: "excluir",
-              },
-              {
-                id: 3,
-                name: "deletar",
-              },
-            ],
-          },
-
-          {
-            id: 3,
-            name: "Permission",
-
-            actions: [
-              {
-                id: 1,
-                name: "salvar",
-              },
-              {
-                id: 2,
-                name: "alterar",
-              },
-              {
-                id: 3,
-                name: "excluir",
-              },
-              {
-                id: 3,
-                name: "deletar",
-              },
-            ],
-          },
-        ],
-      },
-
-      {
-        id: 2,
-        name: "Moving",
-        routes_permissions: [
-          {
-            id: 1,
-            name: "User",
-            actions: [
-              {
-                id: 1,
-                name: "salvar",
-              },
-              {
-                id: 2,
-                name: "alterar",
-              },
-              {
-                id: 3,
-                name: "excluir",
-              },
-              {
-                id: 3,
-                name: "deletar",
-              },
-            ],
-          },
-          {
-            id: 2,
-            name: "User Group",
-
-            actions: [
-              {
-                id: 1,
-                name: "salvar",
-              },
-              {
-                id: 2,
-                name: "alterar",
-              },
-              {
-                id: 3,
-                name: "excluir",
-              },
-              {
-                id: 3,
-                name: "deletar",
-              },
-            ],
-          },
-
-          {
-            id: 3,
-            name: "Permission",
-
-            actions: [
-              {
-                id: 1,
-                name: "salvar",
-              },
-              {
-                id: 2,
-                name: "alterar",
-              },
-              {
-                id: 3,
-                name: "excluir",
-              },
-              {
-                id: 3,
-                name: "deletar",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-    */
     //search: "",
     objFormGroup: {},
     objFormUser: {},
@@ -513,9 +355,103 @@ export default {
     preencherTodasAcoesMenu: function (itemMenu) {
       //console.log(this.listaMenucheked);
       //console.log("listaActioncheked ", this.listaActioncheked);
+      let list = getListModules();
+      //console.log("list ", list);
       //console.log("itemMenu ", itemMenu);
 
-      for (let i = 0; i < itemMenu.actions.length; i++) {
+      let nomeMenuSelecionado = itemMenu.name;
+
+      //console.log("itemMenu ", itemMenu);
+      let dadosUrl = itemMenu.url.split("/");
+      let nameModuloActionsNova = dadosUrl[1];
+
+      let existeMenuChecked = false;
+      let z = 0;
+      for (z; z < this.listaModule.length; z++) {
+        let module = this.listaModule[z];
+
+        // percorre todos os itens do module.listaMenucheked,
+        //se existir então adiciona todos as actions em module.listaActioncheked
+        //se nao existir percorre module.listaActioncheked e exclui todos os itens
+        // com o nome do itemMenu.name
+
+        for (let a = 0; a < module.listaMenucheked.length; a++) {
+          let nomeMenu = module.listaMenucheked[a];
+          if (nomeMenu === itemMenu.name) {
+            existeMenuChecked = true;
+          }
+        }
+
+        //console.log("module ", module);
+        //console.log("listaActioncheked ", module.listaActioncheked);
+        //console.log("listaMenucheked ", module.listaMenucheked);
+
+        //console.log(module.listaMenucheked);
+        //console.log(module.listaActioncheked);
+      }
+
+      let actionsNova = [];
+
+      for (let g = 0; g < this.listaModule.length; g++) {
+        let module = this.listaModule[g];
+        //console.log(module.modulo.name);
+
+        for (let h = 0; h < module.listaActioncheked.length; h++) {
+          let nameAction = module.listaActioncheked[h];
+          if (existeMenuChecked) {
+            //adicona todos ao module.listaActioncheked
+
+            //percorre toda lista de modulos
+            for (let i = 0; i < list.length; i++) {
+              let mod = list[i];
+              let menus = mod.menu;
+              //console.log(menus);
+
+              for (let j = 0; j < menus.length; j++) {
+                let menu = menus[j];
+                //console.log(menu);
+                let actions = menu.actions;
+                //console.log(actions);
+
+                for (let m = 0; m < actions.length; m++) {
+                  let nameAction = actions[m];
+                  //console.log(nameAction.name);
+
+                  if (nameAction.name.includes(nomeMenuSelecionado)) {
+                    //console.log("nome que vai adicionar: ", nameAction.name);
+                    actionsNova.push(nameAction.name);
+                    //module.listaActioncheked.push(nameAction.name);
+                  }
+                }
+              }
+            }
+          } else {
+            //retira todos
+            //console.log("retirando");
+            //console.log("nameAction ", nameAction);
+            if (nameAction.includes(nomeMenuSelecionado)) {
+              module.listaActioncheked.splice(h, 1);
+              h--;
+            }
+          }
+        }
+      }
+
+      if (actionsNova.length > 0) {
+        //retira elementos repetidos
+        let novaArr = actionsNova.filter(
+          (este, i) => actionsNova.indexOf(este) === i
+        );
+        console.log("nameModuloActionsNova: ", nameModuloActionsNova);
+        console.log("o que vai adcionar: ", novaArr);
+        this.adicionarAcoesModulosCheckbox(nameModuloActionsNova, novaArr);
+      }
+
+      //console.log("menu ", nomeMenuSelecionado);
+      //console.log("existeMenuChecked ", existeMenuChecked);
+      //return false;
+
+      /*for (let i = 0; i < itemMenu.actions.length; i++) {
         let action = itemMenu.actions[i];
 
         //let itemChecked = action.name + action.id;
@@ -535,7 +471,28 @@ export default {
           this.listaActioncheked.splice(itemChecked, 1);
           //this.marcaDescmarcaCheckPermissao(false, itemChecked);
         }
+      }*/
+    },
+
+    adicionarAcoesModulosCheckbox: function (nomeModulo, listaAcoes) {
+      for (let z = 0; z < this.listaModule.length; z++) {
+        let modulo = this.listaModule[z];
+        if (modulo.modulo.name == nomeModulo) {
+          console.log("INICIO ", modulo.listaActioncheked.length);
+
+          let listaAtual = modulo.listaActioncheked;
+
+          console.log("listaAtual", listaAtual);
+          console.log("listaAcoes", listaAcoes);
+
+          let listaNova = listaAtual.concat(listaAcoes);
+          console.log("listaAtual NOVA", listaNova);
+
+          modulo.listaActioncheked = [];
+          modulo.listaActioncheked = listaNova;
+        }
       }
+      console.log(listaAcoes);
     },
 
     /*marcaDescmarcaCheckPermissao: function (check, nameAction) {
@@ -613,60 +570,55 @@ export default {
 
     preencherPermissaoPorModulos: async function () {
       this.listaModule = [];
-
       this.overlay = true;
       this.listaActioncheked = [];
-
+      this.listaMenucheked = [];
       let totModulo = this.listaModulos.length;
-
       let tot = [];
-
       for (let a = 0; a < totModulo; a++) {
         let obj = new Object();
-
         let modulo = this.listaModulos[a];
         let grupoUser = this.selectGrupoUsuario;
-
         obj.modulo = modulo;
-
-        this.listaModule = await getListPermissionStorageSession(
+        obj.listaModule = await getListPermissionStorageSession(
           modulo,
           grupoUser
         );
-
-        obj.listaModule = this.listaModule;
-
         obj.listaActioncheked = [];
         obj.listaMenucheked = [];
-
-        this.listaMenucheked = [];
-        let i = 0;
-        for (i; i < this.listaModule.length; i++) {
-          let modulo = this.listaModule[i];
+        for (let i = 0; i < obj.listaModule.length; i++) {
+          let modulo = obj.listaModule[i];
           let men = 0;
           for (men; men < modulo.menu.length; men++) {
             let menu = modulo.menu[men];
-            if (menu.checked) {
-              this.listaMenucheked.push(menu.name);
-            }
-            let act = 0;
-            for (act; act < menu.actions.length; act++) {
+            //if (menu.checked) {
+            //this.listaMenucheked.push(menu.name);
+            //obj.listaMenucheked.push(menu.name);
+            //}
+            let totalItenCheked = 0;
+            for (let act = 0; act < menu.actions.length; act++) {
               let action = menu.actions[act];
               if (action.checked) {
-                this.listaActioncheked.push(action.name);
+                //this.listaActioncheked.push(action.name);
+                obj.listaActioncheked.push(action.name);
+                if (action.name.includes(menu.name)) {
+                  totalItenCheked++;
+                }
               }
+            }
+            if (menu.actions.length === totalItenCheked) {
+              obj.listaMenucheked.push(menu.name);
             }
           }
         }
         tot.push(obj);
+        this.listaActioncheked.push(obj.listaMenucheked);
+        this.listaMenucheked.push(obj.listaActioncheked);
       }
-
-      //console.log("tot ", tot);
-
+      //console.log("action ", this.listaActioncheked);
+      //console.log("menu ", this.listaMenucheked);
       this.listaModule = tot;
-
-      //console.log("listaModule ", this.listaModule);
-
+      console.log(this.listaModule);
       this.overlay = false;
     },
   },
