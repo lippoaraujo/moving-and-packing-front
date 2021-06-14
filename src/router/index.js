@@ -26,9 +26,7 @@ import { getListaRotasUserLogado } from "@/helper/listRoutes.js";
 
 Vue.use(VueRouter);
 
-const routes = [
-  
-  
+const routes = [  
   {
     path: "/moving",
     name: "moving",
@@ -166,7 +164,6 @@ const routes = [
       },*/
     ],
   },
-
   { path: "*", redirect: "/home", props: true, },
 ];
 
@@ -236,13 +233,17 @@ router.beforeEach((to, from, next) => {
   publicPages.push("/acessonegado");
 
   let listaRotasUserLogado = getListaRotasUserLogado();
-  
+  //console.log('aqui');
+  //console.log(listaRotasUserLogado);
   if(listaRotasUserLogado!=null){
     //console.log(listaRotasUserLogado);
     var z =0;
     for(z; z<listaRotasUserLogado.length; z++){
       publicPages.push(listaRotasUserLogado[z]);
     }
+  }else{
+    //se nao tiver lista de rotas do usuario logado bota pra o login
+    return next("/login");
   }
   const authRequired = !publicPages.includes(to.path);
 
@@ -276,7 +277,7 @@ router.beforeEach((to, from, next) => {
   
 
   if (authRequired && !loggedIn) {
-      return next("/login");    
+      return next("/login");
   }else{
     publicPages.push("/home");
     if(!publicPages.includes(to.path)){

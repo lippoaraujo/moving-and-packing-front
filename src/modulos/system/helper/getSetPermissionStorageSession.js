@@ -145,7 +145,7 @@ async function setaPermissaoPorRole(listaModulo, role)
   }
   //console.log("listaModuloRetorno ", listaModuloRetorno);
   //console.log("permissionRole ",permissionRole);
-  //console.log("listaModulo ",listaModulo);
+  //console.log("LISTAMODULOSPERMISSAOVINDOBANCO ",listaModulo);
   return listaModuloRetorno; 
 }
 
