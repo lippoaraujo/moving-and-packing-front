@@ -1,7 +1,7 @@
 //import { execGet } from "@/helper/execRequests.js";
 export function getPermissionModule(nameModule)
 {
-  let logado = JSON.parse(sessionStorage.getItem("userLogado"));
+  let logado = JSON.parse(localStorage.getItem("userLogado"));
   //console.log("userLogado ",logado);
   if(logado === null || !logado){
     return false;
@@ -45,7 +45,8 @@ retornar pra tela de login
 
 export function getPermissionMenu(nameMenu)
 {
-  let logado = JSON.parse(sessionStorage.getItem("userLogado"));
+  //permissao tem que vir do localstorage
+  let logado = JSON.parse(localStorage.getItem("userLogado"));
   if(logado === null || !logado){
     return false;
   }
