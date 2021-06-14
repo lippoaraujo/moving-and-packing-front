@@ -331,10 +331,27 @@ export default {
     //localStorage.setItem("usuarioLogado", null);
   },
   mounted() {
+    this.overlay = true;
+
     this.nomeApp = process.env.VUE_APP_NAME_APLICATION;
 
-    let linguagem = localStorage.getItem("linguagemUsuario");
+    let chk = localStorage.getItem("checkContinuarConectado");
+    //console.log("chk ", chk);
 
+    this.objForm.checkContinuarConectado = Boolean(chk);
+    /*this.objForm.checkContinuarConectado = JSON.parse(
+      
+    );*/
+    if (this.objForm.checkContinuarConectado) {
+      let usuario = JSON.parse(localStorage.getItem("usuarioLogado"));
+      if (usuario != undefined) {
+        this.objForm.email = usuario.email;
+        this.objForm.senha = usuario.email;
+      }
+    }
+
+    let linguagem = localStorage.getItem("linguagemUsuario");
+    //console.log("linguagem ", linguagem);
     if (linguagem != null) {
       this.radioLingauagem = linguagem;
       this.$i18n.locale = linguagem;
@@ -357,8 +374,6 @@ export default {
 
   create: function () {
     // the data object is not yet created
-    this.overlay = false;
-
     this.emailRules = [
       (v) => !!v || +this.$t("tradEmailObrigatorio"),
       (v) => /.+@.+\..+/.test(v) || this.$t("tradEmailInvalido"),
@@ -462,7 +477,10 @@ export default {
           },
           (error) => {
             try {
-              if (error.response.data.code == 401) {
+              if (
+                error.response.data.code == 401 ||
+                error.response.data.code == 403
+              ) {
                 this.overlay = false;
                 /*this.$dialog.message.error("E-mail ou senha inválidos!", {
                   position: "top",
@@ -502,32 +520,6 @@ export default {
       }
     },
 
-    identificaUsuarioLogado: async function () {
-      try {
-        //console.log("getListaClienteAdd");
-        //this.objLoadingGrid = true;
-        //this.listaClienteAdd
-        let urlGetUser = process.env.VUE_APP_URL_CONNECTION + "/auth/user";
-        //console.log("urlGetUser", urlGetUser);
-        let userLoged = await execGet(urlGetUser);
-        //console.log("userLogeduserLogeduserLogeduserLogeduserLoged", userLoged);
-
-        localStorage.setItem("usuarioLogado", JSON.stringify(userLoged));
-
-        //seta linguagem
-        localStorage.setItem("linguagemUsuario", this.$i18n.locale);
-
-        this.$router.push("modulos");
-      } catch (e) {
-        this.$dialog.error({
-          title: "Erro get date user",
-          text: e,
-        });
-      } finally {
-        this.overlay = false;
-      }
-    },
-
     validate: function () {
       //console.log(this.$refs.formLogar.validate());
       return this.$refs.formLogar.validate();
@@ -544,8 +536,6 @@ export default {
     },
 
     checkUserLogado: function () {
-      this.overlay = true;
-
       let checkContinuarLogado = JSON.parse(
         localStorage.getItem("checkContinuarConectado")
       );
@@ -560,8 +550,8 @@ export default {
         }
       }
 
-      console.log("checkContinuarLogado", checkContinuarLogado);
-      console.log("userLogado", userLogado);
+      //console.log("checkContinuarLogado", checkContinuarLogado);
+      //console.log("userLogado", userLogado);
 
       if (checkContinuarLogado) {
         if (userLogado) {
@@ -574,13 +564,40 @@ export default {
         this.overlay = false;
       }
     },
+    identificaUsuarioLogado: async function () {
+      try {
+        //console.log("getListaClienteAdd");
+        //this.objLoadingGrid = true;
+        //this.listaClienteAdd
+        let urlGetUser = process.env.VUE_APP_URL_CONNECTION + "/auth/user";
+        //console.log("urlGetUser", urlGetUser);
+        let userLoged = await execGet(urlGetUser);
+        //console.log("userLogeduserLogeduserLogeduserLogeduserLoged", userLoged);
+
+        localStorage.setItem("usuarioLogado", JSON.stringify(userLoged));
+
+        //seta linguagem
+        localStorage.setItem("linguagemUsuario", this.$i18n.locale);
+
+        //this.$router.push("modulos");
+
+        this.$router.push({ path: "/modulos" }).catch((error) => {
+          console.info("erro router: ", error.message);
+        });
+      } catch (e) {
+        this.$dialog.error({
+          title: "Erro get date user",
+          text: e,
+        });
+        this.overlay = false;
+      }
+    },
 
     getPermissaoPorToken: async function () {
       try {
         let urlPermissionFOrToken =
           process.env.VUE_APP_URL_CONNECTION + "/system/users/permissions";
         let permissions = await execGet(urlPermissionFOrToken);
-
         if (typeof permissions.permissions === "boolean") {
           localStorage.setItem("userAdmin", true);
         } else {
@@ -596,7 +613,6 @@ export default {
           title: "Erro get permission for token",
           text: e,
         });
-      } finally {
         this.overlay = false;
       }
     },

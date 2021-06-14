@@ -1,13 +1,12 @@
 import { getPermissionModule, getPermissionMenu } from "@/helper/getPermission.js";
 
-export async function getListaRotasUserLogado(){
+export function getListaRotasUserLogado(){
   let listaRotaRetorno = [];
   let a = 0;
   let listModules = getListModules();
-  //let temPermissao = false;
   for(a; a<listModules.length; a++){
     let modulo = listModules[a];
-    let permissionModule = await getPermissionModule(modulo.name);
+    let permissionModule = getPermissionModule(modulo.name);
     if(permissionModule){
       //temPermissao = true;
       let b = 0;
@@ -15,7 +14,7 @@ export async function getListaRotasUserLogado(){
       let listaMenuModulo = modulo.menu;
       for(b; b < listaMenuModulo.length; b++){
         let menu =  listaMenuModulo[b];
-        let permissionMenu = await getPermissionMenu(menu.name);
+        let permissionMenu = getPermissionMenu(menu.name);
         if(permissionMenu){
           listaRotaRetorno.push("/" + modulo.name + "/" + menu.name.concat("s"));
         }

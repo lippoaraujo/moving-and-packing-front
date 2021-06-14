@@ -131,7 +131,7 @@ export default {
       }
     },
 
-    incializaTela: async function () {
+    incializaTela: function () {
       if (JSON.parse(localStorage.getItem("userAdmin"))) {
         this.items = getListMenuModule(this.$route.path);
       } else {
@@ -141,7 +141,9 @@ export default {
           let listaInicialMenu = [];
           for (a; a < listMenuFront.length; a++) {
             let menuFront = listMenuFront[a];
-            let permissaoMenu = await getPermissionMenu(menuFront.name);
+            let permissaoMenu = getPermissionMenu(menuFront.name);
+            //console.log("MENU: ", menuFront.name);
+            //console.log("RESULTADO VALIDADCAO MENU PERMISSAO: ", permissaoMenu);
             if (permissaoMenu) {
               listaInicialMenu.push(menuFront);
             }

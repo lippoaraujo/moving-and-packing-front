@@ -120,7 +120,7 @@ export default {
   }),
 
   Create() {
-    //this.incializaTela();
+    this.incializaTela();
   },
 
   beforeCreate() {
@@ -145,7 +145,7 @@ export default {
       this.$router.push("/" + nomeModulo);
     },
 
-    incializaTela: async function () {
+    incializaTela: function () {
       if (JSON.parse(localStorage.getItem("userAdmin"))) {
         this.items = getListModules();
       } else {
@@ -157,8 +157,9 @@ export default {
             let moduleFront = listModuleFront[a];
             //console.log("INICIO VALIDADE PERMISSAO MODULO");
             //console.log("VALIDANDO MODULO: ", moduleFront.name);
-            let validacao = await getPermissionModule(moduleFront.name);
-            //console.log("RESULTADO: ", validacao);
+            let validacao = getPermissionModule(moduleFront.name);
+            //console.log("MODULO: ", moduleFront.name);
+            //console.log("RESULTADO VALIDADCAO PERMISSAO: ", validacao);
             if (validacao) {
               listaInicialModulos.push(moduleFront);
             }

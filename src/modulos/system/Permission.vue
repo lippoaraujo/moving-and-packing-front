@@ -43,19 +43,24 @@
                   
                 </v-card-title>-->
                 <v-card-text>
-                  <v-row>
-                    <v-col>
-                      <v-select
-                        v-model="selectGrupoUsuario"
-                        :items="this.listaRoles"
-                        label="Role"
-                        item-text="name"
-                        item-value="id"
-                        return-object
-                        outlined
-                        @change="setListModulesSelect"
-                      ></v-select>
-                    </v-col>
+                  <v-form
+                    v-on:submit.prevent="salvar(objForm)"
+                    ref="objForm"
+                    v-model="valid"
+                    lazy-validation
+                  >
+                    <v-select
+                      v-model="objForm.selectGrupoUsuario"
+                      :items="this.listaRoles"
+                      :rules="grupoRules"
+                      label="Role"
+                      item-text="name"
+                      item-value="id"
+                      return-object
+                      outlined
+                      @change="setListModulesSelect"
+                    ></v-select>
+
                     <!--<v-col>
                       <v-select
                         v-model="selectModulosGrupoUsuario"
@@ -68,37 +73,40 @@
                         @change="preencherPermissaoPorModulos"
                       ></v-select>
                     </v-col>-->
-                  </v-row>
-                  <v-row v-if="listaModule.length">
-                    <v-col>
-                      <v-card style="width:100%;important">
-                        <v-card-text>
-                          <!--<p class="display-1 text-center text--primary">
+
+                    <v-card
+                      v-if="listaModule.length"
+                      style="width:100%;important"
+                    >
+                      <v-card-text>
+                        <!--<p class="display-1 text-center text--primary">
                           Módulos do sistema
                         </p>-->
-                          <v-col class="subtitle-1">
-                            <v-icon>mdi-view-dashboard</v-icon>
-                            Módulos do sistema
-                          </v-col>
+                        <v-col class="subtitle-1">
+                          <v-icon>mdi-view-dashboard</v-icon>
+                          Módulos do sistema
+                        </v-col>
 
-                          <v-bottom-navigation
-                            background-color="blue darken-4"
-                            dark
-                            grow
-                          >
-                            <v-btn @click="all">
-                              <span>Exibir</span>
-                              <v-icon>mdi-download-multiple</v-icon>
-                            </v-btn>
+                        <v-bottom-navigation
+                          background-color="blue darken-4"
+                          dark
+                          grow
+                        >
+                          <v-btn @click="ocultarExpandirModulos">
+                            <span>{{ nomeBotaoOcultarExpandirModulos }}</span>
+                            <v-icon>{{
+                              iconeBotaoOcultarExpandirModulos
+                            }}</v-icon>
+                          </v-btn>
 
-                            <v-btn @click="none">
-                              <span>Ocultar</span>
-                              <v-icon>mdi-upload-multiple</v-icon>
-                            </v-btn>
-                          </v-bottom-navigation>
+                          <!-- <v-btn @click="none">
+                          <span>Ocultar</span>
+                          <v-icon>mdi-upload-multiple</v-icon>
+                        </v-btn> -->
+                        </v-bottom-navigation>
 
-                          <!--<v-col class="text-right">-->
-                          <!--<v-col>
+                        <!--<v-col class="text-right">-->
+                        <!--<v-col>
                           <v-btn
                             dark
                             tile
@@ -120,90 +128,91 @@
                             <v-icon right dark>mdi-chevron-triple-up</v-icon>
                           </v-btn>
                         </v-col> -->
-                          <v-expansion-panels v-model="panelPai" multiple>
-                            <v-expansion-panel
-                              v-model="panelList"
-                              v-for="(modulo, key) in listaModule"
-                              :key="key"
-                            >
-                              <v-expansion-panel-header>
-                                {{ modulo.modulo.nameExibicao }}
-                              </v-expansion-panel-header>
+                        <v-expansion-panels v-model="panelPai" multiple>
+                          <v-expansion-panel
+                            v-model="panelList"
+                            v-for="(modulo, key) in listaModule"
+                            :key="key"
+                          >
+                            <v-expansion-panel-header>
+                              {{ modulo.modulo.nameExibicao }}
+                            </v-expansion-panel-header>
 
-                              <v-expansion-panel-content>
-                                <v-simple-table dense>
-                                  <template v-slot:default>
-                                    <thead>
-                                      <tr>
-                                        <th class="text-left subtitle-1">
-                                          Menu
-                                        </th>
-                                        <th
-                                          colspan="4"
-                                          class="text-left subtitle-1"
-                                        >
-                                          Ações
-                                        </th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr>
-                                        <td colspan="2">
-                                          {{ modulo.listaMenucheked }}
-                                        </td>
-                                      </tr>
-                                      <tr
-                                        v-for="(itemMenu, key) in modulo.modulo
-                                          .menu"
-                                        :key="key"
+                            <v-expansion-panel-content>
+                              <v-simple-table dense>
+                                <template v-slot:default>
+                                  <thead>
+                                    <tr>
+                                      <th class="text-left subtitle-1">Menu</th>
+                                      <th
+                                        colspan="4"
+                                        class="text-left subtitle-1"
                                       >
-                                        <td>
-                                          <v-checkbox
-                                            :label="itemMenu.name"
-                                            v-model="modulo.listaMenucheked"
-                                            :value="itemMenu.name"
-                                            color="blue darken-4"
-                                            @click="
-                                              preencherTodasAcoesMenu(itemMenu)
-                                            "
-                                          ></v-checkbox>
-                                        </td>
+                                        Ações
+                                      </th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <!--<tr>
+                                      <td colspan="2">
+                                        {{ modulo.listaMenucheked }}
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td colspan="2">
+                                        {{ modulo.listaActioncheked }}
+                                      </td>
+                                    </tr>-->
+                                    <tr
+                                      v-for="(itemMenu, key) in modulo.modulo
+                                        .menu"
+                                      :key="key"
+                                    >
+                                      <td>
+                                        <v-checkbox
+                                          :label="itemMenu.name"
+                                          v-model="modulo.listaMenucheked"
+                                          :value="itemMenu.name"
+                                          color="blue darken-4"
+                                          @click="
+                                            preencherTodasAcoesMenu(itemMenu)
+                                          "
+                                        ></v-checkbox>
+                                      </td>
 
-                                        <td>
-                                          <v-simple-table>
-                                            <tbody>
-                                              <tr>
-                                                <td
-                                                  v-for="(
-                                                    actions, keyy, index
-                                                  ) in itemMenu.actions"
-                                                  :key="index"
-                                                >
-                                                  <v-checkbox
-                                                    :label="actions.name"
-                                                    v-model="
-                                                      modulo.listaActioncheked
-                                                    "
-                                                    :value="actions.name"
-                                                    color="blue darken-4"
-                                                  ></v-checkbox>
-                                                </td>
-                                              </tr>
-                                            </tbody>
-                                          </v-simple-table>
-                                        </td>
-                                      </tr>
-                                    </tbody>
-                                  </template>
-                                </v-simple-table>
-                              </v-expansion-panel-content>
-                            </v-expansion-panel>
-                          </v-expansion-panels>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-
+                                      <td>
+                                        <v-simple-table>
+                                          <tbody>
+                                            <tr>
+                                              <td
+                                                v-for="(
+                                                  actions, keyy, index
+                                                ) in itemMenu.actions"
+                                                :key="index"
+                                              >
+                                                <v-checkbox
+                                                  :label="actions.name"
+                                                  v-model="
+                                                    modulo.listaActioncheked
+                                                  "
+                                                  :value="actions.name"
+                                                  color="blue darken-4"
+                                                ></v-checkbox>
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </v-simple-table>
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </template>
+                              </v-simple-table>
+                            </v-expansion-panel-content>
+                          </v-expansion-panel>
+                        </v-expansion-panels>
+                      </v-card-text>
+                    </v-card>
+                  </v-form>
                   <center>
                     <v-row>
                       <v-col>
@@ -217,7 +226,7 @@
                           Salvar
                           <v-icon right dark>mdi-content-save</v-icon>
                         </v-btn>
-                        <v-btn
+                        <!--<v-btn
                           dark
                           tile
                           color="blue darken-2"
@@ -226,7 +235,7 @@
                         >
                           Cancelar
                           <v-icon right dark>mdi-cancel</v-icon>
-                        </v-btn>
+                        </v-btn> -->
                       </v-col>
                     </v-row>
                   </center>
@@ -247,22 +256,40 @@ import { getObjMenu } from "@/helper/listRoutes.js";
 import {
   //execPost,
   execGet,
+  execPut,
 } from "@/helper/execRequests.js";
 import { getListPermissionStorageSession } from "@/modulos/system/helper/getSetPermissionStorageSession.js";
 import { getListModules } from "@/helper/listRoutes.js";
 export default {
   name: "Permission",
 
+  /**<v-btn @click="ocultarExpandirModulos">
+                          <span>{{nomeBotaoOcultarExpandirModulos}}Exibir</span>
+                          <v-icon>{{iconeBotaoOcultarExpandirModulos}}mdi-download-multiple</v-icon>
+                        </v-btn>
+
+                        <!-- <v-btn @click="none">
+                          <span>Ocultar</span>
+                          <v-icon>mdi-upload-multiple</v-icon>
+                        </v-btn> --> */
+
   data: () => ({
+    nomeBotaoOcultarExpandirModulos: "Ocultar",
+    iconeBotaoOcultarExpandirModulos: "mdi-upload-multiple",
+    exibeLIstaModulo: true,
     panelPai: [],
+
     linguagem: null,
     overlay: false,
     panelList: [],
-    urlAPIRoles: process.env.VUE_APP_URL_CONNECTION + "/system/roles",
     urlAPIGrupoUser: process.env.VUE_APP_URL_CONNECTION + "/system/usergroups",
     urlAPIRoutes: process.env.VUE_APP_URL_CONNECTION + "system/routes",
+    urlAPIRoles: process.env.VUE_APP_URL_CONNECTION + "/system/roles",
 
-    selectGrupoUsuario: null,
+    objForm: {
+      selectGrupoUsuario: null,
+    },
+    valid: true,
     selectModulosGrupoUsuario: null,
     listaModulos: [],
     listaRoles: [],
@@ -274,41 +301,24 @@ export default {
       { id: 0, nome: "Permissão por grupo", icon: "mdi-account-group" },
       { id: 1, nome: "Permissão por usuario", icon: "mdi-account-tie" },
     ],
-    listaGrupoPermissao: [],
 
     listaMenucheked: [],
     listaActioncheked: [],
     listaModule: [],
 
-    //search: "",
-    objFormGroup: {},
-    objFormUser: {},
     drawer: null,
     tab: null,
-    objLoadingGrid: true,
-    //grid
-
-    //grid
-    //form
-    /*valid: true,
-    nameRules: [
-      (v) => !!v || "Name e obrigatório",
-      (v) =>
-        (v && v.length <= 200) || "O Name deve ter no máximo 200 caracteres",
-    ],*/
+    grupoRules: [],
   }),
 
   created() {
     this.linguagem = localStorage.getItem("linguagemUsuario");
     this.$i18n.locale = this.linguagem;
-    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
-    this.headerRequest = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: AuthStr,
-      },
-    };
     this.menu = getObjMenu(this.$route.path);
+
+    this.grupoRules = [
+      (v) => !!v || "É obrigatorio escolher um grupo pra poder salvar!",
+    ];
   },
 
   async mounted() {
@@ -318,7 +328,6 @@ export default {
       location.reload();
     };
     await this.getListRole();
-    //this.listaModule = getListPermissionStorageSession();
   },
 
   computed: {
@@ -342,7 +351,20 @@ export default {
   },
 
   methods: {
-    all() {
+    ocultarExpandirModulos() {
+      if (this.exibeLIstaModulo) {
+        this.nomeBotaoOcultarExpandirModulos = "Ocultar";
+        this.iconeBotaoOcultarExpandirModulos = "mdi-upload-multiple";
+        this.exibeLIstaModulo = false;
+        this.panelPai = this.panelList;
+      } else {
+        this.nomeBotaoOcultarExpandirModulos = "Exibir";
+        this.iconeBotaoOcultarExpandirModulos = "mdi-download-multiple";
+        this.exibeLIstaModulo = true;
+        this.panelPai = [];
+      }
+    },
+    /*all() {
       //https: github.com/vuetifyjs/vuetify/blob/master/packages/docs/src/examples/v-expansion-panels/prop-model.vue
 
       this.panelPai = this.panelList;
@@ -350,7 +372,7 @@ export default {
     // Reset the panel
     none() {
       this.panelPai = [];
-    },
+    },*/
 
     preencherTodasAcoesMenu: function (itemMenu) {
       //console.log(this.listaMenucheked);
@@ -390,49 +412,64 @@ export default {
         //console.log(module.listaActioncheked);
       }
 
+      //console.log("existeMenuChecked :", existeMenuChecked);
+      //console.log("Actioncheked :", module.listaActioncheked);
+
       let actionsNova = [];
 
       for (let g = 0; g < this.listaModule.length; g++) {
         let module = this.listaModule[g];
-        //console.log(module.modulo.name);
 
-        for (let h = 0; h < module.listaActioncheked.length; h++) {
-          let nameAction = module.listaActioncheked[h];
-          if (existeMenuChecked) {
-            //adicona todos ao module.listaActioncheked
+        if (module.listaActioncheked.length > 0) {
+          for (let h = 0; h < module.listaActioncheked.length; h++) {
+            let nameAction = module.listaActioncheked[h];
+            if (existeMenuChecked) {
+              //adicona todos ao module.listaActioncheked
 
-            //percorre toda lista de modulos
-            for (let i = 0; i < list.length; i++) {
-              let mod = list[i];
-              let menus = mod.menu;
-              //console.log(menus);
+              //percorre toda lista de modulos
+              for (let i = 0; i < list.length; i++) {
+                let mod = list[i];
+                let menus = mod.menu;
+                //console.log(menus);
 
-              for (let j = 0; j < menus.length; j++) {
-                let menu = menus[j];
-                //console.log(menu);
-                let actions = menu.actions;
-                //console.log(actions);
+                for (let j = 0; j < menus.length; j++) {
+                  let menu = menus[j];
+                  //console.log(menu);
+                  let actions = menu.actions;
+                  //console.log(actions);
 
-                for (let m = 0; m < actions.length; m++) {
-                  let nameAction = actions[m];
-                  //console.log(nameAction.name);
+                  for (let m = 0; m < actions.length; m++) {
+                    let nameAction = actions[m];
+                    //console.log(nameAction.name);
 
-                  if (nameAction.name.includes(nomeMenuSelecionado)) {
-                    //console.log("nome que vai adicionar: ", nameAction.name);
-                    actionsNova.push(nameAction.name);
-                    //module.listaActioncheked.push(nameAction.name);
+                    if (nameAction.name.includes(nomeMenuSelecionado)) {
+                      //console.log("nome que vai adicionar: ", nameAction.name);
+                      actionsNova.push(nameAction.name);
+                      //module.listaActioncheked.push(nameAction.name);
+                    }
                   }
                 }
               }
+            } else {
+              //retira todos
+              //console.log("retirando");
+              //console.log("nameAction ", nameAction);
+              if (nameAction.includes(nomeMenuSelecionado)) {
+                module.listaActioncheked.splice(h, 1);
+                h--;
+              }
+            }
+          }
+        } else {
+          //ListActioncheked vazia preencher com as ações do menu escolhido
+          //console.log("ListActioncheked vazia");
+          //console.log(itemMenu.actions);
+          if (existeMenuChecked) {
+            for (let l = 0; l < itemMenu.actions.length; l++) {
+              actionsNova.push(itemMenu.actions[l].name);
             }
           } else {
-            //retira todos
-            //console.log("retirando");
-            //console.log("nameAction ", nameAction);
-            if (nameAction.includes(nomeMenuSelecionado)) {
-              module.listaActioncheked.splice(h, 1);
-              h--;
-            }
+            actionsNova = [];
           }
         }
       }
@@ -442,106 +479,151 @@ export default {
         let novaArr = actionsNova.filter(
           (este, i) => actionsNova.indexOf(este) === i
         );
-        console.log("nameModuloActionsNova: ", nameModuloActionsNova);
-        console.log("o que vai adcionar: ", novaArr);
+        //console.log("nameModuloActionsNova: ", nameModuloActionsNova);
+        //console.log("o que vai adcionar: ", novaArr);
         this.adicionarAcoesModulosCheckbox(nameModuloActionsNova, novaArr);
       }
-
-      //console.log("menu ", nomeMenuSelecionado);
-      //console.log("existeMenuChecked ", existeMenuChecked);
-      //return false;
-
-      /*for (let i = 0; i < itemMenu.actions.length; i++) {
-        let action = itemMenu.actions[i];
-
-        //let itemChecked = action.name + action.id;
-        let itemChecked = action.name;
-
-        console.log("item para teste ", itemChecked);
-
-        //console.log(itemChecked);
-        if (this.listaActioncheked.indexOf(itemChecked) === -1) {
-          console.log("adiciona ");
-          // Insere o número pois ele não existe
-          this.listaActioncheked.push(itemChecked);
-          //this.marcaDescmarcaCheckPermissao(true, itemChecked);
-        } else {
-          console.log("retira ");
-          //retira
-          this.listaActioncheked.splice(itemChecked, 1);
-          //this.marcaDescmarcaCheckPermissao(false, itemChecked);
-        }
-      }*/
     },
 
     adicionarAcoesModulosCheckbox: function (nomeModulo, listaAcoes) {
       for (let z = 0; z < this.listaModule.length; z++) {
         let modulo = this.listaModule[z];
         if (modulo.modulo.name == nomeModulo) {
-          console.log("INICIO ", modulo.listaActioncheked.length);
+          //console.log("INICIO ", modulo.listaActioncheked.length);
 
           let listaAtual = modulo.listaActioncheked;
 
-          console.log("listaAtual", listaAtual);
-          console.log("listaAcoes", listaAcoes);
+          //console.log("listaAtual", listaAtual);
+          //console.log("listaAcoes", listaAcoes);
 
           let listaNova = listaAtual.concat(listaAcoes);
-          console.log("listaAtual NOVA", listaNova);
+          //console.log("listaAtual NOVA", listaNova);
 
           modulo.listaActioncheked = [];
           modulo.listaActioncheked = listaNova;
         }
       }
-      console.log(listaAcoes);
+      console.log("FIMMM ", this.listaModule);
     },
 
-    /*marcaDescmarcaCheckPermissao: function (check, nameAction) {
-      let totMod = 0;
-      for (totMod; totMod < this.listaModule.length; totMod++) {
-        let objModulo = this.listaModule[totMod];
-
-        let listMenu = objModulo.menu;
-        let totMen = 0;
-
-        let novaListaMenu = [];
-        for (totMen; totMen < listMenu.length; totMen++) {
-          let objMenu = listMenu[totMen];
-          let listAction = objMenu.actions;
-          let totAct = 0;
-          let novaListaActio = [];
-          for (totAct; totAct < listAction.length; totAct++) {
-            let act = listAction[totAct];
-            //let nameAct = act.name + act.id;
-            let nameAct = act.name;
-            console.log("nameAct ", nameAct);
-            console.log("nameActTeste ", nameAction);
-            if (nameAct === nameAction) {
-              act.checked = check;
-            }
-            novaListaActio.push(act);
-          }
-          objMenu.actions = novaListaActio;
-          novaListaMenu.push(objMenu);
-        }
-        objModulo.menu = novaListaMenu;
-
-        this.listaModule.splice(totMod, 1, objModulo);
-
-        console.log("listaModule ", this.listaModule);
-
-        //var items = Array(523,3452,334,31, ...5346);
-        //items.splice(1, 1, 1010);
-        //A operação de emenda removerá 1 item,
-        //começando na posição 1 na matriz (ou seja 3452),
-        //e o substituirá pelo novo item 1010.
-        this.$forceUpdate();
-      }
-    },*/
-
     reset: function () {},
-    salvar: function () {},
+    salvar: function () {
+      this.overlay = true;
 
-    setListModulesSelect: function () {
+      if (this.validate()) {
+        //console.log("listaModule", this.listaModule);
+        // pra cada um dos modulos da lista cria um request put pra /system/roles/
+        // passando o id do modulo na url, no body passa o nome do modulo em name e
+        /// as permission um array com o id das permissoe que existem
+
+        let arrayIdsDaPermissao = [];
+        let listIdModuo = [];
+
+        for (let a = 0; a < this.listaModule.length; a++) {
+          let objMod = this.listaModule[a];
+          //let nomeDoModulo = objMod.modulo.name;
+
+          let listArrayPermissao = this.getListaArrayAction(
+            objMod.listaActioncheked
+          );
+          arrayIdsDaPermissao.push(listArrayPermissao);
+          if (listArrayPermissao.length > 0) {
+            switch (objMod.modulo.name) {
+              case "system":
+                listIdModuo.push(42);
+                break;
+              case "moving":
+                // code block
+                listIdModuo.push(43);
+                break;
+              default:
+                // code block
+                break;
+            }
+          }
+          //console.log("nomeDoModulo ", nomeDoModulo);
+        }
+
+        let a = [];
+        for (let b = 0; b < arrayIdsDaPermissao.length; b++) {
+          let list = arrayIdsDaPermissao[b];
+          for (let c = 0; c < list.length; c++) {
+            a.push(list[c]);
+          }
+        }
+        if (listIdModuo.length > 0) {
+          for (let d = 0; d < listIdModuo.length; d++) {
+            a.push(listIdModuo[d]);
+          }
+        }
+        this.execSalvar(a);
+      } else {
+        this.overlay = false;
+      }
+    },
+    validate: function () {
+      if (!this.$refs.objForm.validate()) {
+        this.$dialog.message.error(this.$i18n.t("tradMsgmForm"), {
+          position: "top-right",
+          timeout: 5000,
+        });
+        return false;
+      }
+      return true;
+    },
+    getListaArrayAction: function (listaActioncheked) {
+      let arrayRetorno = [];
+      let listaPermissaoUsuarioLogado = JSON.parse(
+        sessionStorage.getItem("permissions")
+      );
+      for (let b = 0; b < listaPermissaoUsuarioLogado.length; b++) {
+        let permissaoLogada = listaPermissaoUsuarioLogado[b];
+        for (let z = 0; z < listaActioncheked.length; z++) {
+          let actionName = listaActioncheked[z];
+          if (permissaoLogada.name === actionName) {
+            arrayRetorno.push(permissaoLogada.id);
+          }
+        }
+      }
+      return arrayRetorno;
+    },
+
+    execSalvar: async function (arrayIdsDaPermissao) {
+      /*let msgm =
+        this.$i18n.t("tradMsgmPacking") +
+        this.objForm.name +
+        this.$i18n.t("tradMsgmSalvar");*/
+
+      let msgm =
+        "Permissões do grupo " +
+        this.objForm.selectGrupoUsuario.name +
+        "alteradas com sucesso!";
+
+      let objSalvar = {
+        name: this.objForm.selectGrupoUsuario.name,
+        permission: arrayIdsDaPermissao,
+      };
+      console.log("objSalvar ", objSalvar);
+      let url = this.urlAPIRoles.concat(
+        "/" + this.objForm.selectGrupoUsuario.id
+      );
+      console.log(url);
+
+      let retornoExecPost = await execPut(url, objSalvar);
+      if (retornoExecPost) {
+        this.$dialog.message.success(msgm, {
+          position: "top-right",
+          timeout: 5000,
+        });
+        this.overlay = false;
+        return true;
+      } else {
+        this.overlay = false;
+        return false;
+      }
+    },
+
+    setListModulesSelect() {
       let list = getListModules();
       let i;
       let lisRetorno = [];
@@ -569,8 +651,8 @@ export default {
     },
 
     preencherPermissaoPorModulos: async function () {
-      this.listaModule = [];
       this.overlay = true;
+      this.listaModule = [];
       this.listaActioncheked = [];
       this.listaMenucheked = [];
       let totModulo = this.listaModulos.length;
@@ -578,7 +660,7 @@ export default {
       for (let a = 0; a < totModulo; a++) {
         let obj = new Object();
         let modulo = this.listaModulos[a];
-        let grupoUser = this.selectGrupoUsuario;
+        let grupoUser = this.objForm.selectGrupoUsuario;
         obj.modulo = modulo;
         obj.listaModule = await getListPermissionStorageSession(
           modulo,
@@ -618,7 +700,9 @@ export default {
       //console.log("action ", this.listaActioncheked);
       //console.log("menu ", this.listaMenucheked);
       this.listaModule = tot;
-      console.log(this.listaModule);
+      //console.log(this.listaModule);
+      //maximizando a lista de modulos
+      this.panelPai = this.panelList;
       this.overlay = false;
     },
   },
