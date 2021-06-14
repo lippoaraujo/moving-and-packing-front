@@ -45,6 +45,7 @@ retornar pra tela de login
 
 export function getPermissionMenu(nameMenu)
 {
+  //permissao tem que vir do localstorage
   let logado = JSON.parse(localStorage.getItem("userLogado"));
   if(logado === null || !logado){
     return false;
