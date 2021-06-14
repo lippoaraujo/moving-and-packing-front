@@ -141,7 +141,10 @@ export default {
           let listaInicialMenu = [];
           for (a; a < listMenuFront.length; a++) {
             let menuFront = listMenuFront[a];
-            if (getPermissionMenu(menuFront.name)) {
+            let permissaoMenu = getPermissionMenu(menuFront.name);
+            //console.log("MENU: ", menuFront.name);
+            //console.log("RESULTADO VALIDADCAO MENU PERMISSAO: ", permissaoMenu);
+            if (permissaoMenu) {
               listaInicialMenu.push(menuFront);
             }
           }

@@ -1,7 +1,8 @@
-import { execGet } from "@/helper/execRequests.js";
-export async function getPermissionModule(nameModule)
+//import { execGet } from "@/helper/execRequests.js";
+export function getPermissionModule(nameModule)
 {
-  let logado = sessionStorage.getItem("logado");
+  let logado = JSON.parse(sessionStorage.getItem("userLogado"));
+  //console.log("userLogado ",logado);
   if(logado === null || !logado){
     return false;
   }
@@ -9,7 +10,14 @@ export async function getPermissionModule(nameModule)
     return true;
   }
   let listaPermissao = JSON.parse(sessionStorage.getItem("permissions"));
+  //console.log("listaPermissaosession ",listaPermissao);
+
   if(listaPermissao==null){
+    return false;
+    /*
+retirar este getPermissionPorToken daqui e no route/index se nao trazer permissao
+retornar pra tela de login
+
     let objReturn = await getPermissionPorToken();
     if(objReturn.status){
       let a;
@@ -22,7 +30,7 @@ export async function getPermissionModule(nameModule)
       }
     }else{
       return false;
-    }
+    }*/
   }else{
     let a;
     for(a=0; a<listaPermissao.length; a++){
@@ -35,9 +43,9 @@ export async function getPermissionModule(nameModule)
   return false;
 } 
 
-export async function getPermissionMenu(nameMenu)
+export function getPermissionMenu(nameMenu)
 {
-  let logado = sessionStorage.getItem("logado");
+  let logado = JSON.parse(sessionStorage.getItem("userLogado"));
   if(logado === null || !logado){
     return false;
   }
@@ -46,7 +54,8 @@ export async function getPermissionMenu(nameMenu)
   }
   let listaPermissao = JSON.parse(sessionStorage.getItem("permissions"));
   if(listaPermissao==null){
-    let objReturn = await getPermissionPorToken();
+    return false;
+    /*let objReturn = await getPermissionPorToken();
     if(objReturn.status){
       let a;
       listaPermissao = objReturn.permission;
@@ -59,7 +68,7 @@ export async function getPermissionMenu(nameMenu)
       }
     }else{
       return false;
-    }
+    }*/
   }else{
     let a;
     for(a=0; a<listaPermissao.length; a++){
@@ -75,7 +84,7 @@ export async function getPermissionMenu(nameMenu)
 }
 
 
-async function getPermissionPorToken()
+/*async function getPermissionPorToken()
 {
   try {
     let objReturn = new Object();
@@ -121,5 +130,5 @@ async function getPermissionPorToken()
   } catch (e) {
     console.log("consultar dados usuario logado: " + e.message);
   }
-}
+} */
 

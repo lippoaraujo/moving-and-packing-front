@@ -120,7 +120,7 @@ export default {
   }),
 
   Create() {
-    //this.incializaTela();
+    this.incializaTela();
   },
 
   beforeCreate() {
@@ -155,11 +155,12 @@ export default {
           let listaInicialModulos = [];
           for (a; a < listModuleFront.length; a++) {
             let moduleFront = listModuleFront[a];
-
-            console.log(moduleFront.name);
-            console.log(getPermissionModule(moduleFront.name));
-
-            if (getPermissionModule(moduleFront.name)) {
+            //console.log("INICIO VALIDADE PERMISSAO MODULO");
+            //console.log("VALIDANDO MODULO: ", moduleFront.name);
+            let validacao = getPermissionModule(moduleFront.name);
+            //console.log("MODULO: ", moduleFront.name);
+            //console.log("RESULTADO VALIDADCAO PERMISSAO: ", validacao);
+            if (validacao) {
               listaInicialModulos.push(moduleFront);
             }
           }
