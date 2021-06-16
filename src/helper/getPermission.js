@@ -133,3 +133,21 @@ export function getPermissionMenu(nameMenu)
   }
 } */
 
+export function getPermissionExecAction(nameAction)
+{
+  //JSON.parse();
+  let listPermissions = JSON.parse(sessionStorage.getItem("permissions"));
+  console.log("LISTA ",listPermissions);
+  for(let a = 0 ; listPermissions.length; a++){
+    let permissao = listPermissions[a];
+    //console.log(permissao);
+    //console.log(permissao.name);
+    if(permissao!= undefined){
+      if(permissao.name === nameAction){
+        return true;
+      }
+    }
+    
+  }
+  return false;
+}
