@@ -59,14 +59,17 @@
             >
               <template v-slot:[`item.actions`]="{ item }">
                 <v-icon
+                  v-if="permiteEditar"
                   medium
                   class="mr-2"
                   :title="$t('tradTitleBtnAlterar')"
                   @click="alterar(item)"
                   >mdi-pencil</v-icon
                 >
-                <v-icon 
-                  medium 
+                <v-icon
+                  v-if="permiteExcluir"
+                  medium
+                  class="mr-2"
                   :title="$t('tradTitleBtnExcluir')"
                   @click="excluir(item)"
                   >mdi-delete</v-icon
@@ -100,6 +103,7 @@
                   <v-row>
                     <v-col class="pt-3 mt-3">
                       <v-btn
+                        v-if="permiteSalvar"
                         dark
                         tile
                         color="blue darken-2"
@@ -137,9 +141,8 @@
 </template>
 <script>
 import { mask } from "vue-the-mask";
-
 import { getObjMenu } from "@/helper/listRoutes.js";
-
+import { getPermissionExecAction } from "@/helper/getPermission.js";
 import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 
 export default {
@@ -147,6 +150,9 @@ export default {
   name: "UserGroup",
 
   data: () => ({
+    permiteSalvar: false,
+    permiteEditar: false,
+    permiteExcluir: false,    
     linguagem: null,
     overlay: false,
     menu: "",
@@ -212,7 +218,10 @@ export default {
 
   },
 
-  async mounted() {    
+  async mounted() {
+    this.permiteSalvar = getPermissionExecAction("role-create");
+    this.permiteEditar = getPermissionExecAction("role-edit");
+    this.permiteExcluir = getPermissionExecAction("role-delete");
     this.getEstadoMenu = true;
     this.getCaminhoBreadCrumb = this.$route.path.split("/");
     window.onpopstate = () => {

@@ -217,6 +217,7 @@
                     <v-row>
                       <v-col>
                         <v-btn
+                          v-if="permiteSalvar"
                           dark
                           tile
                           color="blue darken-2"
@@ -259,12 +260,14 @@ import {
   execPut,
 } from "@/helper/execRequests.js";
 import { getListPermissionStorageSession } from "@/modulos/system/helper/getSetPermissionStorageSession.js";
+import { getPermissionExecAction } from "@/helper/getPermission.js";
 import { getListModules } from "@/helper/listRoutes.js";
 export default {
   name: "Permission",
 
 
   data: () => ({
+    permiteSalvar: false,
     nomeBotaoOcultarExpandirModulos: "Ocultar",
     iconeBotaoOcultarExpandirModulos: "mdi-upload-multiple",
     exibeLIstaModulo: true,
@@ -313,6 +316,7 @@ export default {
   },
 
   async mounted() {
+    this.permiteSalvar = getPermissionExecAction("user-create");    
     this.getEstadoMenu = true;
     this.getCaminhoBreadCrumb = this.$route.path.split("/");
     window.onpopstate = () => {

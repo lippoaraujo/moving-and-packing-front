@@ -61,6 +61,7 @@
                 >
                   <template v-slot:[`item.actions`]="{ item }">
                     <v-icon
+                      v-if="permiteEditar"
                       medium
                       class="mr-2"
                       :title="$t('tradTitleBtnAlterar')"
@@ -68,7 +69,9 @@
                       >mdi-pencil</v-icon
                     >
                     <v-icon
+                      v-if="permiteExcluir"
                       medium
+                      class="mr-2"
                       :title="$t('tradTitleBtnExcluir')"
                       @click="excluir(item)"
                       >mdi-delete</v-icon
@@ -175,6 +178,7 @@
                       <v-row>
                         <v-col class="pt-3 mt-3">
                           <v-btn
+                            v-if="permiteSalvar"
                             dark
                             tile
                             color="blue darken-2"
@@ -214,16 +218,18 @@
 </template>
 <script>
 import { mask } from "vue-the-mask";
-
-import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
-
 import { getObjMenu } from "@/helper/listRoutes.js";
+import { getPermissionExecAction } from "@/helper/getPermission.js";
+import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 
 export default {
   directives: { mask },
   name: "Customer",
 
   data: () => ({
+    permiteSalvar: false,
+    permiteEditar: false,
+    permiteExcluir: false,
     linguagem: null,
     placeholderFone: null,
     foneMaskRule: [],
@@ -337,6 +343,9 @@ export default {
   },
 
   mounted() {
+    this.permiteSalvar = getPermissionExecAction("customer-create");
+    this.permiteEditar = getPermissionExecAction("customer-edit");
+    this.permiteExcluir = getPermissionExecAction("customer-delete");
     this.listar();
     this.getEstadoMenu = true;
     this.getCaminhoBreadCrumb = this.$route.path.split("/");
