@@ -4,7 +4,15 @@
       <v-row>
         <v-col>
           <v-icon> {{ menu.icon }}</v-icon>
-          <span class="subtitle-1">{{ menu.nameExibicao }}</span>
+          <span class="subtitle-1" v-if="linguagem === 'en'">
+            {{ menu.nameExibicao }}
+          </span>
+          <span class="subtitle-1" v-if="linguagem === 'pt-BR'">
+            {{ menu.nameExibicaoPtBr }}
+          </span>
+          <span class="subtitle-1" v-if="linguagem === 'es'">
+            {{ menu.nameExibicaoEs }}
+          </span>
         </v-col>
       </v-row>
       <v-tabs
@@ -33,7 +41,7 @@
               <v-text-field
                 v-model="search"
                 append-icon="mdi-card-search-outline"
-                label="Consulta rapida"
+                :label="$t('tradLabelConsultaGrid')"
                 single-line
                 hide-details
               ></v-text-field>
@@ -43,32 +51,43 @@
               :items="desserts"
               multi-sort
               :loading="objLoadingGrid"
-              loading-text="Carregando... Aguarde"
+              :loading-text="$t('tradLoadConsultaGrid')"
               :search="search"
+              :footer-props="{
+                'items-per-page-text': $t('tradItemPorPaginaGrid'),
+              }"
             >
               <template v-slot:[`item.actions`]="{ item }">
-                <v-icon medium class="mr-2" title="Resumo" @click="resumo(item)"
-                  >mdi-layers-outline</v-icon
-                >
+                <!--<v-icon 
+                  medium 
+                  class="mr-2" 
+                  title="Resumo" 
+                  @click="resumo(item)"
+                  >mdi-layers-outline
+                </v-icon>-->
 
                 <v-icon
                   medium
                   class="mr-2"
-                  title="Relatorio"
+                  :title="$t('tradOrderRelatorio')"
                   @click="relatorio(item)"
-                  >mdi-layers-triple-outline</v-icon
-                >
+                  >mdi-layers-triple-outline
+                </v-icon>
 
                 <v-icon
                   medium
                   class="mr-2"
-                  title="Alterar"
+                  :title="$t('tradTitleBtnAlterar')"
                   @click="alterar(item)"
-                  >mdi-pencil</v-icon
-                >
-                <v-icon medium title="Excluir" @click="excluir(item)"
-                  >mdi-delete</v-icon
-                >
+                  >mdi-pencil
+                </v-icon>
+                
+                <v-icon 
+                  medium 
+                  :title="$t('tradTitleBtnExcluir')" 
+                  @click="excluir(item)"
+                  >mdi-delete
+                </v-icon>
               </template>
             </v-data-table>
           </v-card>
@@ -92,7 +111,7 @@
                       item-value="id"
                       outlined
                       return-object
-                      label="Vendedor"
+                      :label="$t('tradOrderVendedor')"
                       :rules="regrasVendedor"
                     ></v-select>
                   </v-col>
@@ -106,7 +125,7 @@
                       item-value="id"
                       outlined
                       return-object
-                      label="Cliente"
+                      :label="$t('tradMsgmCustomer')"
                       :rules="regrasCliente"
                     ></v-select>
                   </v-col>
@@ -124,8 +143,8 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
-                          v-model="dateFormated"
-                          label="Data da mudança"
+                          v-model="dateFormated"                          
+                          :label="$t('tradOrderDataMudanca')"
                           readonly
                           outlined
                           hide-details="true"
@@ -162,8 +181,8 @@
                 </v-row>
                 <v-row>
                   <v-col>
-                    <v-checkbox
-                      label="Utilizar endereço do cliente para realizar a mudança?"
+                    <v-checkbox                      
+                      :label="$t('tradOrderEnderecoMudanca')"
                       hide-details="true"
                       v-model="objForm.checkedEndereco"
                     ></v-checkbox>
@@ -171,7 +190,7 @@
                 </v-row>
                 <v-row v-if="!objForm.checkedEndereco">
                   <v-col>
-                    <p class="subtitle-1 ma-0 pa-0">Endereço da mudança</p>
+                    <p class="subtitle-1 ma-0 pa-0">{{$t('tradOrderNomeEndereco')}}</p>
                   </v-col>
                 </v-row>
 
@@ -179,7 +198,7 @@
                   <v-col xs="12" sm="12" md="10" lg="10" xl="10">
                     <v-text-field
                       v-model="objForm.address"
-                      label="Endereco"
+                      :label="$t('tradEnderecoCustumer')"
                       outlined
                     ></v-text-field>
                     <!--<v-text-field
@@ -200,7 +219,7 @@
                     ></v-text-field>-->
                     <v-text-field
                       v-model="objForm.postcode"
-                      label="Cep"
+                      :label="$t('tradCepCustumer')"
                       outlined
                     ></v-text-field>
                   </v-col>
@@ -209,35 +228,35 @@
                   <v-col xs="12" sm="12" md="6" lg="6" xl="6">
                     <v-text-field
                       v-model="objForm.city"
-                      label="Cidade"
+                      :label="$t('tradCidadeCustumer')"
                       outlined
                       :required="!objForm.checkedEndereco ? true : false"
-                      :rules="[(v) => !!v || 'Cidade is required']"
+                      :rules="cityRules"
                     ></v-text-field>
                   </v-col>
                   <v-col xs="12" sm="12" md="3" lg="3" xl="3">
                     <v-text-field
                       v-model="objForm.locality"
-                      label="Estado"
+                      :label="$t('tradEstadoCustumer')"
                       outlined
                       :required="!objForm.checkedEndereco ? true : false"
-                      :rules="[(v) => !!v || 'Estado is required']"
+                      :rules="localityRules"
                     ></v-text-field>
                   </v-col>
                   <v-col xs="12" sm="12" md="3" lg="3" xl="3">
                     <v-text-field
                       v-model="objForm.country"
-                      label="País"
+                      :label="$t('tradPaisCustumer')"
                       outlined
                       :required="!objForm.checkedEndereco ? true : false"
-                      :rules="[(v) => !!v || 'País is required']"
+                      :rules="countryRules"
                     ></v-text-field>
                   </v-col>
                 </v-row>
 
                 <v-row>
                   <v-col>
-                    <p class="subtitle-1 ma-0 pa-0">Cômodos da mudança</p>
+                    <p class="subtitle-1 ma-0 pa-0"> {{$t('tradOrderNomeComodosMudanca')}}</p>
                   </v-col>
                 </v-row>
 
@@ -247,7 +266,7 @@
                       :items="listaComodoAdd"
                       v-model="objForm.comodo"
                       ref="refComodo"
-                      label="Cômodo"
+                      :label="$t('tradOrderNomeComodo')"
                       hide-details="true"
                       item-text="name"
                       item-value="id"
@@ -271,11 +290,11 @@
                             class="mr-4"
                             @click="openDialogAddItemComodo"
                           >
-                            Itens
+                            {{$t('tradMsgmItem')}}                            
                             <v-icon right dark>mdi-scatter-plot</v-icon>
                           </v-btn>
                         </template>
-                        <span>Itens do cômodo</span>
+                        <span>{{$t('tradOrderNomeItensComodo')}}</span>
                       </v-tooltip>
                     </v-col>
 
@@ -291,11 +310,11 @@
                             class="mr-4"
                             @click="openDialogImagensComodo"
                           >
-                            Imagens
+                            {{$t('tradOrderNomeImagem')}}
                             <v-icon right dark>mdi-camera</v-icon>
                           </v-btn>
                         </template>
-                        <span>Imagens do cômodo</span>
+                        <span>{{$t('tradOrderNomeImagemComodo')}}</span>
                       </v-tooltip>
                     </v-col>
                   </v-row>
@@ -307,8 +326,8 @@
                       v-model="objForm.obsComodo"
                       auto-grow
                       hide-details="true"
-                      outlined
-                      label="Observação do cômodo"
+                      outlined                      
+                      :label="$t('tradOrderNomeObsComodo')"
                     ></v-textarea>
                   </v-col>
                 </v-row>
@@ -326,11 +345,11 @@
                             class="mr-4"
                             @click="addComodoStorage"
                           >
-                            Salvar
+                            {{ $t("tradBtSalvarForm") }}
                             <v-icon right dark>mdi-content-save</v-icon>
                           </v-btn>
                         </template>
-                        <span>Adicionar cômodo</span>
+                        <span>{{ $t("tradOrderNomeAddComodo") }}</span>
                       </v-tooltip>
                     </v-col>
 
@@ -346,11 +365,11 @@
                             class="mr-4"
                             @click="cancelarComodoStorage"
                           >
-                            Cancelar
+                            {{ $t("tradBtCancelarForm") }}
                             <v-icon right dark>mdi-cancel</v-icon>
                           </v-btn>
                         </template>
-                        <span>Cancelar cômodo</span>
+                        <span>{{ $t("tradOrderNomeAddComodo") }}</span>
                       </v-tooltip>
                     </v-col>
                   </v-row>
@@ -358,7 +377,7 @@
 
                 <v-row>
                   <v-col>
-                    <p class="subtitle-1 ma-0 pa-0">Cômodos adicionados</p>
+                    <p class="subtitle-1 ma-0 pa-0">{{ $t("tradOrderNomeComodoAdicionado") }}</p>
                   </v-col>
                 </v-row>
 
@@ -370,7 +389,7 @@
                     <v-expansion-panels accordion>
                       <v-expansion-panel v-if="listaComodoExibir === null">
                         <v-expansion-panel-header>
-                          Nenhum Comodo adicionado
+                          {{ $t("tradOrderNenhumComodoAdicionado") }}
                         </v-expansion-panel-header>
                       </v-expansion-panel>
 
@@ -380,8 +399,8 @@
                         :key="index"
                       >
                         <v-expansion-panel-header>
-                          {{ itemComodo.comodo.id }} - Comodo:
-                          {{ itemComodo.comodo.name }} ----- Total cubic:
+                          {{ itemComodo.comodo.id }} - {{ $t("tradOrderNomeComodo") }}:
+                          {{ itemComodo.comodo.name }} ----- {{ $t("tradOrderTotCubi") }}:
                           {{ itemComodo.totalCubic }}
                         </v-expansion-panel-header>
 
@@ -426,12 +445,11 @@
                                       </v-avatar>
                                     </v-badge>
                                   </template>
-                                  <span
-                                    >Itens {{ itemComodo.comodo.name }}:
-                                    {{ itemComodo.totalItens }}</span
-                                  >
+                                  <span>{{ $t("tradMsgmItem") }} {{ itemComodo.comodo.name }}:
+                                    {{ itemComodo.totalItens }}
+                                  </span>
                                 </v-tooltip>
-                                <p>Itens</p>
+                                <p>{{ $t("tradMsgmItem") }}</p>
                               </center>
                             </v-col>
 
@@ -462,12 +480,12 @@
                                       </v-avatar>
                                     </v-badge>
                                   </template>
-                                  <span
-                                    >Images {{ itemComodo.comodo.name }}:
-                                    {{ itemComodo.totalImagens }}</span
-                                  >
+                                  <span>
+                                    {{ $t("tradOrderNomeImagem") }} {{ itemComodo.comodo.name }}:
+                                    {{ itemComodo.totalImagens }}
+                                  </span>
                                 </v-tooltip>
-                                <p>Imagens</p>
+                                <p>{{ $t("tradOrderNomeImagem") }}</p>
                               </center>
                             </v-col>
 
@@ -491,10 +509,10 @@
                                     </v-avatar>
                                   </template>
                                   <span>
-                                    alterar {{ itemComodo.comodo.name }}
+                                    {{ $t("tradTitleBtnAlterar") }} {{ itemComodo.comodo.name }}
                                   </span>
                                 </v-tooltip>
-                                <p>Alterar</p>
+                                <p>{{ $t("tradTitleBtnAlterar") }}</p>
                               </center>
                             </v-col>
 
@@ -518,10 +536,10 @@
                                     </v-avatar>
                                   </template>
                                   <span>
-                                    excluir {{ itemComodo.comodo.name }}
+                                    {{ $t("tradTitleBtnExcluir") }} {{ itemComodo.comodo.name }}
                                   </span>
                                 </v-tooltip>
-                                <p>Excluir</p>
+                                <p>{{ $t("tradTitleBtnExcluir") }}</p>
                               </center>
                             </v-col>
                           </v-row>
@@ -541,7 +559,7 @@
                         class="mr-4 white--text"
                         @click="salvar"
                       >
-                        Salvar
+                        {{ $t("tradBtSalvarForm") }}
                         <v-icon right dark>mdi-content-save</v-icon>
                       </v-btn>
                     </v-col>
@@ -553,7 +571,7 @@
                         class="mr-4 white--text"
                         @click="cancelarMudanca"
                       >
-                        Cancelar
+                        {{ $t("tradBtCancelarForm") }}
                         <v-icon right dark>mdi-cancel</v-icon>
                       </v-btn>
                     </v-col>
@@ -628,6 +646,7 @@ export default {
   },
 
   data: () => ({
+    linguagem: null,
     overlay: false,
 
     urlAPICustomers: process.env.VUE_APP_URL_CONNECTION + "/moving/customers",
@@ -690,53 +709,85 @@ export default {
 
     menu: "",
 
-    itensTituloTabs: [
-      { id: 0, nome: "Dados", icon: "mdi-view-list" },
-      { id: 1, nome: "Cadastro", icon: "mdi-keyboard-variant" },
-    ],
+    itensTituloTabs: [],
     search: "",
 
     drawer: null,
     tab: null,
     objLoadingGrid: true,
     //grid
-    headers: [
-      {
-        align: "start",
-        text: "Codigo",
-        value: "id",
-      },
-      {
-        text: "Cliente",
-        value: "customer_id",
-      },
-      {
-        text: "Vendedor",
-        value: "user_id",
-      },
-      {
-        text: "Data da mudança",
-        value: "expected_date",
-      },
-      {
-        text: "Ações",
-        value: "actions",
-        sortable: "false",
-      },
-    ],
+    headers: [],
     desserts: [],
     //grid
     //objForm
     valid: true,
-    regrasVendedor: [(v) => !!v || "Vendedor é obrigatório"],
 
-    regrasCliente: [(v) => !!v || "Cliente é obrigatório"],
+    regrasVendedor: [],
+    regrasCliente: [],
+    cityRules:[],
+    localityRules:[],
+    countryRules: [],
 
     select: null,
     disabledSelectVendedor: 0,
   }),
 
   created() {
+    this.linguagem = localStorage.getItem("linguagemUsuario");
+    this.$i18n.locale = this.linguagem;
+
+    this.itensTituloTabs = [
+      { id: 0, nome: this.$i18n.t("tradDadoAbaForm"), icon: "mdi-view-list" },
+      {
+        id: 1,
+        nome: this.$i18n.t("tradCadastroAbaForm"),
+        icon: "mdi-keyboard-variant",
+      },
+    ];
+
+
+
+    this.regrasVendedor = [(v) => !!v || this.$i18n.t("tradOrderRuleVendedorObrigaotrio")];
+
+    this.regrasCliente = [(v) => !!v || this.$i18n.t("tradOrderRuleClienteObrigaotrio")];
+
+    this.cityRules = [
+      (v) => !!v || this.$i18n.t("tradRuleCityRequiredCustumer"),
+    ];
+    this.localityRules = [
+      (v) => !!v || this.$i18n.t("tradRuleLocalityRequiredCustumer"),
+    ];
+    this.countryRules = [
+      (v) => !!v || this.$i18n.t("tradRuleCountryRequiredCustumer"),
+    ];
+
+
+
+    this.headers = [
+      {
+        align: "start",
+        text: "Codigo",
+        value: "id",
+      },
+      {
+        text: this.$i18n.t("tradMsgmCustomer"),
+        value: "customer_id",
+      },
+      {
+        text: this.$i18n.t("tradOrderVendedor"),
+        value: "user_id",
+      },
+      {
+        text: this.$i18n.t("tradOrderDataMudanca"),
+        value: "expected_date",
+      },
+      {
+        text: this.$i18n.t("tradActionGrid"),
+        value: "actions",
+        sortable: "false",
+      },
+    ],
+
     this.menu = getObjMenu(this.$route.path);
   },
 
@@ -805,9 +856,9 @@ export default {
     },
 
     openDialogAddItemComodo: function (value) {
-      if (this.objForm.comodo === undefined || this.objForm.comodo === "") {
+      if (this.objForm.comodo === undefined || this.objForm.comodo === "") {        
         this.$dialog.message.error(
-          "Escolha um cômodo para adicionar seu itens",
+          this.$i18n.t("tradOrderRuleEscolhaComodo"),
           {
             position: "top-right",
             timeout: 5000,
@@ -817,7 +868,7 @@ export default {
         this.variavelIdComodo = this.objForm.comodo.id;
         if (this.variavelIdComodo <= 0) {
           this.$dialog.message.error(
-            "Escolha um cômodo para adicionar seu itens",
+            this.$i18n.t("tradOrderRuleEscolhaComodo"),
             {
               position: "top-right",
               timeout: 5000,
@@ -855,7 +906,7 @@ export default {
     openDialogImagensComodo: function (value) {
       if (this.objForm.comodo === undefined || this.objForm.comodo === "") {
         this.$dialog.message.error(
-          "Escolha um cômodo para adicionar suas imagens",
+          this.$i18n.t("tradOrderRuleEscolhaComodoImg"),
           {
             position: "top-right",
             timeout: 5000,
@@ -865,7 +916,7 @@ export default {
         this.variavelIdComodo = this.objForm.comodo.id;
         if (this.variavelIdComodo <= 0) {
           this.$dialog.message.error(
-            "Escolha um cômodo para adicionar suas imagens",
+            this.$i18n.t("tradOrderRuleEscolhaComodoImg"),
             {
               position: "top-right",
               timeout: 5000,
@@ -963,9 +1014,9 @@ export default {
     execUpdate: async function () {
       let urlPut = this.urlAPIOrders.concat("/" + this.objForm.id);
       let msgm =
-        "Orders do cliente " +
-        this.objForm.cliente.name +
-        " cadastrado com sucesso!";
+        this.$i18n.t("tradMsgmOrder") +
+        this.objForm.name +
+        this.$i18n.t("tradMsgmAlterar");
       let address_data_obj = null;
       if (!this.objForm.checkedEndereco) {
         address_data_obj = {
@@ -1002,9 +1053,9 @@ export default {
 
     execSalvar: async function () {
       let msgm =
-        "Orders do cliente " +
-        this.objForm.cliente.name +
-        " cadastrado com sucesso!";
+        this.$i18n.t("tradMsgmOrder") +
+        this.objForm.name +
+        this.$i18n.t("tradMsgmSalvar");
       let address_data_obj = null;
       if (!this.objForm.checkedEndereco) {
         address_data_obj = {
@@ -1041,7 +1092,7 @@ export default {
     validate: function () {
       if (!this.$refs.objForm.validate()) {
         this.$dialog.message.error(
-          "Observe o formulário, existe campos inválidos",
+          this.$i18n.t("tradMsgmOrderFormulario"),
           {
             position: "top-right",
             timeout: 5000,
@@ -1054,7 +1105,7 @@ export default {
         this.listaComodoExibir == undefined
       ) {
         this.$dialog.message.error(
-          "É necessario existir ao menos um comodo adicionado a mudança para ser válido",
+          this.$i18n.t("tradMsgmOrderUmComodo"),
           {
             position: "top-right",
             timeout: 5000,
@@ -1104,7 +1155,7 @@ export default {
           text: varText,
           actions: {
             false: {
-              text: "Imprimir",
+              text: this.$i18n.t("tradOrderImprimir"),
               handle: () => {
                 this.$htmlToPaper("printMe");
                 return false;
@@ -1133,11 +1184,11 @@ export default {
         );
 
         await this.$dialog.info({
-          title: "Resumo da order " + item.id,
+          title: this.$i18n.t("tradOrderResumoPedido") + item.id,
           text: varText,
           actions: {
             false: {
-              text: "Imprimir",
+              text: this.$i18n.t("tradOrderImprimir"),
               handle: () => {
                 this.$htmlToPaper("printMe");
                 return false;
@@ -1202,7 +1253,7 @@ export default {
       try {
         this.overlay = true;
         let urlDelete = this.urlAPIOrders.concat("/" + item.id);
-        let msgm = "mudança de :" + item.customer_id + " excluida com sucesso!";
+        let msgm = this.$i18n.t("tradMsgmOrderDel") +  item.customer_id + this.$i18n.t("tradMsgmOrderDelFim");
         let returDell = await execDell(urlDelete);
         if (returDell) {
           this.$dialog.message.success(msgm, {
@@ -1226,8 +1277,8 @@ export default {
 
     excluir: async function (item) {
       await this.$dialog.info({
-        title: "Delete order " + item.id,
-        text: "Delete order " + item.id + " ?",
+        title: this.$i18n.t("tradMsgmOrderDel") + item.id,
+        text: this.$i18n.t("tradMsgmOrderDel") + item.id + " ?",
         actions: {
           true: {
             text: "OK",
@@ -1278,7 +1329,7 @@ export default {
     //GERENCIAR ADD COMODO STORAGE
     addComodoStorage: function () {
       if (this.objForm.comodo === undefined) {
-        this.$dialog.message.error("Escolha um cômodo para adicionar", {
+        this.$dialog.message.error(this.$i18n.t("tradMsgmOrderEscolhaComodo"), {
           position: "top-right",
           timeout: 5000,
         });
@@ -1287,22 +1338,12 @@ export default {
           !checkComodoAoMenosUmItem(this.variavelIdMudanca, this.objForm.comodo)
         ) {
           this.$dialog.message.error(
-            "É necessario que exista ao menos um item para poder adicionar o comodo",
+            this.$i18n.t("tradMsgmOrderTemQueExistirUmItem"),
             {
               position: "top-right",
               timeout: 5000,
             }
           );
-
-          /*this.$dialog.message.error(
-            "posicao array alteracao comodo " +
-              this.alterandoComodoPosicaoArray +
-              "     É necessario que exista ao menos um item para poder adicionar o comodo",
-            {
-              position: "top-right",
-              timeout: 5000,
-            }
-          );*/
         } else {
           if (this.alterandoComodoPosicaoArray != null) {
             if (

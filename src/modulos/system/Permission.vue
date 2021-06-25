@@ -223,7 +223,7 @@
                           class="mr-4 white--text"
                           @click="salvar"
                         >
-                          Salvar
+                          {{ $t("tradBtSalvarForm") }}
                           <v-icon right dark>mdi-content-save</v-icon>
                         </v-btn>
                         <!--<v-btn
@@ -263,15 +263,6 @@ import { getListModules } from "@/helper/listRoutes.js";
 export default {
   name: "Permission",
 
-  /**<v-btn @click="ocultarExpandirModulos">
-                          <span>{{nomeBotaoOcultarExpandirModulos}}Exibir</span>
-                          <v-icon>{{iconeBotaoOcultarExpandirModulos}}mdi-download-multiple</v-icon>
-                        </v-btn>
-
-                        <!-- <v-btn @click="none">
-                          <span>Ocultar</span>
-                          <v-icon>mdi-upload-multiple</v-icon>
-                        </v-btn> --> */
 
   data: () => ({
     nomeBotaoOcultarExpandirModulos: "Ocultar",
@@ -297,11 +288,7 @@ export default {
     //headerRequest: "",
     urlAPI: process.env.VUE_APP_URL_CONNECTION + "/system/dashboard",
 
-    itensTituloTabs: [
-      { id: 0, nome: "Permissão por grupo", icon: "mdi-account-group" },
-      { id: 1, nome: "Permissão por usuario", icon: "mdi-account-tie" },
-    ],
-
+    itensTituloTabs: [],
     listaMenucheked: [],
     listaActioncheked: [],
     listaModule: [],
@@ -317,7 +304,11 @@ export default {
     this.menu = getObjMenu(this.$route.path);
 
     this.grupoRules = [
-      (v) => !!v || "É obrigatorio escolher um grupo pra poder salvar!",
+      (v) => !!v || this.$i18n.t("tradRolePermissaoGrupo"),
+    ];
+
+    this.itensTituloTabs = [
+      { id: 0, nome: this.$i18n.t("tradPermissaoGrupoTitulo"), icon: "mdi-account-group" },
     ];
   },
 
@@ -561,6 +552,7 @@ export default {
         this.overlay = false;
       }
     },
+
     validate: function () {
       if (!this.$refs.objForm.validate()) {
         this.$dialog.message.error(this.$i18n.t("tradMsgmForm"), {
@@ -571,6 +563,7 @@ export default {
       }
       return true;
     },
+
     getListaArrayAction: function (listaActioncheked) {
       let arrayRetorno = [];
       let listaPermissaoUsuarioLogado = JSON.parse(
@@ -595,9 +588,9 @@ export default {
         this.$i18n.t("tradMsgmSalvar");*/
 
       let msgm =
-        "Permissões do grupo " +
-        this.objForm.selectGrupoUsuario.name +
-        "alteradas com sucesso!";
+        this.$i18n.t("tradMsgmPackingtradPermissaoGrupoTitulo") + " " +
+        this.objForm.selectGrupoUsuario.name + " " +
+        "alteradas com sucesso";
 
       let objSalvar = {
         name: this.objForm.selectGrupoUsuario.name,

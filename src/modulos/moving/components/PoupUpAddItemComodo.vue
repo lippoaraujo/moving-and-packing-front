@@ -11,7 +11,7 @@
           <v-btn icon dark v-on:click="closeModal(false)">
             <v-icon>mdi-close</v-icon>
           </v-btn>
-          <v-toolbar-title>Adicionar itens ao cômodo</v-toolbar-title>
+          <v-toolbar-title>{{$t('tradPoupUpAddItem')}}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
             <!--<v-btn dark text v-on:click="closeModal(false)">
@@ -28,9 +28,9 @@
                 <v-col xs="12" sm="12" md="10" lg="10" xl="10">
                   <v-autocomplete
                     :items="listaItem"
-                    item-text="name"
+                    :item-text="nameTraducao"
                     item-value="id"
-                    label="Item"
+                    :label="$t('tradMsgmItem')"
                     solo
                     outlined
                     return-object
@@ -42,12 +42,12 @@
 
                 <v-col xs="12" sm="12" md="2" lg="2" xl="2">
                   <v-text-field
-                    v-model="objForm.quantity"
-                    label="Quantidade do item"
+                    v-model="objForm.quantity"                    
+                    :label="$t('tradPoupUpQtdItem')"
                     type="number"
                     outlined
                     required="true"
-                    :rules="[(v) => !!v || 'Quantidade is required']"
+                    :rules="qtdItemRules"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -58,8 +58,8 @@
                     class="pa-0 ma-0"
                     auto-grow
                     hide-details="true"
-                    outlined
-                    label="Observação do item"
+                    outlined                    
+                    :label="$t('tradPoupUpObsItem')"
                     v-model="objForm.itemObs"
                   ></v-textarea>
                 </v-col>
@@ -78,18 +78,18 @@
                           class="mr-4"
                           @click.native="addItemAoComodo()"
                         >
-                          Adicionar item
+                          {{ $t('tradPoupUpAdicionarItem') }}
                           <v-icon right dark>mdi-scatter-plot</v-icon>
                         </v-btn>
                       </template>
 
-                      <span>Adicioanr item ao cômodo</span>
+                      <span>{{ $t('tradPoupUpAdicionarItemAoComodo') }}</span>
                     </v-tooltip>
                   </center>
                 </v-col>
               </v-row>
             </v-form>
-            <p class="subtitle-1 ma-auto">Itens existentes no comodo</p>
+            <p class="subtitle-1 ma-auto">{{ $t('tradPoupUpItensExistentesComodo') }}</p>
             <v-row>
               <v-col
                 class="ma-auto overflow-y-auto elevation-5 rounded-lg"
@@ -98,7 +98,8 @@
                 <div v-if="listaItemExibir === null">
                   <v-list-item>
                     <v-list-item-title>
-                      Nenhum item adicionado
+                      {{ $t('tradPoupUpNenhumItemAdicionado') }}
+                      
                     </v-list-item-title>
                   </v-list-item>
                 </div>
@@ -110,13 +111,20 @@
                   >
                     <v-list-item-content>
                       <v-list-item-title>
-                        {{ item.item.name }} - {{ item.item.cubic_feet }}
+                        <div v-if="nameTraducao == 'name_pt'">
+                          {{ item.item.name_pt }} - {{ item.item.cubic_feet }}
+                        </div>
+                        <div v-else-if="nameTraducao == 'name_es'">
+                          {{ item.item.name_es }} - {{ item.item.cubic_feet }}
+                        </div>
+                        <div v-else>
+                          {{ item.item.name }} - {{ item.item.cubic_feet }}
+                        </div>
                       </v-list-item-title>
                       <v-list-item-subtitle>
                         <p>
-                          {{ "Quantidade: " + item.quantity }}-{{
-                            "Cubic total: " + item.cubicTotal
-                          }}
+                          {{ $t('tradQuantidadeItem') }}: {{ item.quantity }}-
+                          {{ $t('tradOrderTotCubi') }}: {{ item.cubicTotal }}
                         </p>
                         <p>
                           {{ "Obs: " + item.obs }}
@@ -127,10 +135,12 @@
                     <v-list-item-action>
                       <v-tooltip left>
                         <template v-slot:activator="{ on }">
+                          
                           <v-badge
+                            v-if="nameTraducao == 'name_pt'"
                             slot="activator"
                             v-on="on"
-                            :title="'Excluir ' + item.item.name"
+                            :title=" $t('tradMsgmDeleteItem') + item.item.name_pt"
                             bordered
                             color="error"
                             style="cursor: pointer"
@@ -139,8 +149,38 @@
                             @click.native="excluirItem(item.item.id)"
                           >
                           </v-badge>
+
+                          <v-badge
+                            v-else-if="nameTraducao == 'name_es'"
+                            slot="activator"
+                            v-on="on"
+                            :title=" $t('tradMsgmDeleteItem') + item.item.name_es"
+                            bordered
+                            color="error"
+                            style="cursor: pointer"
+                            icon="mdi-close-box"
+                            overlap
+                            @click.native="excluirItem(item.item.id)"
+                          >
+                          </v-badge>
+
+                          <v-badge
+                            v-else
+                            slot="activator"
+                            v-on="on"
+                            :title=" $t('tradMsgmDeleteItem') + item.item.name"
+                            bordered
+                            color="error"
+                            style="cursor: pointer"
+                            icon="mdi-close-box"
+                            overlap
+                            @click.native="excluirItem(item.item.id)"
+                          >
+                          </v-badge>
+
+
                         </template>
-                        <span>Excluir Item</span>
+                        <span>{{$t('tradMsgmDeleteItem')}}</span>
                       </v-tooltip>
                     </v-list-item-action>
                   </v-list-item>
@@ -163,6 +203,8 @@ import {
 
 import { setAllItensComodosByStorageSession } from "@/modulos/moving/helper/getSetComodoStorageSession.js";
 
+import { execGet } from "@/helper/execRequests.js";
+
 export default {
   name: "PoupUpAddItemComodo",
 
@@ -182,12 +224,13 @@ export default {
   },
 
   data: () => ({
+    linguagem: null,
+    nameTraducao: "",    
     varOpenDialogImage: false,
 
     listaItemExibir: [],
     listaItem: [],
 
-    headerRequest: "",
     urlAPIGetItem: process.env.VUE_APP_URL_CONNECTION + "/moving/items",
 
     //listaItem: ["fogão", "geladeira", "tv"],
@@ -196,23 +239,29 @@ export default {
     notifications: false,
     sound: true,
     widgets: false,
-
-    regrasAddItem: [(v) => !!v || "Escolha um item para adicionar"],
-
     objForm: {
       item: "",
       itemObs: "",
     },
+    regrasAddItem: [],
+    qtdItemRules: []
   }),
 
   created() {
-    const AuthStr = "Bearer ".concat(localStorage.getItem("token"));
-    this.headerRequest = {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: AuthStr,
-      },
-    };
+    this.linguagem = localStorage.getItem("linguagemUsuario");
+    this.$i18n.locale = this.linguagem;
+    switch (this.linguagem) {
+      case 'pt-BR':          
+        this.nameTraducao = 'name_pt';
+        break;    
+      case 'es':          
+        this.nameTraducao = 'name_es';
+        break;
+      default:          
+        this.nameTraducao = 'name';
+    }
+    this.qtdItemRules = [(v) => !!v || this.$i18n.t("tradRulePoupUpAddItemQtd")];
+    this.regrasAddItem = [(v) => !!v || this.$i18n.t("tradRulePoupUpEscolhaItem")]
   },
 
   methods: {
@@ -294,32 +343,34 @@ export default {
       }
     },
 
-    listarItemsAdd: function () {
-      this.objLoadingGrid = true;
+    listarItemsAdd: async function () {
 
-      this.$axios.get(this.urlAPIGetItem, this.headerRequest).then(
-        (response) => {
-          if (response.status == 200) {
-            this.listaItem = response.data.data;
-          } else {
-            this.$dialog.message.error(
-              "Erro consultar dados: " + response.status,
-              {
-                position: "top-right",
-                timeout: 5000,
-              }
-            );
+
+      let listaDados = await execGet(this.urlAPIGetItem);
+      
+      if(listaDados!=undefined){
+        if(listaDados.length > 0){
+          let a = 0;
+          this.listaItem = [];
+          for(a; a<listaDados.length; a++){
+            let objItem = listaDados[a];
+            switch (this.linguagem) {
+              case 'pt-BR':          
+                if(objItem.name_pt != null){
+                  this.listaItem.push(objItem);
+                }
+                break;    
+              case 'es':          
+                if(objItem.name_es != null){
+                  this.listaItem.push(objItem);
+                }
+                break;
+              default:          
+                this.listaItem.push(objItem);
+            } 
           }
-          this.objLoadingGrid = false;
-        },
-        (error) => {
-          this.objLoadingGrid = false;
-          this.$dialog.message.error("Consultar dados: " + error, {
-            position: "top-right",
-            timeout: 5000,
-          });
         }
-      );
+      }
     },
   },
 

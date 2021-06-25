@@ -7,7 +7,7 @@
       transition="dialog-bottom-transition"
     >
       <v-card>
-        <v-card-title>Capturar imagem</v-card-title>
+        <v-card-title>{{$t('tradPoupUpCaptureImagem')}}</v-card-title>
         <v-divider></v-divider>
         <v-card-text>
           <center>
@@ -21,7 +21,7 @@
               @cameras="onCameras"
               @camera-change="onCameraChange"
             />
-            <code v-if="device">Câmera utilizada {{ device.label }}</code>
+            <code v-if="device">{{$t('tradPoupUpCaptureImagemCameraUtilizada')}} {{ device.label }}</code>
             <v-select
               label="Lista camera"
               item-text="label"
@@ -35,7 +35,7 @@
           <v-spacer></v-spacer>
 
           <v-btn color="blue darken-4" dark text v-on:click="onCapture()">
-            Capture image
+            {{$t('tradPoupUpCaptureImagemCapturar')}}
             <v-icon right dark>mdi-camera</v-icon>
           </v-btn>
 
@@ -45,7 +45,7 @@
             text
             v-on:click="closeModalImage(false)"
           >
-            Cancel
+          {{$t('tradPoupUpCaptureImagemCancelar')}}
             <v-icon right dark>mdi-camera</v-icon>
           </v-btn>
         </v-card-actions>
@@ -82,12 +82,18 @@ export default {
   },
 
   data: () => ({
+    linguagem: null,
     /*CAM*/
     camera: null,
     deviceId: null,
     devices: [],
     /*CAM*/
   }),
+
+  created() {
+    this.linguagem = localStorage.getItem("linguagemUsuario");
+    this.$i18n.locale = this.linguagem;
+  },
 
   computed: {
     device: function () {
