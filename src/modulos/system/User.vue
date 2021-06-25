@@ -59,14 +59,17 @@
             >
               <template v-slot:[`item.actions`]="{ item }">
                 <v-icon
+                  v-if="permiteEditar"
                   medium
                   class="mr-2"
                   :title="$t('tradTitleBtnAlterar')"
                   @click="alterar(item)"
                   >mdi-pencil</v-icon
                 >
-                <v-icon 
-                  medium 
+                <v-icon
+                  v-if="permiteExcluir"
+                  medium
+                  class="mr-2"
                   :title="$t('tradTitleBtnExcluir')"
                   @click="excluir(item)"
                   >mdi-delete</v-icon
@@ -168,6 +171,7 @@
                   <v-row>
                     <v-col class="pt-3 mt-3">
                       <v-btn
+                        v-if="permiteSalvar"
                         dark
                         tile
                         color="blue darken-2"
@@ -206,7 +210,7 @@
 <script>
 import { mask } from "vue-the-mask";
 import { getObjMenu } from "@/helper/listRoutes.js";
-
+import { getPermissionExecAction } from "@/helper/getPermission.js";
 import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 
 export default {
@@ -214,6 +218,9 @@ export default {
   name: "User",
 
   data: () => ({
+    permiteSalvar: false,
+    permiteEditar: false,
+    permiteExcluir: false,    
     linguagem: null,
     overlay: false,
     urlAPIGrupoUser: process.env.VUE_APP_URL_CONNECTION + "/system/roles",
@@ -309,11 +316,12 @@ export default {
         sortable: "false",
       },
     ];
-
-
   },
 
   async mounted() {
+    this.permiteSalvar = getPermissionExecAction("user-create");
+    this.permiteEditar = getPermissionExecAction("user-edit");
+    this.permiteExcluir = getPermissionExecAction("user-delete");
     this.getListaGrupoPermissao();
     this.listar();
     this.getEstadoMenu = true;
