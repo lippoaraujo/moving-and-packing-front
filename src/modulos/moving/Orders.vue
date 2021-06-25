@@ -75,6 +75,7 @@
                 </v-icon>
 
                 <v-icon
+                  v-if="permiteEditar"
                   medium
                   class="mr-2"
                   :title="$t('tradTitleBtnAlterar')"
@@ -83,7 +84,9 @@
                 </v-icon>
                 
                 <v-icon 
+                  v-if="permiteExcluir"
                   medium 
+                  class="mr-2"
                   :title="$t('tradTitleBtnExcluir')" 
                   @click="excluir(item)"
                   >mdi-delete
@@ -553,6 +556,7 @@
                   <v-row>
                     <v-col class="pt-3 mt-3">
                       <v-btn
+                        v-if="permiteSalvar"
                         dark
                         tile
                         color="blue darken-2"
@@ -616,9 +620,8 @@ import { mask } from "vue-the-mask";
 import { getObjMenu } from "@/helper/listRoutes.js";
 import PoupUpAddItemComodo from "@/modulos/moving/components/PoupUpAddItemComodo.vue";
 import PoupUpAddImagemComodo from "@/modulos/moving/components/PoupUpAddImagemComodo.vue";
-
 import moment from "moment";
-
+import { getPermissionExecAction } from "@/helper/getPermission.js";
 import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 import { getNewIdArrayComodo } from "@/modulos/moving/helper/getSetComodoStorageSession.js";
 import {
@@ -646,6 +649,9 @@ export default {
   },
 
   data: () => ({
+    permiteSalvar: false,
+    permiteEditar: false,
+    permiteExcluir: false,
     linguagem: null,
     overlay: false,
 
@@ -791,8 +797,11 @@ export default {
     this.menu = getObjMenu(this.$route.path);
   },
 
-  async mounted() {
+  async mounted() {    
     this.overlay = true;
+    this.permiteSalvar = getPermissionExecAction("order-create");
+    this.permiteEditar = getPermissionExecAction("order-edit");
+    this.permiteExcluir = getPermissionExecAction("order-delete");
     this.getEstadoMenu = true;
     this.getCaminhoBreadCrumb = this.$route.path.split("/");
     window.onpopstate = () => {
