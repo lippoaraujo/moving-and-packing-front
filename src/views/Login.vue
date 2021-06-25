@@ -119,7 +119,7 @@
                                   color="white"
                                   size="40"
                                 >
-                                  <img src="@/assets/us.svg" />
+                                  <img src="@/assets/bandeiras/us.svg" />
                                 </v-avatar>
                               </template>
                             </v-radio>
@@ -133,7 +133,7 @@
                                   color="white"
                                   size="40"
                                 >
-                                  <img src="@/assets/br.svg" />
+                                  <img src="@/assets/bandeiras/br.svg" />
 
                                   <!--<img
                                 src="https://placekitten.com/300/300"
@@ -149,7 +149,7 @@
                                   color="white"
                                   size="40"
                                 >
-                                  <img src="@/assets/es.svg" />
+                                  <img src="@/assets/bandeiras/es.svg" />
 
                                   <!--<img
                                 src="https://placekitten.com/300/300"
@@ -335,7 +335,7 @@ export default {
 
     this.nomeApp = process.env.VUE_APP_NAME_APLICATION;
 
-    let chk = localStorage.getItem("checkContinuarConectado");
+    let chk = JSON.parse(localStorage.getItem("checkContinuarConectado"));
     //console.log("chk ", chk);
 
     this.objForm.checkContinuarConectado = Boolean(chk);
@@ -431,10 +431,10 @@ export default {
 
               if (this.objForm.checkContinuarConectado) {
                 localStorage.setItem("checkContinuarConectado", true);
-                localStorage.setItem("userLogado", true);
+                localStorage.setItem("checkUserContinuarLogado", true);
               } else {
                 localStorage.setItem("checkContinuarConectado", false);
-                sessionStorage.setItem("userLogado", true);
+                localStorage.setItem("checkUserContinuarLogado", false);
               }
 
               sessionStorage.setItem(
@@ -542,28 +542,18 @@ export default {
       if (checkContinuarLogado === null) {
         checkContinuarLogado = false;
       }
-      let userLogado = JSON.parse(sessionStorage.getItem("userLogado"));
-      if (userLogado === null) {
-        userLogado = JSON.parse(localStorage.getItem("userLogado"));
-        if (userLogado === null) {
-          userLogado = false;
-        }
-      }
-
-      //console.log("checkContinuarLogado", checkContinuarLogado);
-      //console.log("userLogado", userLogado);
-
-      if (checkContinuarLogado) {
-        if (userLogado) {
+      
+      if (checkContinuarLogado) {        
           //fazer requisição usando o token guardado
           //fazer requisição pra identificar usuario
           //redirecionar pra home
           this.getPermissaoPorToken();
-        }
+        
       } else {
         this.overlay = false;
       }
     },
+    
     identificaUsuarioLogado: async function () {
       try {
         //console.log("getListaClienteAdd");
@@ -579,11 +569,12 @@ export default {
         //seta linguagem
         localStorage.setItem("linguagemUsuario", this.$i18n.locale);
 
-        //this.$router.push("modulos");
+        
 
-        this.$router.push({ path: "/modulos" }).catch((error) => {
+        this.$router.push({ path: "/home" }).catch((error) => {
           console.info("erro router: ", error.message);
         });
+
       } catch (e) {
         this.$dialog.error({
           title: "Erro get date user",

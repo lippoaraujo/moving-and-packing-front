@@ -139,15 +139,16 @@ const routes = [
   
 
   {
-    path: "/home",
+    path: "/",
     name: "Home",
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import("@/views/estruturaPrincipal/InicioEstrutura.vue"),
+    
     children: [
       {
-        path: "",
+        path: "/home",
         components: {
           routeViewPrincipal: Modulos,
         },
@@ -181,7 +182,7 @@ router.afterEach((to) => {
   //console.log("afterEach ");
   store.state.exibicaoMenu = false;
   store.state.statusMenu = false;
-  if (to.path !== "/home") {
+  if (to.path !== "/") {
     store.state.exibicaoMenu = true;
     //store.state.statusMenu = true;
   }
@@ -225,7 +226,7 @@ router.beforeEach((to, from, next) => {
     //}
 
     //publicPages.push("/login");
-    //publicPages.push("/home");
+    //publicPages.push("/");
     //publicPages.push("/acessonegado");
   //}
   let publicPages = [];
@@ -247,43 +248,31 @@ router.beforeEach((to, from, next) => {
   }
   const authRequired = !publicPages.includes(to.path);
 
-  let userLogado = JSON.parse(sessionStorage.getItem("userLogado"));
+
+  let userLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
   if( userLogado === null){
-    userLogado = JSON.parse(localStorage.getItem("userLogado"));
-    if(userLogado === null){
-      userLogado =false;
-    }
+    //console.log("NAO TEM USUARIO LOGADO");
+    userLogado = false;
+  }else{
+    //console.log("TEM USUARIO LOGADO");
+    userLogado = true;
   }
 
   let permissions = JSON.parse(sessionStorage.getItem("permissions"));
   if(permissions === null){
+    ///console.log("NAO TEM PERMISSAO, NAO TEM USUARIO LOGADO");
     userLogado =false;
   }
-//se nao existir permissions userLogado = false;
 
-
-  //const loggedIn = JSON.parse(localStorage.getItem("logado"));  
   const loggedIn = userLogado;
 
-
-  //const checkContinuarConectado = JSON.parse(localStorage.getItem("checkContinuarConectado"));  
-  //console.log("AQUIoooo");
-  //console.log(to.path);
-  //console.log(publicPages);
-  //console.log(authRequired);
-  //console.log(loggedIn);
-  //console.log(checkContinuarConectado);
-  //console.log("AQUIooooo");
-  
-
-  if (authRequired && !loggedIn) {
+  if (authRequired && !loggedIn) {      
       return next("/login");
   }else{
     publicPages.push("/home");
     if(!publicPages.includes(to.path)){
       return next("/acessonegado");
     }else{
-      //console.log(to.path);
       next();
     }
   }
