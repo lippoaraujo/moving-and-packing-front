@@ -1,11 +1,14 @@
 import {execGet} from "@/helper/execRequests.js";
 
-
+import i18n from '@/i18n'
 
 export async function exportRelatorioHtmlNovo(objEdicao, urlAPICustomers)
 {
 
   //console.log(objEdicao);
+  //EXEMPLO DE TRADUCAO
+  console.log("TRADUCAO: ", i18n.t('tradPoupUpCaptureImagemCameraUtilizada'));
+  //EXEMPLO DE TRADUCAO
 
   //let objEndereco = null;
   let objCliente = null;
@@ -71,19 +74,20 @@ export async function exportRelatorioHtmlNovo(objEdicao, urlAPICustomers)
 
         html +='<footer>';
           html +='<p>';
-            html +='Signing below acknowledges receipt of an estimate of your move based';
-            html +='on the Table of Measurements. Only the items listed are included in';
-            html +='the cost. Any items added or additional services may result in';
-            html +='additional cost.';
+            html += i18n.t('tradRelatorioGeralTrechoAssinatura');
+            //html +='Signing below acknowledges receipt of an estimate of your move based';
+            //html +='on the Table of Measurements. Only the items listed are included in';
+            //html +='the cost. Any items added or additional services may result in';
+            //html +='additional cost.';
           html +='</p>';
           html +='<div class="signature_container">';
-            html +='<div class="signature_left">Customer Signature</div>';
-            html +='<div class="signature_right">Date</div>';
+            html +='<div class="signature_left">'+ i18n.t('tradRelatorioGeralCustomerAssinatura') +'</div>';            
+            html +='<div class="signature_right">'+ i18n.t('tradRelatorioGeralData') +'</div>';
           html +='</div>';
 
           html +='<div class="signature_container">';
-            html +='<div class="signature_left">Carrier\'s Representative</div>';
-            html +='<div class="signature_right">Date</div>';
+            html +='<div class="signature_left">'+ i18n.t('tradRelatorioGeralRepresentanteTrasnporte') +'</div>';
+            html +='<div class="signature_right">'+ i18n.t('tradRelatorioGeralData') +'</div>';
           html +='</div>';
         html +='</footer>';
 
@@ -105,36 +109,36 @@ function getHeader(objEdicao, objEndereco, objUsuarioLogado)
 {
   let header = null;
   header ='<div class="report_header">';
-    header +='<h1>Itemized Customer Survey/Inventory</h1>';
+    header +='<h1>'+ i18n.t('tradRelatorioGeralDadosCliente') +'</h1>';
     header +='<img width="20%" src="' + objUsuarioLogado.tenant.logo + '" />';
   header +='</div>';
 
   header +='<div class="report_detail_container">';  
     header +='<div id="order_box" class="order_container">';
       header +='<div class="order_title">';
-        header +='<h3>Order</h3>';
+        header +='<h3>'+ i18n.t('tradMsgmOrder') +'</h3>';
       header +='</div>';
       
       header +='<div class="order_details">';
-        header +='<span>Number: ' + objEdicao.id + '</span>';
-        header +='<p>Total rooms: 2</p>';
-        header +='<p>Seller: ' + objEdicao.user.name + ' | '+ objEdicao.user.email +'</p>';
-        header +='<p>Date: 20/01/2021</p>';
-        header +='<span>Delivery date: ' + objEdicao.expected_date + '</span>';
+        header +='<span>'+ i18n.t('tradRelatorioGeralNumero') +': ' + objEdicao.id + '</span>';
+        //header +='<p>Total rooms: 2</p>';
+        header +='<p>'+ i18n.t('tradOrderVendedor') +': ' + objEdicao.user.name + ' | '+ objEdicao.user.email +'</p>';
+        header +='<p>'+ i18n.t('tradRelatorioGeralData') +': 20/01/2021</p>';
+        header +='<span>'+ i18n.t('tradRelatorioGeralData') +': ' + objEdicao.expected_date + '</span>';
         header +='<p class="order_address">';
-          header +='Address: ' + objEndereco.address + ' ' + objEndereco.postcode + ' ' + objEndereco.city + ' ' + objEndereco.locality + ' ' +objEndereco.country;
+          header +=i18n.t('tradEnderecoCustumer') +': ' + objEndereco.address + ' ' + objEndereco.postcode + ' ' + objEndereco.city + ' ' + objEndereco.locality + ' ' +objEndereco.country;
         header +='</p>';
       header +='</div>';
     header +='</div>';
 
     header +='<div id="customer_box" class="order_container">';
       header +='<div class="order_title">';
-        header +='<h3>Customer</h3>';
+        header +='<h3>' + i18n.t('tradMsgmCustomer') + '</h3>';
       header +='</div>';
       header +='<div class="order_details">';
-        header +='<span>Name: ' + objEdicao.customer.name + '</span>';
-        header +='<p>Phone: ' + objEdicao.customer.phone + '</p>';
-        header +='<p>Email: ' + objEdicao.customer.email + '</p>';
+        header +='<span>' + i18n.t('tradNamePacking') + ': ' + objEdicao.customer.name + '</span>';
+        header +='<p>' + i18n.t('tradPhoneCustumer') + ': ' + objEdicao.customer.phone + '</p>';
+        header +='<p>' + i18n.t('tradEmailCustumer') + ': ' + objEdicao.customer.email + '</p>';
       header +='</div>';
     header +='</div>';
   header +='</div>';
@@ -170,7 +174,7 @@ function getTotais(objEdicao)
   let totLb = (totCuMete*2.205);
 
   htmlTotais +='<div class="total">';
-    htmlTotais +='<span>Total:</span>';
+    htmlTotais +='<span>'+ i18n.t('tradRelatorioGeralTotal') +':</span>';
   htmlTotais +='</div>';
   
 
@@ -190,7 +194,7 @@ function getTotais(objEdicao)
   htmlTotais +='</div>';
 
   htmlTotais +='<div class="total">';
-    htmlTotais +='<span>Itens:' + qtdItem + '</span>';
+    htmlTotais +='<span>'+ i18n.t('tradMsgmItem') +':' + qtdItem + '</span>';
     //htmlTotais +='<span>' + qtdItem + '</span>';
   htmlTotais +='</div>';
 
@@ -203,6 +207,9 @@ function getComodos(objEdicao)
   //console.log("getComodos ",objEdicao);
   let listaComodo = objEdicao.order_rooms;
   let totalComodo = 0;
+
+  let linguagem = localStorage.getItem("linguagemUsuario");
+
   for(totalComodo; totalComodo < listaComodo.length; totalComodo++) {
 
     htmlComodo += '<div class="items_container">';
@@ -220,17 +227,17 @@ function getComodos(objEdicao)
     if(itemsComodos[0].length > 1){
       htmlComodo += '<tr>';
         htmlComodo += '<th class="item_qtd">#</th>';
-        htmlComodo += '<th class="item_desc">Item Description</th>';
+        htmlComodo += '<th class="item_desc">'+ i18n.t('tradRelatorioGeralDescItem') +'</th>';
         htmlComodo += '<th class="item_cft">CFt.</th>';
 
         htmlComodo += '<th class="item_qtd">#</th>';
-        htmlComodo += '<th class="item_desc">Item Description</th>';
+        htmlComodo += '<th class="item_desc">'+ i18n.t('tradRelatorioGeralDescItem') +'</th>';
         htmlComodo += '<th class="item_cft">CFt.</th>';
       htmlComodo += '</tr>';
     } else {
       htmlComodo += '</tr>';
         htmlComodo += '<th class="item_qtd">#</th>';
-        htmlComodo += '<th class="item_desc">Item Description</th>';
+        htmlComodo += '<th class="item_desc">'+ i18n.t('tradRelatorioGeralDescItem') +'</th>';
         htmlComodo += '<th class="item_cft">CFt.</th>';
       htmlComodo += '</tr>';
     }
@@ -264,7 +271,23 @@ function getComodos(objEdicao)
         let item = listaItem[a];
         
         htmlComodo += "<td>" + item.pivot.quantity + "</td>";
-        htmlComodo += "<td>" + item.name + "</td>";
+
+        switch (linguagem) {
+          case 'pt-BR':          
+            if(item.name_pt != null){
+              htmlComodo += "<td>" + item.name_pt + "</td>";
+            }
+            break;    
+          case 'es':          
+            if(item.name_es != null){
+              htmlComodo += "<td>" + item.name_es + "</td>";
+            }
+            break;
+          default:          
+            htmlComodo += "<td>" + item.name + "</td>";
+        } 
+
+        
         htmlComodo += "<td>" + (item.cubic_feet * item.pivot.quantity).toFixed(2) + "</td>";
 
         if(listaItem[a+1]!=undefined){
@@ -349,7 +372,7 @@ function getCarrier(objEdicao)
       let obj = new Object();
       obj.qtd = item.packing_qty;
       if(packing === null){
-        obj.name = "packing NOT DEFINED";
+        obj.name = i18n.t('tradRelatorioGeralPackingNotDefined');
       }else{
         obj.name = packing.name;
       }
@@ -361,7 +384,7 @@ function getCarrier(objEdicao)
   let listaPronta = getItensOrdenadosImpressao(lista, 2);
   
   htmlCarrier += '<div class="report_header">';
-    htmlCarrier += '<h1>Carrier Packing & Crating Summary</h1>';
+    htmlCarrier += '<h1>'+ i18n.t('tradRelatorioGeralResumoEmbalagem') +'</h1>';
   htmlCarrier += '</div >';
     htmlCarrier += '<div class="items_container">';
       htmlCarrier += '<div class="items_table_container">';
@@ -369,17 +392,17 @@ function getCarrier(objEdicao)
           if(listaPronta[0].length > 1){
             htmlCarrier += "<tr>";
               htmlCarrier += '<th>#</th>';
-              htmlCarrier += '<th>Package Description</th>';
-              htmlCarrier += '<th>Room</th>';
+              htmlCarrier += '<th>'+ i18n.t('tradRelatorioGeralDescricaoEmbalagem') +'</th>';
+              htmlCarrier += '<th>'+ i18n.t('tradMsgmRoom') +'</th>';
               htmlCarrier += '<th>#</th>';
-              htmlCarrier += '<th>Package Description</th>';
-              htmlCarrier += '<th>Room</th>';
+              htmlCarrier += '<th>'+ i18n.t('tradRelatorioGeralDescricaoEmbalagem') +'</th>';
+              htmlCarrier += '<th>'+ i18n.t('tradMsgmRoom') +'</th>';
             htmlCarrier += "</tr>";
           } else {
             htmlCarrier += "<tr>";
               htmlCarrier += '<th>#</th>';
-              htmlCarrier += '<th>Package Description</th>';
-              htmlCarrier += '<th>Room</th>';
+              htmlCarrier += '<th>'+ i18n.t('tradRelatorioGeralDescricaoEmbalagem') +'</th>';
+              htmlCarrier += '<th>'+ i18n.t('tradMsgmRoom') +'</th>';
             htmlCarrier += "</tr>";
           }
           let b = 0;
@@ -479,7 +502,7 @@ function getImage(objEdicao){
 
   if(listImagens.length > 0){
     htmlImg += '<div class="report_header">';
-      htmlImg += '<h1>Images</h1>';
+      htmlImg += '<h1>'+ i18n.t('tradRelatorioGeralImagens') +'</h1>';
     htmlImg += '</div>';
     let totImg = 0;
 

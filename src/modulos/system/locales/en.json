@@ -13,5 +13,33 @@
   "tradBtAcessarSistema": "Access system",
   "tradEmailObrigatorio": "E-mail is required",
   "tradEmailInvalido": "Invalid email!",
-  "tradSenhaObrigatoria": "Password is required"
+  "tradSenhaObrigatoria": "Password is required",
+
+  "tradRuleRoleName": "User group name is required",
+  "tradRuleRoleNameQauntidade": "User group name must have a maximum of 200 characters",
+  "tradRoleName": "User group ",
+  "tradRoleMsgmDelete": "Delete user group",
+  "tradRoleNameExcluidoComSucesso": "User group deleted successfully",
+
+  "tradUserName": "Name",
+  "tradUserEmail": "Email",
+  "tradUserSenha": "Password",
+  "tradUserConfirmaSenha": "Confirm password",
+  "tradRoleUserContrasenha": "A senha deve corresponder",
+  "tradRoleUserName": "Username is required",
+  "tradRoleUserNameQauntidade": "Username must have a maximum of 200 characters",
+  "tradRoleUserEmail": "Please type email",
+  "tradRoleUserEmailInvalid": "Email invalid",
+  "tradRoleUserPassword": "Please type password",
+  "tradRoleUserPasswordQuantidade": "Password must be at least 6 characters",
+  "tradRoleUserPasswordConfirm": "Please enter password confirmation",
+  "tradRoleUserPasswordConfirmQuantidade": "Password confirmation must have a minimum of 6 characters",
+  "tradRoleUserGrupoUsuario": "User group is required",
+  "tradUserNameUsuario": "User",
+  "tradUserMsgmDelete": "Delete user",
+  "tradUSerExcluidoComSucesso": "User deleted successfully",
+
+  "tradPermissaoGrupoTitulo": "Permission by user group",
+  "tradRolePermissaoGrupo": "It is required to choose a group to be able to save",
+  "tradPermissaoGrupoAltgerado": "successfully changed"
 }

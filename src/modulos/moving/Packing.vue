@@ -115,6 +115,7 @@
                       <v-row>
                         <v-col>
                           <v-btn
+                            v-if="permiteSalvar"
                             dark
                             tile
                             color="blue darken-2"
@@ -156,6 +157,7 @@
 import { mask } from "vue-the-mask";
 
 import { getObjMenu } from "@/helper/listRoutes.js";
+import { getPermissionExecAction } from "@/helper/getPermission.js";
 
 import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
 
@@ -164,6 +166,7 @@ export default {
   name: "Customer",
 
   data: () => ({
+    permiteSalvar: false,
     linguagem: null,
     overlay: false,
     menu: "",
@@ -238,6 +241,10 @@ export default {
 
   mounted() {
     this.linguagem = localStorage.getItem("linguagemUsuario");
+
+    this.permiteSalvar = getPermissionExecAction("packing-create");
+    console.log(" permiteSalvar ", this.permiteSalvar);
+
     this.listar();
     this.getEstadoMenu = true;
     this.getCaminhoBreadCrumb = this.$route.path.split("/");

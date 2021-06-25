@@ -11,7 +11,7 @@
           <v-btn icon dark v-on:click="closeModal(false)">
             <v-icon>mdi-close</v-icon>
           </v-btn>
-          <v-toolbar-title>Adicionar imagens do cômodo</v-toolbar-title>
+          <v-toolbar-title>{{$t('tradPoupUpAddImagemComodo')}}</v-toolbar-title>
           <v-spacer></v-spacer>
           <v-toolbar-items>
             <!--<v-btn dark text v-on:click="closeModal(false)">
@@ -36,34 +36,16 @@
                     class="mr-4"
                     @click="openDialogImageMetodo"
                   >
-                    Adicionar
+                    {{$t('tradPoupUpAddImagemComodoAdd')}} 
                     <v-icon right dark>mdi-camera</v-icon>
                   </v-btn>
                 </template>
-                <span>Adicionar imagens do cômodo</span>
+                <span>{{$t('tradPoupUpAddImagemComodo')}}</span>
               </v-tooltip>
-
-              <!--<v-tooltip bottom>
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-btn
-                          v-bind="attrs"
-                          v-on="on"
-                          class="mx-3"
-                          fab
-                          dark
-                          small
-                          @click="openDialogImageMetodo"
-                          color="blue darken-2"
-                        >
-                          <v-icon dark> mdi-plus </v-icon>
-                        </v-btn>
-                      </template>
-                      <span>Adicionar foto</span>
-                    </v-tooltip> -->
 
               <div v-if="listaImagensExibir === null">
                 <v-row>
-                  <v-col> Nenhuma imagem adicionada </v-col>
+                  <v-col>{{$t('tradPoupUpAddImagemComodoSemImagem')}}</v-col>
                 </v-row>
               </div>
               <div v-else>
@@ -113,7 +95,7 @@
                           >
                           </v-badge>
                         </template>
-                        <span>Excluir imagem</span>
+                        <span>{{$t('tradPoupUpAddImagemComodoDelImagem')}}</span>
                       </v-tooltip>
                     </div>
                   </v-col>
@@ -165,9 +147,15 @@ export default {
   },
 
   data: () => ({
+    linguagem: null,
     varOpenDialogImage: false,
     listaImagensExibir: [],
   }),
+
+  created() {
+    this.linguagem = localStorage.getItem("linguagemUsuario");
+    this.$i18n.locale = this.linguagem;
+  },
 
   mounted() {},
 

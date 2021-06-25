@@ -37,7 +37,6 @@ export default {
   methods: {
     ...mapMutations(["MODIFICAR_CAMINHO_BREAD_CRUMB"]),
   },
-
   computed: {
     //...mapGetters(["statusMenu"]),
     getCaminhoBreadCrumb: {

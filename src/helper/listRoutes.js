@@ -22,7 +22,7 @@ export function getListaRotasUserLogado(){
     }
   }
   //if(temPermissao){
-    //listaRotaRetorno.push("/home");
+    //listaRotaRetorno.push("/");
   //}
   return listaRotaRetorno;
 }

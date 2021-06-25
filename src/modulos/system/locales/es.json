@@ -13,5 +13,33 @@
   "tradBtAcessarSistema": "Sistema de acceso",
   "tradEmailObrigatorio": "Correo electronico es requerido",
   "tradEmailInvalido": "¡Email inválido!",
-  "tradSenhaObrigatoria": "Se requiere contraseña"
+  "tradSenhaObrigatoria": "Se requiere contraseña",
+
+  "tradRuleRoleName": "El nombre del grupo de usuarios es obligatorio",
+  "tradRuleRoleNameQauntidade": "El nombre del grupo de usuarios debe tener un máximo de 200 caracteres",
+  "tradRoleName": "Grupo de usuario",
+  "tradRoleMsgmDelete": "Eliminar grupo de usuarios",
+  "tradRoleNameExcluidoComSucesso": "Grupo de usuarios eliminado correctamente",
+
+  "tradUserName": "Nome",
+  "tradUserEmail": "Correo electrónico",
+  "tradUserSenha": "Contraseña",
+  "tradUserConfirmaSenha": "Confirmar Contraseña",
+  "tradRoleUserContrasenha": "Contraseña debe coincidir con",
+  "tradRoleUserName": "El nombre de usuario es obligatorio",
+  "tradRoleUserNameQauntidade": "El nombre de usuario debe tener un máximo de 200 caracteres",
+  "tradRoleUserEmail": "Por favor escriba el correo electrónico",
+  "tradRoleUserEmailInvalid": "Email inválido",
+  "tradRoleUserPassword": "Por favor escriba la contraseña",
+  "tradRoleUserPasswordQuantidade": "La contraseña debe tener al menos 6 caracteres",
+  "tradRoleUserPasswordConfirm": "Por favor ingrese la confirmación de la contraseña",
+  "tradRoleUserPasswordConfirmQuantidade": "La confirmación de la contraseña debe tener un mínimo de 6 caracteres",
+  "tradRoleUserGrupoUsuario": "Grupo de usuarios es obligatorio",
+  "tradUserNameUsuario": "Usuario",
+  "tradUserMsgmDelete": "Borrar usuario",
+  "tradUSerExcluidoComSucesso": "Usuario eliminado correctamente",
+
+  "tradPermissaoGrupoTitulo": "Permiso por grupo de usuarios",
+  "tradRolePermissaoGrupo": "Es obligatorio elegir un grupo para poder guardar",
+  "tradPermissaoGrupoAltgerado": "cambiado exitosamente"
 }
