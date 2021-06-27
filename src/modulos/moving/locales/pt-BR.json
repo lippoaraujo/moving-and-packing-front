@@ -113,6 +113,7 @@
   "tradRelatorioGeralPackingNotDefined": "embalagem NÃO DEFINIDA",
   "tradRelatorioGeralResumoEmbalagem": "Resumo de embalagem & Embalagem para transportadora",
   "tradRelatorioGeralDescricaoEmbalagem": "Descrição da embalagem",
-  "tradRelatorioGeralImagens": "Imagens"
+  "tradRelatorioGeralImagens": "Imagens",
   
+  "tradOrderBtnGetAssinatura": "Capturar assinatura do cliente"
 }
