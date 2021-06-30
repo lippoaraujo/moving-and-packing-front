@@ -114,6 +114,8 @@
   "tradRelatorioGeralPackingNotDefined": "Embalaje NO DEFINIDA",
   "tradRelatorioGeralResumoEmbalagem": "Resumen de embalaje y Embalaje del transportista",
   "tradRelatorioGeralDescricaoEmbalagem": "Descripción del embalaje",
-  "tradRelatorioGeralImagens": "Imagen"
+  "tradRelatorioGeralImagens": "Imagen",
+  
+  "tradOrderBtnGetAssinatura": "Capture la firma del cliente"
   
 }

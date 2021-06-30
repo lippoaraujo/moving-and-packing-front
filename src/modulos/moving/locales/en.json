@@ -108,7 +108,9 @@
   "tradRelatorioGeralPackingNotDefined": "packing NOT DEFINED",
   "tradRelatorioGeralResumoEmbalagem": "Carrier Packing & Crating Summary",
   "tradRelatorioGeralDescricaoEmbalagem": "Package Description",
-  "tradRelatorioGeralImagens": "Image"
+  "tradRelatorioGeralImagens": "Image",
+  
+  "tradOrderBtnGetAssinatura": "Capture customer signature"
   
   
 }
