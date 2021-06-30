@@ -66,6 +66,15 @@
                   >mdi-layers-outline
                 </v-icon>-->
 
+
+                <v-icon
+                  medium
+                  class="mr-2"
+                  :title="$t('tradOrderRelatorio')"
+                  @click="openDialogSignature(item)"
+                  >mdi-signature-freehand
+                </v-icon>
+
                 <v-icon
                   medium
                   class="mr-2"
@@ -602,6 +611,12 @@
         v-bind:variavelIdArrayComodo="variavelIdArrayComodo"
         @update:varOpenDialogImagensComodo="varOpenDialogImagensComodo = $event"
       />
+      <PoupCaptureSignature
+        v-bind:variavelShowModalSignature="varOpenDialogSignature"
+        v-on:closeModal="closeDialogSignature"
+        v-bind:variavelIdMudanca="variavelIdMudanca"        
+        @update:varOpenDialogSignature="varOpenDialogSignature = $event"
+      />
     </v-col>
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
@@ -620,6 +635,7 @@ import { mask } from "vue-the-mask";
 import { getObjMenu } from "@/helper/listRoutes.js";
 import PoupUpAddItemComodo from "@/modulos/moving/components/PoupUpAddItemComodo.vue";
 import PoupUpAddImagemComodo from "@/modulos/moving/components/PoupUpAddImagemComodo.vue";
+import PoupCaptureSignature from "@/modulos/moving/components/PoupCaptureSignature.vue";
 import moment from "moment";
 import { getPermissionExecAction } from "@/helper/getPermission.js";
 import { execPost, execGet, execPut, execDell } from "@/helper/execRequests.js";
@@ -646,6 +662,7 @@ export default {
   components: {
     PoupUpAddItemComodo,
     PoupUpAddImagemComodo,
+    PoupCaptureSignature,
   },
 
   data: () => ({
@@ -693,6 +710,10 @@ export default {
     /*DIALOGO IMAGENS COMODO*/
     varOpenDialogImagensComodo: false,
     /*DIALOGO IMAGENS COMODO*/
+
+    /*DIALOGO SIGNATURE*/
+    varOpenDialogSignature: false,
+    /*DIALOGO SIGNATURE*/
 
     /* LISTA DE IMAGENS DO COMODO */
     listaImagensComodo: [],
@@ -751,23 +772,11 @@ export default {
       },
     ];
 
-
-
     this.regrasVendedor = [(v) => !!v || this.$i18n.t("tradOrderRuleVendedorObrigaotrio")];
-
     this.regrasCliente = [(v) => !!v || this.$i18n.t("tradOrderRuleClienteObrigaotrio")];
-
-    this.cityRules = [
-      (v) => !!v || this.$i18n.t("tradRuleCityRequiredCustumer"),
-    ];
-    this.localityRules = [
-      (v) => !!v || this.$i18n.t("tradRuleLocalityRequiredCustumer"),
-    ];
-    this.countryRules = [
-      (v) => !!v || this.$i18n.t("tradRuleCountryRequiredCustumer"),
-    ];
-
-
+    this.cityRules = [(v) => !!v || this.$i18n.t("tradRuleCityRequiredCustumer")];
+    this.localityRules = [(v) => !!v || this.$i18n.t("tradRuleLocalityRequiredCustumer")];
+    this.countryRules = [(v) => !!v || this.$i18n.t("tradRuleCountryRequiredCustumer")];
 
     this.headers = [
       {
@@ -943,6 +952,49 @@ export default {
       this.varOpenDialogImagensComodo = false;
     },
     /*DIALOGO IMAGENS COMODO*/
+
+
+
+
+
+
+
+
+
+    /*DIALOGO IMAGENS COMODO*/    
+    openDialogSignature: function (item) {
+      if (item.id === undefined || item.id === "") {
+        this.$dialog.message.error(
+          this.$i18n.t("tradOrderRuleEscolhaComodoImg"),
+          {
+            position: "top-right",
+            timeout: 5000,
+          }
+        );
+      } else {        
+          //this.overlay = true;
+          this.varOpenDialogSignature = true;        
+      }
+    },
+
+    closeDialogSignature: function () {      
+      //this.overlay = false;
+      this.varOpenDialogSignature = false;
+    },
+    /*DIALOGO IMAGENS COMODO*/
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     listar: async function (exibeLoad = true) {
       try {

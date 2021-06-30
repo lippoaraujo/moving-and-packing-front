@@ -20,7 +20,10 @@ Vue.use(VueHtmlToPaper, options);
 
 import VuetifyDialog from "vuetify-dialog";
 import "vuetify-dialog/dist/vuetify-dialog.css";
-import i18n from './i18n'
+import i18n from './i18n';
+
+import VueSignature from "vue-signature-pad";
+Vue.use(VueSignature);
 
 Vue.config.productionTip = false;
 
