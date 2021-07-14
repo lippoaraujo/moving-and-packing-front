@@ -66,15 +66,6 @@
                   >mdi-layers-outline
                 </v-icon>-->
 
-
-                <v-icon
-                  medium
-                  class="mr-2"
-                  :title="$t('tradOrderRelatorio')"
-                  @click="openDialogSignature(item)"
-                  >mdi-signature-freehand
-                </v-icon>
-
                 <v-icon
                   medium
                   class="mr-2"
@@ -91,12 +82,12 @@
                   @click="alterar(item)"
                   >mdi-pencil
                 </v-icon>
-                
-                <v-icon 
+
+                <v-icon
                   v-if="permiteExcluir"
-                  medium 
+                  medium
                   class="mr-2"
-                  :title="$t('tradTitleBtnExcluir')" 
+                  :title="$t('tradTitleBtnExcluir')"
                   @click="excluir(item)"
                   >mdi-delete
                 </v-icon>
@@ -155,7 +146,7 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
-                          v-model="dateFormated"                          
+                          v-model="dateFormated"
                           :label="$t('tradOrderDataMudanca')"
                           readonly
                           outlined
@@ -193,7 +184,7 @@
                 </v-row>
                 <v-row>
                   <v-col>
-                    <v-checkbox                      
+                    <v-checkbox
                       :label="$t('tradOrderEnderecoMudanca')"
                       hide-details="true"
                       v-model="objForm.checkedEndereco"
@@ -202,7 +193,9 @@
                 </v-row>
                 <v-row v-if="!objForm.checkedEndereco">
                   <v-col>
-                    <p class="subtitle-1 ma-0 pa-0">{{$t('tradOrderNomeEndereco')}}</p>
+                    <p class="subtitle-1 ma-0 pa-0">
+                      {{ $t("tradOrderNomeEndereco") }}
+                    </p>
                   </v-col>
                 </v-row>
 
@@ -268,7 +261,9 @@
 
                 <v-row>
                   <v-col>
-                    <p class="subtitle-1 ma-0 pa-0"> {{$t('tradOrderNomeComodosMudanca')}}</p>
+                    <p class="subtitle-1 ma-0 pa-0">
+                      {{ $t("tradOrderNomeComodosMudanca") }}
+                    </p>
                   </v-col>
                 </v-row>
 
@@ -302,11 +297,11 @@
                             class="mr-4"
                             @click="openDialogAddItemComodo"
                           >
-                            {{$t('tradMsgmItem')}}                            
+                            {{ $t("tradMsgmItem") }}
                             <v-icon right dark>mdi-scatter-plot</v-icon>
                           </v-btn>
                         </template>
-                        <span>{{$t('tradOrderNomeItensComodo')}}</span>
+                        <span>{{ $t("tradOrderNomeItensComodo") }}</span>
                       </v-tooltip>
                     </v-col>
 
@@ -322,11 +317,11 @@
                             class="mr-4"
                             @click="openDialogImagensComodo"
                           >
-                            {{$t('tradOrderNomeImagem')}}
+                            {{ $t("tradOrderNomeImagem") }}
                             <v-icon right dark>mdi-camera</v-icon>
                           </v-btn>
                         </template>
-                        <span>{{$t('tradOrderNomeImagemComodo')}}</span>
+                        <span>{{ $t("tradOrderNomeImagemComodo") }}</span>
                       </v-tooltip>
                     </v-col>
                   </v-row>
@@ -338,7 +333,7 @@
                       v-model="objForm.obsComodo"
                       auto-grow
                       hide-details="true"
-                      outlined                      
+                      outlined
                       :label="$t('tradOrderNomeObsComodo')"
                     ></v-textarea>
                   </v-col>
@@ -389,13 +384,22 @@
 
                 <v-row>
                   <v-col>
-                    <p class="subtitle-1 ma-0 pa-0">{{ $t("tradOrderNomeComodoAdicionado") }}</p>
+                    <p class="subtitle-1 ma-0 pa-0">
+                      {{ $t("tradOrderNomeComodoAdicionado") }}
+                    </p>
                   </v-col>
                 </v-row>
 
                 <v-row>
                   <v-col
-                    class="ms-4 mr-5 pa-0 overflow-y-auto elevation-5 rounded-lg"
+                    class="
+                      ms-4
+                      mr-5
+                      pa-0
+                      overflow-y-auto
+                      elevation-5
+                      rounded-lg
+                    "
                     style="height: 200px"
                   >
                     <v-expansion-panels accordion>
@@ -411,8 +415,10 @@
                         :key="index"
                       >
                         <v-expansion-panel-header>
-                          {{ itemComodo.comodo.id }} - {{ $t("tradOrderNomeComodo") }}:
-                          {{ itemComodo.comodo.name }} ----- {{ $t("tradOrderTotCubi") }}:
+                          {{ itemComodo.comodo.id }} -
+                          {{ $t("tradOrderNomeComodo") }}:
+                          {{ itemComodo.comodo.name }} -----
+                          {{ $t("tradOrderTotCubi") }}:
                           {{ itemComodo.totalCubic }}
                         </v-expansion-panel-header>
 
@@ -457,7 +463,9 @@
                                       </v-avatar>
                                     </v-badge>
                                   </template>
-                                  <span>{{ $t("tradMsgmItem") }} {{ itemComodo.comodo.name }}:
+                                  <span
+                                    >{{ $t("tradMsgmItem") }}
+                                    {{ itemComodo.comodo.name }}:
                                     {{ itemComodo.totalItens }}
                                   </span>
                                 </v-tooltip>
@@ -493,7 +501,8 @@
                                     </v-badge>
                                   </template>
                                   <span>
-                                    {{ $t("tradOrderNomeImagem") }} {{ itemComodo.comodo.name }}:
+                                    {{ $t("tradOrderNomeImagem") }}
+                                    {{ itemComodo.comodo.name }}:
                                     {{ itemComodo.totalImagens }}
                                   </span>
                                 </v-tooltip>
@@ -521,7 +530,8 @@
                                     </v-avatar>
                                   </template>
                                   <span>
-                                    {{ $t("tradTitleBtnAlterar") }} {{ itemComodo.comodo.name }}
+                                    {{ $t("tradTitleBtnAlterar") }}
+                                    {{ itemComodo.comodo.name }}
                                   </span>
                                 </v-tooltip>
                                 <p>{{ $t("tradTitleBtnAlterar") }}</p>
@@ -548,7 +558,8 @@
                                     </v-avatar>
                                   </template>
                                   <span>
-                                    {{ $t("tradTitleBtnExcluir") }} {{ itemComodo.comodo.name }}
+                                    {{ $t("tradTitleBtnExcluir") }}
+                                    {{ itemComodo.comodo.name }}
                                   </span>
                                 </v-tooltip>
                                 <p>{{ $t("tradTitleBtnExcluir") }}</p>
@@ -562,6 +573,25 @@
                 </v-row>
 
                 <center>
+                  <v-row>
+                    <v-col> </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col>
+                      <v-btn
+                        dark
+                        tile
+                        color="blue darken-2"
+                        class="mr-4 white--text"
+                        @click="openDialogSignature()"
+                      >
+                        {{ $t("tradOrderBtnGetAssinatura") }}
+                        <v-icon style="font-size: 27px" right dark
+                          >mdi-signature-freehand</v-icon
+                        >
+                      </v-btn>
+                    </v-col>
+                  </v-row>
                   <v-row>
                     <v-col class="pt-3 mt-3">
                       <v-btn
@@ -699,7 +729,7 @@ export default {
     listaClienteAdd: null,
     listaComodoAdd: null,
 
-    variavelIdMudanca: 0,
+    variavelIdMudanca: 0,    
     variavelIdComodo: 0,
     variavelIdArrayComodo: 0,
 
@@ -751,8 +781,8 @@ export default {
 
     regrasVendedor: [],
     regrasCliente: [],
-    cityRules:[],
-    localityRules:[],
+    cityRules: [],
+    localityRules: [],
     countryRules: [],
 
     select: null,
@@ -772,13 +802,23 @@ export default {
       },
     ];
 
-    this.regrasVendedor = [(v) => !!v || this.$i18n.t("tradOrderRuleVendedorObrigaotrio")];
-    this.regrasCliente = [(v) => !!v || this.$i18n.t("tradOrderRuleClienteObrigaotrio")];
-    this.cityRules = [(v) => !!v || this.$i18n.t("tradRuleCityRequiredCustumer")];
-    this.localityRules = [(v) => !!v || this.$i18n.t("tradRuleLocalityRequiredCustumer")];
-    this.countryRules = [(v) => !!v || this.$i18n.t("tradRuleCountryRequiredCustumer")];
+    this.regrasVendedor = [
+      (v) => !!v || this.$i18n.t("tradOrderRuleVendedorObrigaotrio"),
+    ];
+    this.regrasCliente = [
+      (v) => !!v || this.$i18n.t("tradOrderRuleClienteObrigaotrio"),
+    ];
+    this.cityRules = [
+      (v) => !!v || this.$i18n.t("tradRuleCityRequiredCustumer"),
+    ];
+    this.localityRules = [
+      (v) => !!v || this.$i18n.t("tradRuleLocalityRequiredCustumer"),
+    ];
+    this.countryRules = [
+      (v) => !!v || this.$i18n.t("tradRuleCountryRequiredCustumer"),
+    ];
 
-    this.headers = [
+    (this.headers = [
       {
         align: "start",
         text: "Codigo",
@@ -801,12 +841,11 @@ export default {
         value: "actions",
         sortable: "false",
       },
-    ],
-
-    this.menu = getObjMenu(this.$route.path);
+    ]),
+      (this.menu = getObjMenu(this.$route.path));
   },
 
-  async mounted() {    
+  async mounted() {
     this.overlay = true;
     this.permiteSalvar = getPermissionExecAction("order-create");
     this.permiteEditar = getPermissionExecAction("order-edit");
@@ -874,14 +913,11 @@ export default {
     },
 
     openDialogAddItemComodo: function (value) {
-      if (this.objForm.comodo === undefined || this.objForm.comodo === "") {        
-        this.$dialog.message.error(
-          this.$i18n.t("tradOrderRuleEscolhaComodo"),
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+      if (this.objForm.comodo === undefined || this.objForm.comodo === "") {
+        this.$dialog.message.error(this.$i18n.t("tradOrderRuleEscolhaComodo"), {
+          position: "top-right",
+          timeout: 5000,
+        });
       } else {
         this.variavelIdComodo = this.objForm.comodo.id;
         if (this.variavelIdComodo <= 0) {
@@ -953,48 +989,16 @@ export default {
     },
     /*DIALOGO IMAGENS COMODO*/
 
-
-
-
-
-
-
-
-
-    /*DIALOGO IMAGENS COMODO*/    
-    openDialogSignature: function (item) {
-      if (item.id === undefined || item.id === "") {
-        this.$dialog.message.error(
-          this.$i18n.t("tradOrderRuleEscolhaComodoImg"),
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
-      } else {        
-          //this.overlay = true;
-          this.varOpenDialogSignature = true;        
-      }
+    /*DIALOGO IMAGENS COMODO*/
+    openDialogSignature: function () {
+      this.varOpenDialogSignature = true;
     },
 
-    closeDialogSignature: function () {      
+    closeDialogSignature: function () {
       //this.overlay = false;
       this.varOpenDialogSignature = false;
     },
     /*DIALOGO IMAGENS COMODO*/
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     listar: async function (exibeLoad = true) {
       try {
@@ -1152,26 +1156,20 @@ export default {
 
     validate: function () {
       if (!this.$refs.objForm.validate()) {
-        this.$dialog.message.error(
-          this.$i18n.t("tradMsgmOrderFormulario"),
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.message.error(this.$i18n.t("tradMsgmOrderFormulario"), {
+          position: "top-right",
+          timeout: 5000,
+        });
         return false;
       }
       if (
         this.listaComodoExibir == null ||
         this.listaComodoExibir == undefined
       ) {
-        this.$dialog.message.error(
-          this.$i18n.t("tradMsgmOrderUmComodo"),
-          {
-            position: "top-right",
-            timeout: 5000,
-          }
-        );
+        this.$dialog.message.error(this.$i18n.t("tradMsgmOrderUmComodo"), {
+          position: "top-right",
+          timeout: 5000,
+        });
         return false;
       }
       return true;
@@ -1276,6 +1274,9 @@ export default {
         this.variavelIdMudanca = objEdicao.id;
         this.objForm.vendedor = objEdicao.user;
         this.objForm.cliente = objEdicao.customer;
+
+        localStorage.setItem("edicao_customer_signature", objEdicao.customer_signature);
+
         this.objForm.dateMudanca = moment(objEdicao.expected_date).format(
           "YYYY-MM-DD"
         );
@@ -1314,7 +1315,10 @@ export default {
       try {
         this.overlay = true;
         let urlDelete = this.urlAPIOrders.concat("/" + item.id);
-        let msgm = this.$i18n.t("tradMsgmOrderDel") +  item.customer_id + this.$i18n.t("tradMsgmOrderDelFim");
+        let msgm =
+          this.$i18n.t("tradMsgmOrderDel") +
+          item.customer_id +
+          this.$i18n.t("tradMsgmOrderDelFim");
         let returDell = await execDell(urlDelete);
         if (returDell) {
           this.$dialog.message.success(msgm, {
