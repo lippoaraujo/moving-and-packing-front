@@ -643,8 +643,7 @@
       />
       <PoupCaptureSignature
         v-bind:variavelShowModalSignature="varOpenDialogSignature"
-        v-on:closeModal="closeDialogSignature"
-        v-bind:variavelIdMudanca="variavelIdMudanca"        
+        v-on:closeModal="closeDialogSignature"        
         @update:varOpenDialogSignature="varOpenDialogSignature = $event"
       />
     </v-col>
@@ -1093,8 +1092,9 @@ export default {
         };
       }
       let roomsListObj = this.listaComodoExibir;
+      let signature = localStorage.getItem("signaturaCustomer");
       let objPut = {
-        customer_signature: "",
+        customer_signature: signature,
         id: this.objForm.id,
         price: 0,
         expected_date: moment(this.objForm.dateMudanca).format("YYYY-MM-DD"),
@@ -1132,8 +1132,9 @@ export default {
         };
       }
       let roomsListObj = this.listaComodoExibir;
+      let signature = localStorage.getItem("signaturaCustomer");
       let objSalvar = {
-        customer_signature: "",
+        customer_signature: signature,
         price: 0,
         expected_date: moment(this.objForm.dateMudanca).format("YYYY-MM-DD"),
         user_id: this.objForm.vendedor.id,
@@ -1179,6 +1180,7 @@ export default {
       localStorage.removeItem("storageListaItemComodo");
       localStorage.removeItem("storageListaImagensComodoNovo");
       localStorage.removeItem("storageListaComodo");
+      localStorage.removeItem("signaturaCustomer");
     },
 
     cancelarMudanca: function () {
@@ -1275,8 +1277,6 @@ export default {
         this.objForm.vendedor = objEdicao.user;
         this.objForm.cliente = objEdicao.customer;
 
-        localStorage.setItem("edicao_customer_signature", objEdicao.customer_signature);
-
         this.objForm.dateMudanca = moment(objEdicao.expected_date).format(
           "YYYY-MM-DD"
         );
@@ -1300,6 +1300,11 @@ export default {
         this.limparItensSessaoMudanca();
         setAllComodosByMudanca(objEdicao.id, objEdicao.order_rooms);
         this.preencherComodoListaStorage();
+
+        //console.log("objEdicao_signature ", objEdicao.customer_signature);
+        localStorage.setItem("signaturaCustomer", objEdicao.customer_signature);
+        //console.log("signaturaCustomer ", localStorage.getItem("signaturaCustomer"));
+
         this.tab = 1;
       } catch (e) {
         this.$dialog.error({

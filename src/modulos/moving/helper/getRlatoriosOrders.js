@@ -81,7 +81,13 @@ export async function exportRelatorioHtmlNovo(objEdicao, urlAPICustomers)
             //html +='additional cost.';
           html +='</p>';
           html +='<div class="signature_container">';
-            html +='<div class="signature_left">'+ i18n.t('tradRelatorioGeralCustomerAssinatura') +'</div>';            
+            html +='<div class="signature_left">'+             
+
+            
+            '<img src= "' + objEdicao.customer_signature + '" class= "responsive" ></br>'+ 
+            i18n.t('tradRelatorioGeralCustomerAssinatura') 
+            
+            +'</img>';            
             html +='<div class="signature_right">'+ i18n.t('tradRelatorioGeralData') +'</div>';
           html +='</div>';
 
@@ -523,6 +529,11 @@ function getStyleNovo(){
   let style =  "";
   style += "* {";
     
+  style += "}";
+
+  style += ".responsive {";
+    style += "width: 80%;";
+    style += "height: auto;";
   style += "}";
 
   style += "html {";
